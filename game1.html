@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>雙人合作大挑戰：母音氣球升空賽</title>
+    <style>
+        /* 基礎設定與字體 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            overflow: hidden; /* 防止滾動 */
+            user-select: none; /* 防止反白文字 */
+            -webkit-user-select: none;
+        }
+
+        /* 遊戲主容器切半 */
+        #game-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .play-zone {
+            flex: 1;
+            position: relative;
+            height: 100%;
+        }
+
+        #left-zone { background-color: #E3F2FD; border-right: 4px dashed #90CAF9; }
+        #right-zone { background-color: #FFF3E0; }
+
+        /* 頂部 UI 介面 */
+        #ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            gap: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 40px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        /* 狀態文字標籤 */
+        .zone-label {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 40px;
+            color: rgba(0,0,0,0.2);
+            font-weight: bold;
+            pointer-events: none;
+        }
+
+        /* 氣球樣式 */
+        .balloon {
+            position: absolute;
+            width: 150px;
+            height: 180px;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+            font-weight: bold;
+            color: white;
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.2), 3px 5px 15px rgba(0,0,0,0.3);
+            cursor: pointer;
+            bottom: -200px; /* 初始位置在畫面外 */
+            transition: transform 0.1s;
+        }
+        
+        /* 氣球的打結處 */
+        .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 20px solid inherit; /* 顏色會用 JS 覆蓋 */
+        }
+
+        .balloon:active { transform: scale(0.9); } /* 按下縮放 */
+
+        /* 氣球升空動畫 */
+        @keyframes floatUp {
+            0% { bottom: -200px; }
+            100% { bottom: 110vh; }
+        }
+
+        /* 開始與結束畫面覆蓋層 */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        .overlay h1 { font-size: 80px; margin-bottom: 20px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+        .overlay p { font-size: 40px; margin-bottom: 40px; }
+        
+        /* 按鈕樣式 */
+        .btn {
+            font-size: 40px;
+            padding: 20px 50px;
+            margin: 10px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+        .btn:hover { transform: scale(1.05); }
+        .btn-easy { background: #81C784; color: white; }
+        .btn-normal { background: #FFB74D; color: white; }
+        .btn-hard { background: #E57373; color: white; }
+
+        /* 回饋特效文字 */
+        .feedback {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 150px;
+            font-weight: bold;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 150;
+            animation: popFeedback 1s forwards;
+        }
+        @keyframes popFeedback {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="ui-layer" class="hidden">
+            <div>⏱️ <span id="timer">60</span></div>
+            <div>🏆 <span id="score">0</span></div>
+        </div>
+
+        <div id="left-zone" class="play-zone">
+            <div class="zone-label">出題區 (長輩)</div>
+        </div>
+        
+        <div id="right-zone" class="play-zone">
+            <div class="zone-label">答題區 (囡仔)</div>
+        </div>
+    </div>
+
+    <div id="start-screen" class="overlay">
+        <h1>母音氣球升空賽 🎈</h1>
+        <p>左邊拍打唸出題目，右邊聽聲音找答案！</p>
+        <div style="display: flex;">
+            <button class="btn btn-easy" onclick="startGame(6)">幼幼班</button>
+            <button class="btn btn-normal" onclick="startGame(4)">小學堂</button>
+            <button class="btn btn-hard" onclick="startGame(2.5)">大師級</button>
+        </div>
+    </div>
+
+    <div id="end-screen" class="overlay hidden">
+        <h1>時間到！⏰</h1>
+        <p>你們總共合作答對了 <strong id="final-score" style="color: #FFD700; font-size: 60px;">0</strong> 題！</p>
+        <button class="btn btn-normal" onclick="location.reload()">再玩一次</button>
+    </div>
+
+    <script>
+        // 遊戲核心變數
+        const vowels = ['a', 'i', 'u', 'e', 'o', 'o͘']; // 白話字單母音
+        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#F1948A'];
+        
+        let score = 0;
+        let timeLeft = 60;
+        let gameInterval;
+        let floatSpeed = 4; // 氣球上升秒數
+        let currentTargetVowel = ''; 
+        let phaseTimeout; // 漏接判定計時器
+
+        // 取得 DOM 元素
+        const startScreen = document.getElementById('start-screen');
+        const endScreen = document.getElementById('end-screen');
+        const uiLayer = document.getElementById('ui-layer');
+        const leftZone = document.getElementById('left-zone');
+        const rightZone = document.getElementById('right-zone');
+        const scoreEl = document.getElementById('score');
+        const timerEl = document.getElementById('timer');
+
+        // 啟動遊戲
+        function startGame(speed) {
+            floatSpeed = speed;
+            score = 0;
+            timeLeft = 60;
+            scoreEl.innerText = score;
+            timerEl.innerText = timeLeft;
+            
+            startScreen.classList.add('hidden');
+            uiLayer.classList.remove('hidden');
+
+            // 倒數計時
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+
+            startLeftPhase();
+        }
+
+        // 結束遊戲
+        function endGame() {
+            clearInterval(gameInterval);
+            clearTimeout(phaseTimeout);
+            leftZone.innerHTML = '<div class="zone-label">出題區 (長輩)</div>';
+            rightZone.innerHTML = '<div class="zone-label">答題區 (囡仔)</div>';
+            uiLayer.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+        }
+
+        // 打亂陣列工具
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        // 隨機整數工具
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // 生成氣球 DOM
+        function createBalloon(vowel, onClickCallback) {
+            const balloon = document.createElement('div');
+            balloon.className = 'balloon';
+            balloon.innerText = vowel;
+            
+            // 隨機顏色
+            const bgColor = colors[Math.floor(Math.random() * colors.length)];
+            balloon.style.backgroundColor = bgColor;
+            
+            // 隨機水平位置 (10% 到 70% 避免超出邊界)
+            balloon.style.left = getRandomInt(10, 70) + '%';
+            
+            // 設定上升動畫時間
+            balloon.style.animation = `floatUp ${floatSpeed}s linear forwards`;
+
+            // 支援滑鼠點擊與白板觸控
+            balloon.addEventListener('mousedown', onClickCallback);
+            balloon.addEventListener('touchstart', function(e) {
+                e.preventDefault(); // 防止觸控螢幕的滾動等預設行為
+                onClickCallback(e);
+            });
+
+            return balloon;
+        }
+
+        // 顯示視覺回饋特效 (圈圈或叉叉)
+        function showFeedback(zone, text, color) {
+            const feedback = document.createElement('div');
+            feedback.className = 'feedback';
+            feedback.innerText = text;
+            feedback.style.color = color;
+            zone.appendChild(feedback);
+            setTimeout(() => {
+                if(feedback.parentNode) feedback.parentNode.removeChild(feedback);
+            }, 1000);
+        }
+
+        // ============== 階段一：左邊出題 ==============
+        function startLeftPhase() {
+            // 清理畫面與計時器
+            leftZone.innerHTML = '<div class="zone-label">出題區 (長輩)</div>';
+            rightZone.innerHTML = '<div class="zone-label">答題區 (囡仔)</div>';
+            clearTimeout(phaseTimeout);
+
+            // 隨機選 3 個不同的母音出題
+            let selectedVowels = shuffle([...vowels]).slice(0, 3);
+
+            selectedVowels.forEach(v => {
+                const balloon = createBalloon(v, function() {
+                    // 左邊被點擊的邏輯
+                    clearTimeout(phaseTimeout); // 取消漏接判定
+                    currentTargetVowel = v; // 記錄題目
+                    leftZone.innerHTML = '<div class="zone-label">出題區 (長輩)</div>'; // 清空左邊
+                    startRightPhase(); // 觸發右邊
+                });
+                leftZone.appendChild(balloon);
+            });
+
+            // 如果氣球飛完都沒人按 (漏接)
+            phaseTimeout = setTimeout(() => {
+                showFeedback(leftZone, '💨', 'gray');
+                startLeftPhase(); // 重新出題
+            }, floatSpeed * 1000);
+        }
+
+        // ============== 階段二：右邊答題 ==============
+        function startRightPhase() {
+            // 生成全部 6 個母音 (混淆視聽)，顏色會透過 createBalloon 隨機決定
+            let allVowels = shuffle([...vowels]);
+
+            allVowels.forEach(v => {
+                const balloon = createBalloon(v, function() {
+                    // 右邊被點擊的邏輯
+                    clearTimeout(phaseTimeout);
+                    rightZone.innerHTML = '<div class="zone-label">答題區 (囡仔)</div>'; // 清空右邊
+
+                    if (v === currentTargetVowel) {
+                        // 答對
+                        score++;
+                        scoreEl.innerText = score;
+                        showFeedback(document.body, '⭕', '#4CAF50');
+                    } else {
+                        // 答錯
+                        showFeedback(document.body, '❌', '#F44336');
+                    }
+
+                    // 短暫延遲後重新開始左邊
+                    setTimeout(startLeftPhase, 500);
+                });
+                rightZone.appendChild(balloon);
+            });
+
+            // 如果右邊氣球飛完都沒人按 (漏接)
+            phaseTimeout = setTimeout(() => {
+                showFeedback(rightZone, '💨', 'gray');
+                startLeftPhase(); // 重新出題
+            }, floatSpeed * 1000);
+        }
+    </script>
+</body>
+</html>
