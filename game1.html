@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>母音氣球升空賽 V2</title>
+    <title>母音氣球升空賽</title>
     <style>
         body {
             margin: 0; padding: 0;
@@ -27,7 +27,6 @@
             font-size: 32px; font-weight: bold;
         }
 
-        /* 移除原本的標籤樣式，僅保留透明背景提示 */
         .zone-title {
             position: absolute; bottom: 20px; width: 100%; text-align: center;
             font-size: 30px; color: rgba(0,0,0,0.1); font-weight: bold; pointer-events: none;
@@ -90,7 +89,7 @@
     </div>
 
     <div id="start-screen" class="overlay">
-        <h1>母音氣球升空賽 V2</h1>
+        <h1>母音氣球升空賽 V3</h1>
         <p>左邊出題、右邊答題，看誰反應快！</p>
         <div style="display: flex;">
             <button class="btn btn-easy" onclick="startGame(10)">簡單 (10秒)</button>
@@ -116,7 +115,6 @@
         let currentTargetVowel = '';
         let phaseTimeout;
         
-        // 核心機制：追蹤每個字的答對次數，用來降低出現機率
         let vowelStats = { 'a': 0, 'i': 0, 'u': 0, 'e': 0, 'o': 0, 'o͘': 0 };
 
         const scoreEl = document.getElementById('score');
@@ -144,16 +142,13 @@
             document.getElementById('final-score').innerText = score;
         }
 
-        // 加權隨機：答對次數越多，權重越低
         function getWeightedVowels(count) {
             let pool = [];
             vowels.forEach(v => {
-                // 基礎權重為 10，每答對一次減 2 (最低保留 1，避免完全不出現)
                 let weight = Math.max(1, 10 - (vowelStats[v] * 2));
                 for(let i=0; i<weight; i++) pool.push(v);
             });
             
-            // 從權重池中隨機抽取不重複的字
             let results = [];
             while(results.length < count) {
                 let pick = pool[Math.floor(Math.random() * pool.length)];
@@ -162,19 +157,18 @@
             return results;
         }
 
-        function createBalloon(vowel, colIndex, totalCols, isRightZone, onClick) {
+        // 修改：傳入 staggerDelay (獨立的延遲時間) 而不是用區域判斷
+        function createBalloon(vowel, colIndex, totalCols, staggerDelay, onClick) {
             const b = document.createElement('div');
             b.className = 'balloon';
             b.innerText = vowel;
             b.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
             
-            // 避免疊加：將區域水平平分為 colIndex 欄位，並加上微調
             let colWidth = 100 / totalCols;
-            let randomOffset = (Math.random() * (colWidth * 0.4)); // 欄位內的小抖動
+            let randomOffset = (Math.random() * (colWidth * 0.4));
             b.style.left = (colIndex * colWidth + 5 + randomOffset) + '%';
             
-            // 避免疊加：垂直啟動時間交錯 (Stagger)
-            let staggerDelay = isRightZone ? (colIndex * 0.2) : (colIndex * 0.3);
+            // 使用傳入的亂數延遲時間
             b.style.animation = `floatUp ${floatSpeed}s linear ${staggerDelay}s forwards`;
 
             const handleEvent = (e) => { e.preventDefault(); onClick(); };
@@ -196,10 +190,14 @@
             rightZone.querySelectorAll('.balloon').forEach(b => b.remove());
             clearTimeout(phaseTimeout);
 
-            // 出題區：出現 3 個字，使用加權機制選擇
+            // 修改：建立一個隨機的延遲陣列 (例如打亂 [0, 1, 2] 變成 [2, 0, 1])
+            let delayOrder = [0, 1, 2].sort(() => Math.random() - 0.5);
             let picks = getWeightedVowels(3);
+            
             picks.forEach((v, i) => {
-                const b = createBalloon(v, i, 3, false, () => {
+                // 將打亂的順序乘上 0.4 秒，產生獨立的起飛時間
+                let randomDelay = delayOrder[i] * 0.4;
+                const b = createBalloon(v, i, 3, randomDelay, () => {
                     clearTimeout(phaseTimeout);
                     currentTargetVowel = v;
                     startRightPhase();
@@ -207,21 +205,26 @@
                 leftZone.appendChild(b);
             });
 
-            phaseTimeout = setTimeout(() => startLeftPhase(), (floatSpeed + 1) * 1000);
+            // 確保計時器涵蓋了最大延遲時間
+            phaseTimeout = setTimeout(() => startLeftPhase(), (floatSpeed + 1.5) * 1000);
         }
 
         function startRightPhase() {
             leftZone.querySelectorAll('.balloon').forEach(b => b.remove());
             
-            // 答題區：出現全部 6 個字，分散在 6 個欄位避免疊加
+            // 修改：為 6 個氣球建立隨機的延遲陣列
+            let delayOrder = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5);
             let all = [...vowels].sort(() => Math.random() - 0.5);
+            
             all.forEach((v, i) => {
-                const b = createBalloon(v, i, 6, true, () => {
+                // 將打亂的順序乘上 0.2 秒，產生獨立的起飛時間
+                let randomDelay = delayOrder[i] * 0.2;
+                const b = createBalloon(v, i, 6, randomDelay, () => {
                     clearTimeout(phaseTimeout);
                     if (v === currentTargetVowel) {
                         score++;
                         scoreEl.innerText = score;
-                        vowelStats[v]++; // 紀錄答對，該字下次出現機率會降低
+                        vowelStats[v]++; 
                         showFeedback('⭕', '#4CAF50');
                     } else {
                         showFeedback('❌', '#F44336');
