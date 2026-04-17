@@ -118,7 +118,7 @@
         <section id="hour1" class="content-section fade-in hidden max-w-5xl mx-auto">
             <div class="flex justify-between items-end mb-6 border-b-4 border-blue-500 pb-4">
                 <h2 class="text-4xl font-black text-gray-800">🕒 第一小時：基石建立</h2>
-                <button onclick="window.location.href='game1.html'" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
+                <button onclick="window.open('game1.html', '_blank')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
                     <span>🎮 進行小遊戲</span>
                 </button>
             </div>
@@ -171,7 +171,7 @@
         <section id="hour2" class="content-section fade-in hidden max-w-5xl mx-auto">
             <div class="flex justify-between items-end mb-6 border-b-4 border-blue-500 pb-4">
                 <h2 class="text-4xl font-black text-gray-800">🕒 第二小時：氣流魔術師</h2>
-                <button onclick="window.location.href='game2.html'" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
+                <button onclick="window.open('game2.html', '_blank')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
                     <span>🎮 進行小遊戲</span>
                 </button>
             </div>
@@ -188,6 +188,7 @@
                 </div>
             </div>
 
+            <!-- 全面擴充的第二小時題庫對照表 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- P vs PH -->
                 <div class="bg-white rounded-xl shadow-md p-5">
@@ -195,13 +196,23 @@
                     <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
                         <div class="text-blue-800">無氣音 (p)</div><div class="text-red-600">有氣音 (ph)</div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 text-center">
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">pa</span> <span class="hanzi-text">(爸)</span></div>
-                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">pha</span> <span class="hanzi-text">(葩)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">pò͘</span> <span class="hanzi-text">(布)</span></div>
-                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">phò͘</span> <span class="hanzi-text">(簿)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">pe̍h</span> <span class="hanzi-text">(白)</span></div>
-                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">phah</span> <span class="hanzi-text">(拍)</span></div>
+                    <div class="grid grid-cols-2 gap-2 text-center text-lg">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">pa</span> <span class="hanzi-text text-sm">(爸)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">pha</span> <span class="hanzi-text text-sm">(葩)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">pī</span> <span class="hanzi-text text-sm">(悲)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">phīⁿ</span> <span class="hanzi-text text-sm">(鼻)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">pu</span> <span class="hanzi-text text-sm">(埔)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">phû</span> <span class="hanzi-text text-sm">(浮)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">pē</span> <span class="hanzi-text text-sm">(父)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">phoe</span> <span class="hanzi-text text-sm">(批)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">pó</span> <span class="hanzi-text text-sm">(保)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">phō</span> <span class="hanzi-text text-sm">(抱)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">pún</span> <span class="hanzi-text text-sm">(本)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">phûn</span> <span class="hanzi-text text-sm">(盆)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">páng</span> <span class="hanzi-text text-sm">(板)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">phang</span> <span class="hanzi-text text-sm">(香)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">pe̍h</span> <span class="hanzi-text text-sm">(白)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">phah</span> <span class="hanzi-text text-sm">(拍)</span></div>
                     </div>
                 </div>
                 <!-- K vs KH -->
@@ -210,13 +221,23 @@
                     <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
                         <div class="text-blue-800">無氣音 (k)</div><div class="text-red-600">有氣音 (kh)</div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 text-center">
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ka</span> <span class="hanzi-text">(鉸)</span></div>
-                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">kha</span> <span class="hanzi-text">(腳)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ki</span> <span class="hanzi-text">(枝)</span></div>
-                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">khí</span> <span class="hanzi-text">(齒)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ko</span> <span class="hanzi-text">(哥)</span></div>
-                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">kho</span> <span class="hanzi-text">(課)</span></div>
+                    <div class="grid grid-cols-2 gap-2 text-center text-lg">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ka</span> <span class="hanzi-text text-sm">(鉸)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">kha</span> <span class="hanzi-text text-sm">(腳)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ki</span> <span class="hanzi-text text-sm">(枝)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">khí</span> <span class="hanzi-text text-sm">(齒)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ku</span> <span class="hanzi-text text-sm">(龜)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">khu</span> <span class="hanzi-text text-sm">(區)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ke</span> <span class="hanzi-text text-sm">(雞)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">khe</span> <span class="hanzi-text text-sm">(溪)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ko</span> <span class="hanzi-text text-sm">(哥)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">kho</span> <span class="hanzi-text text-sm">(課)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ko͘</span> <span class="hanzi-text text-sm">(孤)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">kho͘</span> <span class="hanzi-text text-sm">(箍)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">kang</span> <span class="hanzi-text text-sm">(工)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">khang</span> <span class="hanzi-text text-sm">(空)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">kin</span> <span class="hanzi-text text-sm">(斤)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">khin</span> <span class="hanzi-text text-sm">(輕)</span></div>
                     </div>
                 </div>
                 <!-- T vs TH -->
@@ -225,13 +246,23 @@
                     <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
                         <div class="text-blue-800">無氣音 (t)</div><div class="text-red-600">有氣音 (th)</div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 text-center">
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">to</span> <span class="hanzi-text">(刀)</span></div>
-                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">thô͘</span> <span class="hanzi-text">(土)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ti</span> <span class="hanzi-text">(豬)</span></div>
-                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">thiⁿ</span> <span class="hanzi-text">(天)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">tú</span> <span class="hanzi-text">(拄)</span></div>
-                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">thú</span> <span class="hanzi-text">(柱)</span></div>
+                    <div class="grid grid-cols-2 gap-2 text-center text-lg">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ta</span> <span class="hanzi-text text-sm">(焦)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">thoa</span> <span class="hanzi-text text-sm">(拖)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ti</span> <span class="hanzi-text text-sm">(豬)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">thiⁿ</span> <span class="hanzi-text text-sm">(天)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">tú</span> <span class="hanzi-text text-sm">(拄)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">thú</span> <span class="hanzi-text text-sm">(柱)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">tê</span> <span class="hanzi-text text-sm">(茶)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">thê</span> <span class="hanzi-text text-sm">(提)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">to</span> <span class="hanzi-text text-sm">(刀)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">thô͘</span> <span class="hanzi-text text-sm">(土)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">tn̂g</span> <span class="hanzi-text text-sm">(長)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">thng</span> <span class="hanzi-text text-sm">(湯)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">tâng</span> <span class="hanzi-text text-sm">(銅)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">thâng</span> <span class="hanzi-text text-sm">(蟲)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">táu</span> <span class="hanzi-text text-sm">(斗)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">thàu</span> <span class="hanzi-text text-sm">(透)</span></div>
                     </div>
                 </div>
                 <!-- CH vs CHH -->
@@ -240,13 +271,23 @@
                     <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
                         <div class="text-blue-800">無氣音 (ch)</div><div class="text-red-600">有氣音 (chh)</div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 text-center">
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">chian</span> <span class="hanzi-text">(煎)</span></div>
-                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">chhian</span> <span class="hanzi-text">(千)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">chò</span> <span class="hanzi-text">(做)</span></div>
-                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">chhò</span> <span class="hanzi-text">(錯)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">chiú</span> <span class="hanzi-text">(酒)</span></div>
-                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">chhiu</span> <span class="hanzi-text">(秋)</span></div>
+                    <div class="grid grid-cols-2 gap-2 text-center text-lg">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">chá</span> <span class="hanzi-text text-sm">(早)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">chhâ</span> <span class="hanzi-text text-sm">(柴)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">chîⁿ</span> <span class="hanzi-text text-sm">(錢)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">chhī</span> <span class="hanzi-text text-sm">(市)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">chú</span> <span class="hanzi-text text-sm">(主)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">chhù</span> <span class="hanzi-text text-sm">(厝)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">chē</span> <span class="hanzi-text text-sm">(坐)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">chhē</span> <span class="hanzi-text text-sm">(揣)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">chò</span> <span class="hanzi-text text-sm">(做)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">chhó</span> <span class="hanzi-text text-sm">(草)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">chian</span> <span class="hanzi-text text-sm">(煎)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">chhian</span> <span class="hanzi-text text-sm">(千)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">chiú</span> <span class="hanzi-text text-sm">(酒)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">chhiu</span> <span class="hanzi-text text-sm">(秋)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">chûn</span> <span class="hanzi-text text-sm">(船)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">chhūn</span> <span class="hanzi-text text-sm">(剩)</span></div>
                     </div>
                 </div>
             </div>
@@ -256,7 +297,7 @@
         <section id="hour3" class="content-section fade-in hidden max-w-5xl mx-auto">
             <div class="flex justify-between items-end mb-6 border-b-4 border-blue-500 pb-4">
                 <h2 class="text-4xl font-black text-gray-800">🕒 第三小時：聲帶與鼻腔共鳴</h2>
-                <button onclick="window.location.href='game3.html'" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
+                <button onclick="window.open('game3.html', '_blank')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
                     <span>🎮 進行小遊戲</span>
                 </button>
             </div>
@@ -273,6 +314,7 @@
                 </div>
             </div>
 
+            <!-- 全面擴充的第三小時題庫對照表 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- B vs M -->
                 <div class="bg-white rounded-xl shadow-md p-5">
@@ -280,13 +322,23 @@
                     <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
                         <div class="text-blue-800">濁音 (b)</div><div class="text-green-700">鼻音 (m)</div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 text-center">
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">bah</span> <span class="hanzi-text">(肉)</span></div>
-                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">má</span> <span class="hanzi-text">(媽)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">bīn</span> <span class="hanzi-text">(面)</span></div>
-                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">mī</span> <span class="hanzi-text">(麵)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">bô</span> <span class="hanzi-text">(無)</span></div>
-                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">môa</span> <span class="hanzi-text">(麻)</span></div>
+                    <div class="grid grid-cols-2 gap-2 text-center text-lg">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">bah</span> <span class="hanzi-text text-sm">(肉)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">má</span> <span class="hanzi-text text-sm">(媽)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">bīn</span> <span class="hanzi-text text-sm">(面)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">mī</span> <span class="hanzi-text text-sm">(麵)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">bô</span> <span class="hanzi-text text-sm">(無)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">môa</span> <span class="hanzi-text text-sm">(麻)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">bē</span> <span class="hanzi-text text-sm">(賣)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">mē</span> <span class="hanzi-text text-sm">(罵)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">bé</span> <span class="hanzi-text text-sm">(買)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">mí</span> <span class="hanzi-text text-sm">(米)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">bū</span> <span class="hanzi-text text-sm">(霧)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">mûi</span> <span class="hanzi-text text-sm">(媒)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ba̍k</span> <span class="hanzi-text text-sm">(目)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">móa</span> <span class="hanzi-text text-sm">(滿)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">bāng</span> <span class="hanzi-text text-sm">(夢)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">mn̂g</span> <span class="hanzi-text text-sm">(門)</span></div>
                     </div>
                 </div>
                 <!-- L vs N -->
@@ -295,13 +347,23 @@
                     <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
                         <div class="text-blue-800">濁音 (l)</div><div class="text-green-700">鼻音 (n)</div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 text-center">
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">lâi</span> <span class="hanzi-text">(來)</span></div>
-                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">nî</span> <span class="hanzi-text">(年)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">lāi</span> <span class="hanzi-text">(內)</span></div>
-                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">nāi</span> <span class="hanzi-text">(耐)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">lō͘</span> <span class="hanzi-text">(路)</span></div>
-                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">nōa</span> <span class="hanzi-text">(爛)</span></div>
+                    <div class="grid grid-cols-2 gap-2 text-center text-lg">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">lâi</span> <span class="hanzi-text text-sm">(來)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">nî</span> <span class="hanzi-text text-sm">(年)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">lāi</span> <span class="hanzi-text text-sm">(內)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">nāi</span> <span class="hanzi-text text-sm">(耐)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">lō͘</span> <span class="hanzi-text text-sm">(路)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">nōa</span> <span class="hanzi-text text-sm">(爛)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">lân</span> <span class="hanzi-text text-sm">(蘭)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">nà</span> <span class="hanzi-text text-sm">(那)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">lēng</span> <span class="hanzi-text text-sm">(冷)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">nńg</span> <span class="hanzi-text text-sm">(軟)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ló</span> <span class="hanzi-text text-sm">(老)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">niû</span> <span class="hanzi-text text-sm">(娘)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">lâm</span> <span class="hanzi-text text-sm">(南)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">nām</span> <span class="hanzi-text text-sm">(湳)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">lîn</span> <span class="hanzi-text text-sm">(恁)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">nǹg</span> <span class="hanzi-text text-sm">(鑽)</span></div>
                     </div>
                 </div>
                 <!-- G vs NG -->
@@ -310,13 +372,23 @@
                     <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
                         <div class="text-blue-800">濁音 (g)</div><div class="text-green-700">鼻音 (ng)</div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 text-center">
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">gô</span> <span class="hanzi-text">(鵝)</span></div>
-                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">ngá</span> <span class="hanzi-text">(雅)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">gû</span> <span class="hanzi-text">(牛)</span></div>
-                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">n̂g</span> <span class="hanzi-text">(黃)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">gōa</span> <span class="hanzi-text">(外)</span></div>
-                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">ngē</span> <span class="hanzi-text">(硬)</span></div>
+                    <div class="grid grid-cols-2 gap-2 text-center text-lg">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">gô</span> <span class="hanzi-text text-sm">(鵝)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">ngá</span> <span class="hanzi-text text-sm">(雅)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">gû</span> <span class="hanzi-text text-sm">(牛)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">n̂g</span> <span class="hanzi-text text-sm">(黃)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">gōa</span> <span class="hanzi-text text-sm">(外)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">ngē</span> <span class="hanzi-text text-sm">(硬)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">gîn</span> <span class="hanzi-text text-sm">(銀)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">ngó͘</span> <span class="hanzi-text text-sm">(午)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">gán</span> <span class="hanzi-text text-sm">(眼)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">ngiàm</span> <span class="hanzi-text text-sm">(驗)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">gē</span> <span class="hanzi-text text-sm">(藝)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">ngeh</span> <span class="hanzi-text text-sm">(夾)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">gū</span> <span class="hanzi-text text-sm">(遇)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">ngauh</span> <span class="hanzi-text text-sm">(咬)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">gōng</span> <span class="hanzi-text text-sm">(戇)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">ngia̍t</span> <span class="hanzi-text text-sm">(孽)</span></div>
                     </div>
                 </div>
                 <!-- S vs J -->
@@ -325,13 +397,23 @@
                     <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
                         <div class="text-gray-600">清音 (s)</div><div class="text-blue-800">濁音 (j)</div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 text-center">
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text text-gray-600">sé</span> <span class="hanzi-text">(洗)</span></div>
-                        <div class="p-2 border rounded hover:bg-blue-50"><span class="poj-text">jī</span> <span class="hanzi-text">(字)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text text-gray-600">sù</span> <span class="hanzi-text">(四)</span></div>
-                        <div class="p-2 border rounded hover:bg-blue-50"><span class="poj-text">ji̍t</span> <span class="hanzi-text">(日)</span></div>
-                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text text-gray-600">siàu</span> <span class="hanzi-text">(笑)</span></div>
-                        <div class="p-2 border rounded hover:bg-blue-50"><span class="poj-text">jiōng</span> <span class="hanzi-text">(讓)</span></div>
+                    <div class="grid grid-cols-2 gap-2 text-center text-lg">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text text-gray-600">sé</span> <span class="hanzi-text text-sm">(洗)</span></div>
+                        <div class="p-2 border rounded hover:bg-blue-50"><span class="poj-text">jī</span> <span class="hanzi-text text-sm">(字)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text text-gray-600">sù</span> <span class="hanzi-text text-sm">(四)</span></div>
+                        <div class="p-2 border rounded hover:bg-blue-50"><span class="poj-text">ji̍t</span> <span class="hanzi-text text-sm">(日)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text text-gray-600">siàu</span> <span class="hanzi-text text-sm">(笑)</span></div>
+                        <div class="p-2 border rounded hover:bg-blue-50"><span class="poj-text">jiōng</span> <span class="hanzi-text text-sm">(讓)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text text-gray-600">saⁿ</span> <span class="hanzi-text text-sm">(三)</span></div>
+                        <div class="p-2 border rounded hover:bg-blue-50"><span class="poj-text">jîn</span> <span class="hanzi-text text-sm">(仁)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text text-gray-600">sim</span> <span class="hanzi-text text-sm">(心)</span></div>
+                        <div class="p-2 border rounded hover:bg-blue-50"><span class="poj-text">jiâm</span> <span class="hanzi-text text-sm">(炎)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text text-gray-600">sîn</span> <span class="hanzi-text text-sm">(神)</span></div>
+                        <div class="p-2 border rounded hover:bg-blue-50"><span class="poj-text">jiân</span> <span class="hanzi-text text-sm">(然)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text text-gray-600">siu</span> <span class="hanzi-text text-sm">(收)</span></div>
+                        <div class="p-2 border rounded hover:bg-blue-50"><span class="poj-text">jiû</span> <span class="hanzi-text text-sm">(柔)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text text-gray-600">song</span> <span class="hanzi-text text-sm">(雙)</span></div>
+                        <div class="p-2 border rounded hover:bg-blue-50"><span class="poj-text">jióng</span> <span class="hanzi-text text-sm">(冗)</span></div>
                     </div>
                 </div>
             </div>
@@ -341,7 +423,7 @@
         <section id="hour4" class="content-section fade-in hidden max-w-5xl mx-auto">
             <div class="flex justify-between items-end mb-6 border-b-4 border-blue-500 pb-4">
                 <h2 class="text-4xl font-black text-gray-800">🕒 第四小時：鼻音大集合</h2>
-                <button onclick="window.location.href='game4.html'" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
+                <button onclick="window.open('game4.html', '_blank')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
                     <span>🎮 進行小遊戲</span>
                 </button>
             </div>
@@ -354,6 +436,7 @@
                 </div>
             </div>
 
+            <!-- 全面擴充的第四小時內容 -->
             <div class="space-y-6">
                 <!-- 實體鼻音結尾 -->
                 <div class="bg-white rounded-xl shadow-md overflow-hidden">
@@ -363,36 +446,53 @@
                     <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                         <!-- -m -->
                         <div class="border-2 border-indigo-100 rounded-lg p-4">
-                            <h4 class="text-xl font-bold text-indigo-800 mb-2 border-b pb-2">閉嘴唇的 <span class="text-3xl text-red-500">-m</span></h4>
+                            <h4 class="text-xl font-bold text-indigo-800 mb-2 border-b pb-2">閉嘴唇 <span class="text-3xl text-red-500">-m</span></h4>
                             <p class="text-sm text-gray-500 mb-3">(唸完嘴巴一定要閉緊)</p>
-                            <ul class="space-y-2">
-                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">am</span> <span class="hanzi-text">暗 (àm)</span></li>
-                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">im</span> <span class="hanzi-text">音 (im)</span></li>
-                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">iam</span> <span class="hanzi-text">閹 (iam)</span></li>
+                            <ul class="space-y-2 text-lg">
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">am</span> <span class="hanzi-text text-sm">暗 (àm)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">im</span> <span class="hanzi-text text-sm">音 (im)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">iam</span> <span class="hanzi-text text-sm">閹 (iam)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">sam</span> <span class="hanzi-text text-sm">三 (sam)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">sim</span> <span class="hanzi-text text-sm">心 (sim)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">kiam</span> <span class="hanzi-text text-sm">兼 (kiam)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">tām</span> <span class="hanzi-text text-sm">淡 (tām)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">lîm</span> <span class="hanzi-text text-sm">林 (lîm)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">hâm</span> <span class="hanzi-text text-sm">含 (hâm)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">kam</span> <span class="hanzi-text text-sm">甘 (kam)</span></li>
                             </ul>
                         </div>
                         <!-- -n -->
                         <div class="border-2 border-indigo-100 rounded-lg p-4">
-                            <h4 class="text-xl font-bold text-indigo-800 mb-2 border-b pb-2">頂上顎的 <span class="text-3xl text-red-500">-n</span></h4>
+                            <h4 class="text-xl font-bold text-indigo-800 mb-2 border-b pb-2">頂上顎 <span class="text-3xl text-red-500">-n</span></h4>
                             <p class="text-sm text-gray-500 mb-3">(舌尖頂住上顎門牙後方)</p>
-                            <ul class="space-y-2">
-                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">an</span> <span class="hanzi-text">安 (an)</span></li>
-                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">in</span> <span class="hanzi-text">印 (ìn)</span></li>
-                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">un</span> <span class="hanzi-text">恩 (un)</span></li>
-                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">ian</span> <span class="hanzi-text">燕 (iàn)</span></li>
-                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">oan</span> <span class="hanzi-text">灣 (oan)</span></li>
+                            <ul class="space-y-2 text-lg">
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">an</span> <span class="hanzi-text text-sm">安 (an)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">in</span> <span class="hanzi-text text-sm">印 (ìn)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">un</span> <span class="hanzi-text text-sm">恩 (un)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">ian</span> <span class="hanzi-text text-sm">燕 (iàn)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">oan</span> <span class="hanzi-text text-sm">灣 (oan)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">pan</span> <span class="hanzi-text text-sm">班 (pan)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">sin</span> <span class="hanzi-text text-sm">新 (sin)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">tūn</span> <span class="hanzi-text text-sm">鈍 (tūn)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">tiān</span> <span class="hanzi-text text-sm">電 (tiān)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">koan</span> <span class="hanzi-text text-sm">關 (koan)</span></li>
                             </ul>
                         </div>
                         <!-- -ng -->
                         <div class="border-2 border-indigo-100 rounded-lg p-4">
-                            <h4 class="text-xl font-bold text-indigo-800 mb-2 border-b pb-2">喉嚨後段的 <span class="text-3xl text-red-500">-ng</span></h4>
+                            <h4 class="text-xl font-bold text-indigo-800 mb-2 border-b pb-2">喉嚨後段 <span class="text-3xl text-red-500">-ng</span></h4>
                             <p class="text-sm text-gray-500 mb-3">(氣流從鼻腔後方出來)</p>
-                            <ul class="space-y-2">
-                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">ang</span> <span class="hanzi-text">翁 (ang)</span></li>
-                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">ong</span> <span class="hanzi-text">王 (ông)</span></li>
-                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">eng</span> <span class="hanzi-text">英 (eng)</span></li>
-                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">iong</span> <span class="hanzi-text">羊 (iûⁿ/iong)</span></li>
-                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">oang</span> <span class="hanzi-text">汪 (oang)</span></li>
+                            <ul class="space-y-2 text-lg">
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">ang</span> <span class="hanzi-text text-sm">翁 (ang)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">ong</span> <span class="hanzi-text text-sm">王 (ông)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">eng</span> <span class="hanzi-text text-sm">英 (eng)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">iong</span> <span class="hanzi-text text-sm">羊 (iûⁿ)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">oang</span> <span class="hanzi-text text-sm">汪 (oang)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">pang</span> <span class="hanzi-text text-sm">板 (páng)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">bông</span> <span class="hanzi-text text-sm">亡 (bông)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">teng</span> <span class="hanzi-text text-sm">燈 (teng)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">kiong</span> <span class="hanzi-text text-sm">恭 (kiong)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">hoang</span> <span class="hanzi-text text-sm">荒 (hoang)</span></li>
                             </ul>
                         </div>
                     </div>
@@ -406,18 +506,22 @@
                             💡 當母音右上角出現 <strong>ⁿ</strong>，嘴巴動作不變，但要把氣送到鼻腔（像感冒鼻塞的聲音）。
                         </p>
                         
-                        <div class="flex flex-wrap gap-3">
-                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">aⁿ</span> (餡)</div>
-                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">iⁿ</span> (院)</div>
-                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">eⁿ</span> (嬰)</div>
-                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">o͘ⁿ</span> (喔)</div>
-                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">aiⁿ</span> (唉)</div>
-                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">auⁿ</span> (嗷)</div>
-                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">iaⁿ</span> (贏)</div>
-                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">iauⁿ</span> (蟯)</div>
-                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">iuⁿ</span> (羊)</div>
-                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">oaⁿ</span> (單)</div>
-                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">oaiⁿ</span> (關)</div>
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-lg">
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">aⁿ</span> <span class="hanzi-text text-sm">餡</span></div>
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">iⁿ</span> <span class="hanzi-text text-sm">院</span></div>
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">eⁿ</span> <span class="hanzi-text text-sm">嬰</span></div>
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">o͘ⁿ</span> <span class="hanzi-text text-sm">喔</span></div>
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">aiⁿ</span> <span class="hanzi-text text-sm">唉</span></div>
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">auⁿ</span> <span class="hanzi-text text-sm">嗷</span></div>
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">iaⁿ</span> <span class="hanzi-text text-sm">贏</span></div>
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">iauⁿ</span> <span class="hanzi-text text-sm">蟯</span></div>
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">iuⁿ</span> <span class="hanzi-text text-sm">羊</span></div>
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">oaⁿ</span> <span class="hanzi-text text-sm">單</span></div>
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">oaiⁿ</span> <span class="hanzi-text text-sm">關</span></div>
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">saⁿ</span> <span class="hanzi-text text-sm">三</span></div>
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">siⁿ</span> <span class="hanzi-text text-sm">生</span></div>
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">peⁿ</span> <span class="hanzi-text text-sm">平</span></div>
+                            <div class="border px-4 py-2 rounded bg-gray-50 hover:bg-yellow-100 flex justify-between"><span class="poj-text">chho͘ⁿ</span> <span class="hanzi-text text-sm">粗</span></div>
                         </div>
                     </div>
                 </div>
@@ -428,7 +532,7 @@
         <section id="hour5" class="content-section fade-in hidden max-w-5xl mx-auto">
             <div class="flex justify-between items-end mb-6 border-b-4 border-blue-500 pb-4">
                 <h2 class="text-4xl font-black text-gray-800">🕒 第五小時：急煞車的藝術</h2>
-                <button onclick="window.location.href='game5.html'" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
+                <button onclick="window.open('game5.html', '_blank')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
                     <span>🎮 進行小遊戲</span>
                 </button>
             </div>
@@ -445,6 +549,7 @@
                 </div>
             </div>
 
+            <!-- 全面擴充的第五小時內容 -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- M vs P -->
                 <div class="bg-white rounded-xl shadow-md overflow-hidden">
@@ -462,6 +567,21 @@
                         
                         <div class="py-2 hover:bg-gray-50"><span class="poj-text">iam</span><br><span class="text-sm hanzi-text">閹</span></div>
                         <div class="py-2 border-l hover:bg-red-50"><span class="poj-text text-red-600">iap</span><br><span class="text-sm hanzi-text">葉</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">sam</span><br><span class="text-sm hanzi-text">三</span></div>
+                        <div class="py-2 border-l hover:bg-red-50"><span class="poj-text text-red-600">sap</span><br><span class="text-sm hanzi-text">十</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">sim</span><br><span class="text-sm hanzi-text">心</span></div>
+                        <div class="py-2 border-l hover:bg-red-50"><span class="poj-text text-red-600">sip</span><br><span class="text-sm hanzi-text">習</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">tām</span><br><span class="text-sm hanzi-text">淡</span></div>
+                        <div class="py-2 border-l hover:bg-red-50"><span class="poj-text text-red-600">ta̍p</span><br><span class="text-sm hanzi-text">踏</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">kam</span><br><span class="text-sm hanzi-text">甘</span></div>
+                        <div class="py-2 border-l hover:bg-red-50"><span class="poj-text text-red-600">kap</span><br><span class="text-sm hanzi-text">甲</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">lîm</span><br><span class="text-sm hanzi-text">林</span></div>
+                        <div class="py-2 border-l hover:bg-red-50"><span class="poj-text text-red-600">li̍p</span><br><span class="text-sm hanzi-text">立</span></div>
                     </div>
                 </div>
 
@@ -487,6 +607,15 @@
 
                         <div class="py-2 hover:bg-gray-50"><span class="poj-text">oan</span><br><span class="text-sm hanzi-text">灣</span></div>
                         <div class="py-2 border-l hover:bg-blue-50"><span class="poj-text text-blue-600">oat</span><br><span class="text-sm hanzi-text">越</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">pan</span><br><span class="text-sm hanzi-text">班</span></div>
+                        <div class="py-2 border-l hover:bg-blue-50"><span class="poj-text text-blue-600">pat</span><br><span class="text-sm hanzi-text">八</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">sin</span><br><span class="text-sm hanzi-text">新</span></div>
+                        <div class="py-2 border-l hover:bg-blue-50"><span class="poj-text text-blue-600">sit</span><br><span class="text-sm hanzi-text">實</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">tūn</span><br><span class="text-sm hanzi-text">鈍</span></div>
+                        <div class="py-2 border-l hover:bg-blue-50"><span class="poj-text text-blue-600">tu̍t</span><br><span class="text-sm hanzi-text">突</span></div>
                     </div>
                 </div>
 
@@ -509,6 +638,18 @@
 
                         <div class="py-2 hover:bg-gray-50"><span class="poj-text">iong</span><br><span class="text-sm hanzi-text">羊</span></div>
                         <div class="py-2 border-l hover:bg-green-50"><span class="poj-text text-green-600">iok</span><br><span class="text-sm hanzi-text">約</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">pang</span><br><span class="text-sm hanzi-text">板</span></div>
+                        <div class="py-2 border-l hover:bg-green-50"><span class="poj-text text-green-600">pak</span><br><span class="text-sm hanzi-text">腹</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">tong</span><br><span class="text-sm hanzi-text">東</span></div>
+                        <div class="py-2 border-l hover:bg-green-50"><span class="poj-text text-green-600">tok</span><br><span class="text-sm hanzi-text">毒</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">teng</span><br><span class="text-sm hanzi-text">燈</span></div>
+                        <div class="py-2 border-l hover:bg-green-50"><span class="poj-text text-green-600">tek</span><br><span class="text-sm hanzi-text">竹</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">kiong</span><br><span class="text-sm hanzi-text">恭</span></div>
+                        <div class="py-2 border-l hover:bg-green-50"><span class="poj-text text-green-600">kiok</span><br><span class="text-sm hanzi-text">局</span></div>
                     </div>
                 </div>
             </div>
@@ -518,7 +659,7 @@
         <section id="hour6" class="content-section fade-in hidden max-w-5xl mx-auto pb-20">
             <div class="flex justify-between items-end mb-6 border-b-4 border-blue-500 pb-4">
                 <h2 class="text-4xl font-black text-gray-800">🕒 第六小時：台語八音與生活實戰</h2>
-                <button onclick="window.location.href='game6.html'" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
+                <button onclick="window.open('game6.html', '_blank')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
                     <span>🎮 進行小遊戲</span>
                 </button>
             </div>
