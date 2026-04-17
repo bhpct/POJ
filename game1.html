@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>母音氣球升空賽 V5</title>
+    <title>母音氣球升空賽 V6</title>
+    <!-- 載入支援白話字特殊符號的 Google 雲端字體 Noto Sans -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -58,8 +59,27 @@
         .overlay h1 { font-size: 70px; margin-bottom: 10px; }
         .overlay p { font-size: 30px; margin-bottom: 30px; color: #ddd; }
         
+        /* 題庫開關面板樣式 */
+        .options-panel {
+            display: flex; gap: 20px; margin-bottom: 10px;
+        }
+        .option-label {
+            background: rgba(255,255,255,0.2); padding: 10px 25px;
+            border-radius: 50px; font-size: 24px; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; transition: 0.2s;
+        }
+        .option-label:hover { background: rgba(255,255,255,0.3); }
+        .option-label input[type="checkbox"] { width: 25px; height: 25px; cursor: pointer; }
+        
+        /* 錯誤提示 */
+        .error-msg {
+            color: #FFCDD2; font-size: 24px; font-weight: bold; height: 35px; margin-bottom: 20px;
+        }
+
+        .btn-group { display: flex; gap: 15px; }
+
         .btn {
-            font-size: 32px; padding: 15px 40px; margin: 10px; border: none;
+            font-size: 32px; padding: 15px 40px; border: none;
             border-radius: 15px; cursor: pointer; font-weight: bold; transition: 0.2s;
             font-family: inherit;
         }
@@ -91,23 +111,47 @@
     </div>
 
     <div id="start-screen" class="overlay">
-        <h1>母音氣球升空賽</h1>
+        <h1>🎈 母音氣球升空賽</h1>
         <p>左邊出題、右邊答題，看誰反應快！</p>
-        <div style="display: flex;">
-            <button class="btn btn-easy" onclick="startGame(10)">簡單 (10秒)</button>
-            <button class="btn btn-normal" onclick="startGame(6)">普通 (6秒)</button>
-            <button class="btn btn-hard" onclick="startGame(3.5)">挑戰 (3.5秒)</button>
+        
+        <!-- 題庫開關區 -->
+        <div class="options-panel">
+            <label class="option-label">
+                <input type="checkbox" id="opt-single" checked> 單母音
+            </label>
+            <label class="option-label">
+                <input type="checkbox" id="opt-double"> 雙母音
+            </label>
+            <label class="option-label">
+                <input type="checkbox" id="opt-triple"> 三母音
+            </label>
+        </div>
+        
+        <!-- 錯誤提示訊息區 (未選取任何題庫時顯示) -->
+        <div id="error-msg" class="error-msg"></div>
+
+        <div class="btn-group">
+            <button class="btn btn-easy" onclick="checkAndStart(10)">簡單 (10秒)</button>
+            <button class="btn btn-normal" onclick="checkAndStart(6)">普通 (6秒)</button>
+            <button class="btn btn-hard" onclick="checkAndStart(3.5)">挑戰 (3.5秒)</button>
         </div>
     </div>
 
     <div id="end-screen" class="overlay hidden">
         <h1>時間到！</h1>
         <p>合作答對總數：<strong id="final-score" style="color: #FFD700; font-size: 60px;">0</strong></p>
-        <button class="btn btn-normal" onclick="location.reload()">重新開始</button>
+        <button class="btn btn-normal" onclick="location.reload()">回主畫面重新設定</button>
     </div>
 
     <script>
-        const vowels = ['a', 'i', 'u', 'e', 'o', 'o͘'];
+        // 題庫資料 (根據課綱分類)
+        const vowelDatabase = {
+            single: ['a', 'i', 'u', 'e', 'o', 'o͘'],
+            double: ['ai', 'au', 'ia', 'io', 'iu', 'ui', 'oa', 'oe'],
+            triple: ['iau', 'oai']
+        };
+        
+        let activeVowels = []; // 遊戲真正使用的題庫
         const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#F1948A'];
         
         let score = 0;
@@ -116,23 +160,58 @@
         let floatSpeed = 6;
         let currentTargetVowel = '';
         let phaseTimeout;
-        
-        let vowelStats = { 'a': 0, 'i': 0, 'u': 0, 'e': 0, 'o': 0, 'o͘': 0 };
+        let vowelStats = {};
 
         const scoreEl = document.getElementById('score');
         const timerEl = document.getElementById('timer');
         const leftZone = document.getElementById('left-zone');
         const rightZone = document.getElementById('right-zone');
+        const errorMsgEl = document.getElementById('error-msg');
+
+        // 檢查設定並啟動遊戲
+        function checkAndStart(speed) {
+            const isSingle = document.getElementById('opt-single').checked;
+            const isDouble = document.getElementById('opt-double').checked;
+            const isTriple = document.getElementById('opt-triple').checked;
+
+            activeVowels = [];
+            if (isSingle) activeVowels.push(...vowelDatabase.single);
+            if (isDouble) activeVowels.push(...vowelDatabase.double);
+            if (isTriple) activeVowels.push(...vowelDatabase.triple);
+
+            // 防呆機制：確保至少選了一個題庫
+            if (activeVowels.length === 0) {
+                errorMsgEl.innerText = "⚠️ 請至少勾選一種母音題庫！";
+                return;
+            }
+            errorMsgEl.innerText = ""; // 清除錯誤訊息
+
+            // 初始化或保留該題庫的學習統計資料
+            activeVowels.forEach(v => {
+                if (vowelStats[v] === undefined) {
+                    vowelStats[v] = 0;
+                }
+            });
+
+            startGame(speed);
+        }
 
         function startGame(speed) {
             floatSpeed = speed;
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('ui-layer').classList.remove('hidden');
+            
+            score = 0;
+            timeLeft = 60;
+            scoreEl.innerText = score;
+            timerEl.innerText = timeLeft;
+
             gameInterval = setInterval(() => {
                 timeLeft--;
                 timerEl.innerText = timeLeft;
                 if (timeLeft <= 0) endGame();
             }, 1000);
+            
             startLeftPhase();
         }
 
@@ -146,48 +225,49 @@
 
         function getWeightedVowels(count) {
             let pool = [];
-            vowels.forEach(v => {
+            activeVowels.forEach(v => {
                 let weight = Math.max(1, 10 - (vowelStats[v] * 2));
                 for(let i=0; i<weight; i++) pool.push(v);
             });
             
             let results = [];
-            while(results.length < count) {
+            // 如果請求的數量大於題庫總數，就只取題庫總數 (避免只有三母音時進入死迴圈)
+            let maxCount = Math.min(count, activeVowels.length); 
+
+            while(results.length < maxCount) {
                 let pick = pool[Math.floor(Math.random() * pool.length)];
                 if(!results.includes(pick)) results.push(pick);
             }
             return results;
         }
 
-        // 修改：新增 isRightZone 參數，用於精準計算像素防撞
         function createBalloon(vowel, colIndex, totalCols, staggerDelay, isRightZone, onClick) {
             const b = document.createElement('div');
             b.className = 'balloon';
             b.innerText = vowel;
             b.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
             
-            // 取得該區域(左半邊或右半邊)的實際像素寬度
+            // 動態調整字體大小，確保三母音 (iau, oai) 不會凸出氣球
+            if (vowel.length >= 3) {
+                b.style.fontSize = '40px';
+            } else if (vowel.length === 2) {
+                b.style.fontSize = '50px';
+            } else {
+                b.style.fontSize = '60px'; // 單母音維持原本大小
+            }
+            
             const zoneWidth = isRightZone ? rightZone.clientWidth : leftZone.clientWidth;
-            // 氣球本身的寬度(140px) + 安全邊距(20px) = 160px
             const safeBalloonWidth = 160; 
             
-            // 算出這顆氣球大概要在百分之多少的位置
             let colWidth = 100 / totalCols;
             let randomOffset = (Math.random() * (colWidth * 0.4));
             let leftPercent = (colIndex * colWidth) + randomOffset + 2; 
 
-            // 將百分比轉換為絕對像素 (px)
             let calculatedLeft = (zoneWidth * leftPercent) / 100;
-
-            // 核心防撞邏輯：
-            // 1. 如果算出來的位置超出右邊界，就強制拉回 (zoneWidth - safeBalloonWidth)
             calculatedLeft = Math.min(calculatedLeft, zoneWidth - safeBalloonWidth);
-            // 2. 如果算出來的位置太靠左邊界，就強制保留 10px 的間距
             calculatedLeft = Math.max(calculatedLeft, 10);
             
-            // 套用安全計算後的 px 位置
             b.style.left = calculatedLeft + 'px';
-            
             b.style.animation = `floatUp ${floatSpeed}s linear ${staggerDelay}s forwards`;
 
             const handleEvent = (e) => { e.preventDefault(); onClick(); };
@@ -209,13 +289,14 @@
             rightZone.querySelectorAll('.balloon').forEach(b => b.remove());
             clearTimeout(phaseTimeout);
 
-            let delayOrder = [0, 1, 2].sort(() => Math.random() - 0.5);
-            let picks = getWeightedVowels(3);
+            // 左邊最多出 3 題 (如果題庫字數小於 3，則以題庫字數為準)
+            let leftCount = Math.min(3, activeVowels.length);
+            let delayOrder = Array.from({length: leftCount}, (_, i) => i).sort(() => Math.random() - 0.5);
+            let picks = getWeightedVowels(leftCount);
             
             picks.forEach((v, i) => {
                 let randomDelay = delayOrder[i] * 0.4;
-                // 傳入 false 代表是左邊出題區
-                const b = createBalloon(v, i, 3, randomDelay, false, () => {
+                const b = createBalloon(v, i, leftCount, randomDelay, false, () => {
                     clearTimeout(phaseTimeout);
                     currentTargetVowel = v;
                     startRightPhase();
@@ -229,13 +310,25 @@
         function startRightPhase() {
             leftZone.querySelectorAll('.balloon').forEach(b => b.remove());
             
-            let delayOrder = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5);
-            let all = [...vowels].sort(() => Math.random() - 0.5);
+            // 右邊最多出 6 題混淆視聽 (如果題庫字數小於 6，則以題庫字數為準)
+            let rightCount = Math.min(6, activeVowels.length);
+            let rightChoices = [currentTargetVowel]; // 確保一定有正確答案
             
-            all.forEach((v, i) => {
+            // 隨機選取剩下的混淆選項
+            let shuffledActive = [...activeVowels].sort(() => Math.random() - 0.5);
+            for (let v of shuffledActive) {
+                if (rightChoices.length >= rightCount) break;
+                if (v !== currentTargetVowel) {
+                    rightChoices.push(v);
+                }
+            }
+            
+            rightChoices = rightChoices.sort(() => Math.random() - 0.5);
+            let delayOrder = Array.from({length: rightCount}, (_, i) => i).sort(() => Math.random() - 0.5);
+            
+            rightChoices.forEach((v, i) => {
                 let randomDelay = delayOrder[i] * 0.2;
-                // 傳入 true 代表是右邊答題區
-                const b = createBalloon(v, i, 6, randomDelay, true, () => {
+                const b = createBalloon(v, i, rightCount, randomDelay, true, () => {
                     clearTimeout(phaseTimeout);
                     if (v === currentTargetVowel) {
                         score++;
