@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⛪ 霧峰教會白話字速成班 - 互動講義</title>
+    <!-- 引入 Tailwind CSS 快速排版 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts Noto Sans 確保白話字顯示正確 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* 強化字體支援度，加入多個系統安全字體，確保掛音完美顯示 */
+        body { 
+            font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; 
+            background-color: #F3F4F6; 
+        }
+        .poj-text { 
+            color: #1D4ED8; 
+            font-weight: 700; 
+            font-size: 1.25rem; 
+            font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;
+        }
+        .hanzi-text { color: #4B5563; font-size: 1.1rem; }
+        
+        /* 隱藏滾動條但保留滾動功能 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* 漸變動畫 */
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <!-- 左側導覽列 -->
+    <aside class="w-72 bg-blue-900 text-white flex flex-col shadow-xl z-20">
+        <div class="p-6 bg-blue-950">
+            <h1 class="text-2xl font-black leading-tight mb-2">⛪ 霧峰教會<br>白話字速成班</h1>
+            <p class="text-blue-200 text-sm">六小時整合教材</p>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <button onclick="showHour('hour0')" id="nav-hour0" class="w-full text-left px-6 py-3 hover:bg-blue-800 focus:outline-none transition-colors bg-blue-800 border-l-4 border-yellow-400 font-bold">📊 教材與課程對照總表</button>
+            <button onclick="showHour('hour1')" id="nav-hour1" class="w-full text-left px-6 py-3 hover:bg-blue-800 focus:outline-none transition-colors border-l-4 border-transparent">🕒 第一小時：基石建立</button>
+            <button onclick="showHour('hour2')" id="nav-hour2" class="w-full text-left px-6 py-3 hover:bg-blue-800 focus:outline-none transition-colors border-l-4 border-transparent">🕒 第二小時：氣流魔術</button>
+            <button onclick="showHour('hour3')" id="nav-hour3" class="w-full text-left px-6 py-3 hover:bg-blue-800 focus:outline-none transition-colors border-l-4 border-transparent">🕒 第三小時：共鳴對決</button>
+            <button onclick="showHour('hour4')" id="nav-hour4" class="w-full text-left px-6 py-3 hover:bg-blue-800 focus:outline-none transition-colors border-l-4 border-transparent">🕒 第四小時：鼻音集合</button>
+            <button onclick="showHour('hour5')" id="nav-hour5" class="w-full text-left px-6 py-3 hover:bg-blue-800 focus:outline-none transition-colors border-l-4 border-transparent">🕒 第五小時：急煞入聲</button>
+            <button onclick="showHour('hour6')" id="nav-hour6" class="w-full text-left px-6 py-3 hover:bg-blue-800 focus:outline-none transition-colors border-l-4 border-transparent">🕒 第六小時：聲調與閱讀</button>
+        </nav>
+        <div class="p-4 text-center text-xs text-blue-400 bg-blue-950">
+            涵蓋實用教科書 第 1 ~ 21 課
+        </div>
+    </aside>
+
+    <!-- 右側主要內容區 -->
+    <main class="flex-1 h-screen overflow-y-auto p-8 relative no-scrollbar">
+        
+        <!-- 總表 -->
+        <section id="hour0" class="content-section fade-in block max-w-5xl mx-auto">
+            <h2 class="text-4xl font-black text-gray-800 mb-6 border-b-4 border-blue-500 pb-4">📊 教材與課程對照總表</h2>
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-blue-100 text-blue-900 text-lg">
+                            <th class="p-4 border-b">課程進度</th>
+                            <th class="p-4 border-b">主題名稱</th>
+                            <th class="p-4 border-b">涵蓋課本範圍</th>
+                            <th class="p-4 border-b">內容摘要</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700 text-lg">
+                        <tr class="hover:bg-gray-50 border-b">
+                            <td class="p-4 font-bold text-blue-800">第一小時</td>
+                            <td class="p-4">基石建立</td>
+                            <td class="p-4 font-bold">第 1 課、第 3, 4 課(部分)</td>
+                            <td class="p-4">單母音、純雙母音、純三母音 (不含鼻音)</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 border-b bg-gray-50">
+                            <td class="p-4 font-bold text-blue-800">第二小時</td>
+                            <td class="p-4">氣流魔術師</td>
+                            <td class="p-4 font-bold">第 6、7、8、9 課</td>
+                            <td class="p-4">清音 (有氣與無氣子音對照：p/ph, k/kh 等)</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 border-b">
+                            <td class="p-4 font-bold text-blue-800">第三小時</td>
+                            <td class="p-4">聲帶與鼻腔共鳴</td>
+                            <td class="p-4 font-bold">第 10、11、12、13 課</td>
+                            <td class="p-4">濁音與鼻音字首對照 (b/m, l/n, s/j, g/ng)</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 border-b bg-gray-50">
+                            <td class="p-4 font-bold text-blue-800">第四小時</td>
+                            <td class="p-4">鼻音大集合</td>
+                            <td class="p-4 font-bold">第 2、5 課，結合 第 3, 4 課(鼻音)</td>
+                            <td class="p-4">鼻尾音 (-m/-n/-ng) 與 鼻化母音 (ⁿ)</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 border-b">
+                            <td class="p-4 font-bold text-blue-800">第五小時</td>
+                            <td class="p-4">急煞車的藝術</td>
+                            <td class="p-4 font-bold">第 17、19、21 課</td>
+                            <td class="p-4">入聲字對決 (鼻音與入聲同嘴型對照：-ng/-k 等)</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-4 font-bold text-blue-800">第六小時</td>
+                            <td class="p-4">台語八音與生活實戰</td>
+                            <td class="p-4 font-bold">第 14、15 課，結合 第 16, 18, 20 課</td>
+                            <td class="p-4">聲調符號學習，變調規則，與實用短文、名詞閱讀</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="p-4 bg-yellow-50 text-yellow-800 text-sm italic">
+                    註：第 3 課與第 4 課因為同時包含了「純母音」與「帶有鼻音的組合」，為了教學邏輯順暢，被拆分至第一小時與第四小時分別教學。
+                </div>
+            </div>
+        </section>
+
+        <!-- 第一小時 -->
+        <section id="hour1" class="content-section fade-in hidden max-w-5xl mx-auto">
+            <div class="flex justify-between items-end mb-6 border-b-4 border-blue-500 pb-4">
+                <h2 class="text-4xl font-black text-gray-800">🕒 第一小時：基石建立</h2>
+                <button onclick="window.location.href='game1.html'" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
+                    <span>🎮 進行小遊戲</span>
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <p class="text-xl text-gray-700 leading-relaxed mb-4">本堂課專注於台語最基本的發音骨架，不涉及任何子音或鼻音結尾。讓學生先習慣看羅馬字讀出純粹的聲音。</p>
+                <div class="flex items-center gap-3 bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400">
+                    <span class="font-bold text-blue-800">整合課文：</span>
+                    <span class="text-gray-700">第 1 課、第 3 課 (純母音部分)、第 4 課 (純母音複習)</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-green-400">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">🟢 六大基本母音 (L1)</h3>
+                    <p class="mb-4 text-gray-600">徹底釐清 o (類似ㄜ) 與 o͘ (類似ㄛ) 的嘴型差異。</p>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="text-center bg-gray-50 p-3 rounded"><div class="poj-text text-3xl">a</div><div class="hanzi-text">阿</div></div>
+                        <div class="text-center bg-gray-50 p-3 rounded"><div class="poj-text text-3xl">i</div><div class="hanzi-text">伊</div></div>
+                        <div class="text-center bg-gray-50 p-3 rounded"><div class="poj-text text-3xl">u</div><div class="hanzi-text">有(ū)</div></div>
+                        <div class="text-center bg-gray-50 p-3 rounded"><div class="poj-text text-3xl">e</div><div class="hanzi-text">下(ē)</div></div>
+                        <div class="text-center bg-gray-50 p-3 rounded"><div class="poj-text text-3xl">o</div><div class="hanzi-text">蚵(ô)</div></div>
+                        <div class="text-center bg-gray-50 p-3 rounded border-2 border-red-300"><div class="poj-text text-3xl text-red-600">o͘</div><div class="hanzi-text">烏</div></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-purple-400">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">🟣 雙母音與三母音</h3>
+                    <p class="mb-4 text-gray-600">訣竅：慢慢把兩個音連在一起唸，例如 i-a 快速唸變成 ia。</p>
+                    <div class="grid grid-cols-4 gap-3 mb-4">
+                        <div class="text-center bg-purple-50 p-2 rounded"><div class="poj-text">ai</div><div class="hanzi-text">愛</div></div>
+                        <div class="text-center bg-purple-50 p-2 rounded"><div class="poj-text">au</div><div class="hanzi-text">甌</div></div>
+                        <div class="text-center bg-purple-50 p-2 rounded"><div class="poj-text">ia</div><div class="hanzi-text">野</div></div>
+                        <div class="text-center bg-purple-50 p-2 rounded"><div class="poj-text">io</div><div class="hanzi-text">腰</div></div>
+                        <div class="text-center bg-purple-50 p-2 rounded"><div class="poj-text">iu</div><div class="hanzi-text">油</div></div>
+                        <div class="text-center bg-purple-50 p-2 rounded"><div class="poj-text">ui</div><div class="hanzi-text">威</div></div>
+                        <div class="text-center bg-purple-50 p-2 rounded"><div class="poj-text">oa</div><div class="hanzi-text">倚</div></div>
+                        <div class="text-center bg-purple-50 p-2 rounded"><div class="poj-text">oe</div><div class="hanzi-text">話</div></div>
+                    </div>
+                    <div class="border-t pt-3">
+                        <span class="font-bold text-gray-700 mr-2">三母音：</span>
+                        <span class="bg-yellow-100 px-3 py-1 rounded inline-block mr-2"><span class="poj-text">iau</span> (妖)</span>
+                        <span class="bg-yellow-100 px-3 py-1 rounded inline-block"><span class="poj-text">oai</span> (歪)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第二小時 -->
+        <section id="hour2" class="content-section fade-in hidden max-w-5xl mx-auto">
+            <div class="flex justify-between items-end mb-6 border-b-4 border-blue-500 pb-4">
+                <h2 class="text-4xl font-black text-gray-800">🕒 第二小時：氣流魔術師</h2>
+                <button onclick="window.location.href='game2.html'" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
+                    <span>🎮 進行小遊戲</span>
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <p class="text-xl text-gray-700 leading-relaxed mb-4">台語有很多成雙成對的子音，唯一的差別在於「有沒有吐氣」。把這些課整合在一起學，就可以秒懂 <strong class="text-red-500 text-2xl">h</strong> 這個字母在字首時的特殊功能（代表吐氣）。</p>
+                <div class="flex items-center gap-3 bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400 mb-4">
+                    <span class="font-bold text-blue-800">整合課文：</span>
+                    <span class="text-gray-700">第 6 課 (p/ph)、第 7 課 (k/kh)、第 8 課 (t/th)、第 9 課 (ch/chh)</span>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                    <h4 class="font-bold text-yellow-800 text-lg mb-2">🌬️ 肢體輔助教學法：</h4>
+                    <p class="text-gray-700">把衛生紙放在嘴巴前，有 <strong class="text-red-500">h</strong> 的一定要把衛生紙吹起來！</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- P vs PH -->
+                <div class="bg-white rounded-xl shadow-md p-5">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-3 border-b pb-2">雙唇音：p vs. <span class="text-red-500">ph</span></h3>
+                    <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
+                        <div class="text-blue-800">無氣音 (p)</div><div class="text-red-600">有氣音 (ph)</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">pa</span> <span class="hanzi-text">(爸)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">pha</span> <span class="hanzi-text">(葩)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">pò͘</span> <span class="hanzi-text">(布)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">phò͘</span> <span class="hanzi-text">(簿)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">pe̍h</span> <span class="hanzi-text">(白)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">phah</span> <span class="hanzi-text">(拍)</span></div>
+                    </div>
+                </div>
+                <!-- K vs KH -->
+                <div class="bg-white rounded-xl shadow-md p-5">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-3 border-b pb-2">喉音：k vs. <span class="text-red-500">kh</span></h3>
+                    <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
+                        <div class="text-blue-800">無氣音 (k)</div><div class="text-red-600">有氣音 (kh)</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ka</span> <span class="hanzi-text">(鉸)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">kha</span> <span class="hanzi-text">(腳)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ki</span> <span class="hanzi-text">(枝)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">khí</span> <span class="hanzi-text">(齒)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ko</span> <span class="hanzi-text">(哥)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">kho</span> <span class="hanzi-text">(課)</span></div>
+                    </div>
+                </div>
+                <!-- T vs TH -->
+                <div class="bg-white rounded-xl shadow-md p-5">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-3 border-b pb-2">舌尖音：t vs. <span class="text-red-500">th</span></h3>
+                    <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
+                        <div class="text-blue-800">無氣音 (t)</div><div class="text-red-600">有氣音 (th)</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">to</span> <span class="hanzi-text">(刀)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">thô͘</span> <span class="hanzi-text">(土)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">ti</span> <span class="hanzi-text">(豬)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">thiⁿ</span> <span class="hanzi-text">(天)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">tú</span> <span class="hanzi-text">(拄)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">thú</span> <span class="hanzi-text">(柱)</span></div>
+                    </div>
+                </div>
+                <!-- CH vs CHH -->
+                <div class="bg-white rounded-xl shadow-md p-5">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-3 border-b pb-2">齒音：ch vs. <span class="text-red-500">chh</span></h3>
+                    <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
+                        <div class="text-blue-800">無氣音 (ch)</div><div class="text-red-600">有氣音 (chh)</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">chian</span> <span class="hanzi-text">(煎)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">chhian</span> <span class="hanzi-text">(千)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">chò</span> <span class="hanzi-text">(做)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">chhò</span> <span class="hanzi-text">(錯)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">chiú</span> <span class="hanzi-text">(酒)</span></div>
+                        <div class="p-2 border rounded hover:bg-red-50"><span class="poj-text text-red-600">chhiu</span> <span class="hanzi-text">(秋)</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第三小時 -->
+        <section id="hour3" class="content-section fade-in hidden max-w-5xl mx-auto">
+            <div class="flex justify-between items-end mb-6 border-b-4 border-blue-500 pb-4">
+                <h2 class="text-4xl font-black text-gray-800">🕒 第三小時：聲帶與鼻腔共鳴</h2>
+                <button onclick="window.location.href='game3.html'" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
+                    <span>🎮 進行小遊戲</span>
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <p class="text-xl text-gray-700 leading-relaxed mb-4">學完清音後，接著教需要聲帶震動的「濁音」，以及字首帶有鼻音共鳴的子音。這組子音經常被搞混，放在一起對照學習效果最好。</p>
+                <div class="flex items-center gap-3 bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400 mb-4">
+                    <span class="font-bold text-blue-800">整合課文：</span>
+                    <span class="text-gray-700">第 11 課 (b/m)、第 12 課 (l/n)、第 13 課 (g/ng)、第 10 課 (s/j)</span>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                    <h4 class="font-bold text-yellow-800 text-lg mb-2">🗣️ 肢體輔助教學法：</h4>
+                    <p class="text-gray-700">用手輕輕摸著喉嚨，感受發出這些濁音與鼻音時，喉嚨明顯的<strong class="text-blue-600">震動感</strong>。</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- B vs M -->
+                <div class="bg-white rounded-xl shadow-md p-5">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-3 border-b pb-2">唇音對照：b vs. m</h3>
+                    <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
+                        <div class="text-blue-800">濁音 (b)</div><div class="text-green-700">鼻音 (m)</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">bah</span> <span class="hanzi-text">(肉)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">má</span> <span class="hanzi-text">(媽)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">bīn</span> <span class="hanzi-text">(面)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">mī</span> <span class="hanzi-text">(麵)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">bô</span> <span class="hanzi-text">(無)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">môa</span> <span class="hanzi-text">(麻)</span></div>
+                    </div>
+                </div>
+                <!-- L vs N -->
+                <div class="bg-white rounded-xl shadow-md p-5 border-2 border-red-300">
+                    <h3 class="text-2xl font-bold text-red-600 mb-3 border-b pb-2">🔥 舌尖音對照 (罩門)：l vs. n</h3>
+                    <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
+                        <div class="text-blue-800">濁音 (l)</div><div class="text-green-700">鼻音 (n)</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">lâi</span> <span class="hanzi-text">(來)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">nî</span> <span class="hanzi-text">(年)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">lāi</span> <span class="hanzi-text">(內)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">nāi</span> <span class="hanzi-text">(耐)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">lō͘</span> <span class="hanzi-text">(路)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">nōa</span> <span class="hanzi-text">(爛)</span></div>
+                    </div>
+                </div>
+                <!-- G vs NG -->
+                <div class="bg-white rounded-xl shadow-md p-5">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-3 border-b pb-2">喉音對照：g vs. ng</h3>
+                    <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
+                        <div class="text-blue-800">濁音 (g)</div><div class="text-green-700">鼻音 (ng)</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">gô</span> <span class="hanzi-text">(鵝)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">ngá</span> <span class="hanzi-text">(雅)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">gû</span> <span class="hanzi-text">(牛)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">n̂g</span> <span class="hanzi-text">(黃)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text">gōa</span> <span class="hanzi-text">(外)</span></div>
+                        <div class="p-2 border rounded hover:bg-green-50"><span class="poj-text text-green-700">ngē</span> <span class="hanzi-text">(硬)</span></div>
+                    </div>
+                </div>
+                <!-- S vs J -->
+                <div class="bg-white rounded-xl shadow-md p-5">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-3 border-b pb-2">齒音對照：s vs. j</h3>
+                    <div class="grid grid-cols-2 gap-2 text-center font-bold bg-gray-100 p-2 rounded mb-2">
+                        <div class="text-gray-600">清音 (s)</div><div class="text-blue-800">濁音 (j)</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text text-gray-600">sé</span> <span class="hanzi-text">(洗)</span></div>
+                        <div class="p-2 border rounded hover:bg-blue-50"><span class="poj-text">jī</span> <span class="hanzi-text">(字)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text text-gray-600">sù</span> <span class="hanzi-text">(四)</span></div>
+                        <div class="p-2 border rounded hover:bg-blue-50"><span class="poj-text">ji̍t</span> <span class="hanzi-text">(日)</span></div>
+                        <div class="p-2 border rounded hover:bg-gray-50"><span class="poj-text text-gray-600">siàu</span> <span class="hanzi-text">(笑)</span></div>
+                        <div class="p-2 border rounded hover:bg-blue-50"><span class="poj-text">jiōng</span> <span class="hanzi-text">(讓)</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第四小時 -->
+        <section id="hour4" class="content-section fade-in hidden max-w-5xl mx-auto">
+            <div class="flex justify-between items-end mb-6 border-b-4 border-blue-500 pb-4">
+                <h2 class="text-4xl font-black text-gray-800">🕒 第四小時：鼻音大集合</h2>
+                <button onclick="window.location.href='game4.html'" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
+                    <span>🎮 進行小遊戲</span>
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <p class="text-xl text-gray-700 leading-relaxed mb-4">把所有跟「鼻子」有關的發音整合在這一堂課。把教科書裡面帶有 <strong>m, n, ng 結尾</strong>的組合全部集中在這裡，加上懸空的<strong>鼻化母音 (ⁿ)</strong>。</p>
+                <div class="flex items-center gap-3 bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400">
+                    <span class="font-bold text-blue-800">整合課文：</span>
+                    <span class="text-gray-700">第 2、5 課，結合 第 3、4 課 (鼻音結尾部分)</span>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <!-- 實體鼻音結尾 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="bg-indigo-100 p-4 border-b border-indigo-200">
+                        <h3 class="text-2xl font-bold text-indigo-900">1. 實體鼻尾音 (-m, -n, -ng)</h3>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- -m -->
+                        <div class="border-2 border-indigo-100 rounded-lg p-4">
+                            <h4 class="text-xl font-bold text-indigo-800 mb-2 border-b pb-2">閉嘴唇的 <span class="text-3xl text-red-500">-m</span></h4>
+                            <p class="text-sm text-gray-500 mb-3">(唸完嘴巴一定要閉緊)</p>
+                            <ul class="space-y-2">
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">am</span> <span class="hanzi-text">暗 (àm)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">im</span> <span class="hanzi-text">音 (im)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">iam</span> <span class="hanzi-text">閹 (iam)</span></li>
+                            </ul>
+                        </div>
+                        <!-- -n -->
+                        <div class="border-2 border-indigo-100 rounded-lg p-4">
+                            <h4 class="text-xl font-bold text-indigo-800 mb-2 border-b pb-2">頂上顎的 <span class="text-3xl text-red-500">-n</span></h4>
+                            <p class="text-sm text-gray-500 mb-3">(舌尖頂住上顎門牙後方)</p>
+                            <ul class="space-y-2">
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">an</span> <span class="hanzi-text">安 (an)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">in</span> <span class="hanzi-text">印 (ìn)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">un</span> <span class="hanzi-text">恩 (un)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">ian</span> <span class="hanzi-text">燕 (iàn)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">oan</span> <span class="hanzi-text">灣 (oan)</span></li>
+                            </ul>
+                        </div>
+                        <!-- -ng -->
+                        <div class="border-2 border-indigo-100 rounded-lg p-4">
+                            <h4 class="text-xl font-bold text-indigo-800 mb-2 border-b pb-2">喉嚨後段的 <span class="text-3xl text-red-500">-ng</span></h4>
+                            <p class="text-sm text-gray-500 mb-3">(氣流從鼻腔後方出來)</p>
+                            <ul class="space-y-2">
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">ang</span> <span class="hanzi-text">翁 (ang)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">ong</span> <span class="hanzi-text">王 (ông)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">eng</span> <span class="hanzi-text">英 (eng)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">iong</span> <span class="hanzi-text">羊 (iûⁿ/iong)</span></li>
+                                <li class="bg-indigo-50 p-2 rounded flex justify-between"><span class="poj-text">oang</span> <span class="hanzi-text">汪 (oang)</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 鼻化母音 ⁿ -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border-l-8 border-yellow-400">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">2. 神奇小開關 <span class="text-4xl text-red-500">ⁿ</span> (鼻化母音)</h3>
+                        <p class="text-lg text-gray-700 mb-4 bg-yellow-50 p-3 rounded">
+                            💡 當母音右上角出現 <strong>ⁿ</strong>，嘴巴動作不變，但要把氣送到鼻腔（像感冒鼻塞的聲音）。
+                        </p>
+                        
+                        <div class="flex flex-wrap gap-3">
+                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">aⁿ</span> (餡)</div>
+                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">iⁿ</span> (院)</div>
+                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">eⁿ</span> (嬰)</div>
+                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">o͘ⁿ</span> (喔)</div>
+                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">aiⁿ</span> (唉)</div>
+                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">auⁿ</span> (嗷)</div>
+                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">iaⁿ</span> (贏)</div>
+                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">iauⁿ</span> (蟯)</div>
+                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">iuⁿ</span> (羊)</div>
+                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">oaⁿ</span> (單)</div>
+                            <div class="border px-4 py-2 rounded-full bg-gray-50 hover:bg-yellow-100"><span class="poj-text">oaiⁿ</span> (關)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第五小時 -->
+        <section id="hour5" class="content-section fade-in hidden max-w-5xl mx-auto">
+            <div class="flex justify-between items-end mb-6 border-b-4 border-blue-500 pb-4">
+                <h2 class="text-4xl font-black text-gray-800">🕒 第五小時：急煞車的藝術</h2>
+                <button onclick="window.location.href='game5.html'" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
+                    <span>🎮 進行小遊戲</span>
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <p class="text-xl text-gray-700 leading-relaxed mb-4">將「鼻音結尾」與「入聲結尾 (-p, -t, -k)」一對一配對。因為它們的<strong class="text-red-500">嘴型完全一樣</strong>，只差在入聲字是短促、憋氣的！</p>
+                <div class="flex items-center gap-3 bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400 mb-4">
+                    <span class="font-bold text-blue-800">整合課文：</span>
+                    <span class="text-gray-700">第 17 課 (-ng/-k)、第 19 課 (-n/-t)、第 21 課 (-m/-p)</span>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                    <h4 class="font-bold text-yellow-800 text-lg">💡 學習亮點：</h4>
+                    <p class="text-gray-700">透過「同嘴型對照」，學生會瞬間恍然大悟入聲字到底怎麼發音！</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- M vs P -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="bg-red-100 p-3 text-center border-b border-red-200">
+                        <h3 class="text-xl font-bold text-red-900">雙唇配對 (L21)</h3>
+                        <p class="text-sm text-red-700">唸 p 結尾時，雙唇瞬間緊閉煞車</p>
+                    </div>
+                    <div class="p-4 grid grid-cols-2 gap-2 text-center text-lg">
+                        <div class="font-bold text-gray-500 border-b pb-2">-m (拉長)</div><div class="font-bold text-gray-800 border-b pb-2">-p (急煞)</div>
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">am</span><br><span class="text-sm hanzi-text">暗</span></div>
+                        <div class="py-2 border-l hover:bg-red-50"><span class="poj-text text-red-600">ap</span><br><span class="text-sm hanzi-text">盒</span></div>
+                        
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">im</span><br><span class="text-sm hanzi-text">音</span></div>
+                        <div class="py-2 border-l hover:bg-red-50"><span class="poj-text text-red-600">ip</span><br><span class="text-sm hanzi-text">邑</span></div>
+                        
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">iam</span><br><span class="text-sm hanzi-text">閹</span></div>
+                        <div class="py-2 border-l hover:bg-red-50"><span class="poj-text text-red-600">iap</span><br><span class="text-sm hanzi-text">葉</span></div>
+                    </div>
+                </div>
+
+                <!-- N vs T -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="bg-blue-100 p-3 text-center border-b border-blue-200">
+                        <h3 class="text-xl font-bold text-blue-900">舌尖配對 (L19)</h3>
+                        <p class="text-sm text-blue-700">唸 t 結尾時，舌尖用力頂住上顎煞車</p>
+                    </div>
+                    <div class="p-4 grid grid-cols-2 gap-2 text-center text-lg">
+                        <div class="font-bold text-gray-500 border-b pb-2">-n (拉長)</div><div class="font-bold text-gray-800 border-b pb-2">-t (急煞)</div>
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">an</span><br><span class="text-sm hanzi-text">安</span></div>
+                        <div class="py-2 border-l hover:bg-blue-50"><span class="poj-text text-blue-600">at</span><br><span class="text-sm hanzi-text">遏</span></div>
+                        
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">in</span><br><span class="text-sm hanzi-text">印</span></div>
+                        <div class="py-2 border-l hover:bg-blue-50"><span class="poj-text text-blue-600">it</span><br><span class="text-sm hanzi-text">一</span></div>
+                        
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">un</span><br><span class="text-sm hanzi-text">恩</span></div>
+                        <div class="py-2 border-l hover:bg-blue-50"><span class="poj-text text-blue-600">ut</span><br><span class="text-sm hanzi-text">鬱</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">ian</span><br><span class="text-sm hanzi-text">燕</span></div>
+                        <div class="py-2 border-l hover:bg-blue-50"><span class="poj-text text-blue-600">iat</span><br><span class="text-sm hanzi-text">謁</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">oan</span><br><span class="text-sm hanzi-text">灣</span></div>
+                        <div class="py-2 border-l hover:bg-blue-50"><span class="poj-text text-blue-600">oat</span><br><span class="text-sm hanzi-text">越</span></div>
+                    </div>
+                </div>
+
+                <!-- NG vs K -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="bg-green-100 p-3 text-center border-b border-green-200">
+                        <h3 class="text-xl font-bold text-green-900">喉音配對 (L17)</h3>
+                        <p class="text-sm text-green-700">唸 k 結尾時，像喉嚨突然被卡住</p>
+                    </div>
+                    <div class="p-4 grid grid-cols-2 gap-2 text-center text-lg">
+                        <div class="font-bold text-gray-500 border-b pb-2">-ng (拉長)</div><div class="font-bold text-gray-800 border-b pb-2">-k (急煞)</div>
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">ang</span><br><span class="text-sm hanzi-text">翁</span></div>
+                        <div class="py-2 border-l hover:bg-green-50"><span class="poj-text text-green-600">ak</span><br><span class="text-sm hanzi-text">沃</span></div>
+                        
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">ong</span><br><span class="text-sm hanzi-text">王</span></div>
+                        <div class="py-2 border-l hover:bg-green-50"><span class="poj-text text-green-600">ok</span><br><span class="text-sm hanzi-text">惡</span></div>
+                        
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">eng</span><br><span class="text-sm hanzi-text">英</span></div>
+                        <div class="py-2 border-l hover:bg-green-50"><span class="poj-text text-green-600">ek</span><br><span class="text-sm hanzi-text">益</span></div>
+
+                        <div class="py-2 hover:bg-gray-50"><span class="poj-text">iong</span><br><span class="text-sm hanzi-text">羊</span></div>
+                        <div class="py-2 border-l hover:bg-green-50"><span class="poj-text text-green-600">iok</span><br><span class="text-sm hanzi-text">約</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第六小時 -->
+        <section id="hour6" class="content-section fade-in hidden max-w-5xl mx-auto pb-20">
+            <div class="flex justify-between items-end mb-6 border-b-4 border-blue-500 pb-4">
+                <h2 class="text-4xl font-black text-gray-800">🕒 第六小時：台語八音與生活實戰</h2>
+                <button onclick="window.location.href='game6.html'" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md transition-transform transform hover:scale-105">
+                    <span>🎮 進行小遊戲</span>
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <p class="text-xl text-gray-700 leading-relaxed mb-4">把聲調符號留到最後一堂，是因為此時學生已經熟悉了所有字母的拼讀。這時加上聲調符號，就能直接進入有意義的單字閱讀與極為重要的**變調規則**。</p>
+                <div class="flex items-center gap-3 bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400">
+                    <span class="font-bold text-blue-800">整合課文：</span>
+                    <span class="text-gray-700">第 14、15 課 (聲調)，結合 第 16、18、20 課 (實用單字)</span>
+                </div>
+            </div>
+
+            <!-- 台語八音 -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6 border-l-8 border-indigo-400">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">1. 認識帽子 (台語八個聲調)</h3>
+                <div class="grid grid-cols-4 md:grid-cols-8 gap-2 text-center">
+                    <div class="p-2 bg-gray-50 rounded border border-gray-200"><div class="text-sm text-gray-500">第1調</div><div class="poj-text text-3xl">a</div></div>
+                    <div class="p-2 bg-gray-50 rounded border border-gray-200"><div class="text-sm text-gray-500">第2調</div><div class="poj-text text-3xl">á</div></div>
+                    <div class="p-2 bg-gray-50 rounded border border-gray-200"><div class="text-sm text-gray-500">第3調</div><div class="poj-text text-3xl">à</div></div>
+                    <div class="p-2 bg-gray-50 rounded border border-red-200"><div class="text-sm text-red-500">第4調(短)</div><div class="poj-text text-3xl text-red-600">ah</div></div>
+                    <div class="p-2 bg-gray-50 rounded border border-gray-200"><div class="text-sm text-gray-500">第5調</div><div class="poj-text text-3xl">â</div></div>
+                    <div class="p-2 bg-gray-50 rounded border border-gray-200 opacity-50"><div class="text-sm text-gray-500">第6調</div><div class="text-sm mt-2">(與第2合併)</div></div>
+                    <div class="p-2 bg-gray-50 rounded border border-gray-200"><div class="text-sm text-gray-500">第7調</div><div class="poj-text text-3xl">ā</div></div>
+                    <!-- 修正 a̍h 掛音支援度 -->
+                    <div class="p-2 bg-gray-50 rounded border border-red-200"><div class="text-sm text-red-500">第8調(短)</div><div class="poj-text text-3xl text-red-600">a̍h</div></div>
+                </div>
+            </div>
+
+            <!-- 連續變調 -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6 border-l-8 border-orange-400">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">2. 連續變調規則 (極重要)</h3>
+                <p class="text-gray-600 mb-4">在一個詞彙中，除了最後一個字讀本調，前面的字都要變調。</p>
+                
+                <div class="space-y-6">
+                    <!-- 一般聲調 -->
+                    <div>
+                        <h4 class="text-xl font-bold text-orange-800 mb-2 bg-orange-100 p-2 rounded inline-block">A. 一般聲調口訣：5 變 7、7 變 3、3 變 2、2 變 1、1 變 7</h4>
+                        <table class="w-full text-left mt-2 border">
+                            <tr class="bg-gray-100 border-b"><th class="p-2 w-1/4">規則</th><th class="p-2 w-1/3">詞彙</th><th class="p-2">唸法變化示範</th></tr>
+                            <tr class="border-b hover:bg-gray-50"><td class="p-2 font-bold text-orange-600">5 變 7</td><td class="p-2"><span class="hanzi-text">臺灣</span> <span class="poj-text text-lg">Tâi-oân</span></td><td class="p-2">Tâi 唸起來像 <span class="poj-text text-red-500">Tāi</span> (第7調)</td></tr>
+                            <tr class="border-b hover:bg-gray-50"><td class="p-2 font-bold text-orange-600">7 變 3</td><td class="p-2"><span class="hanzi-text">麵線</span> <span class="poj-text text-lg">mī-sòaⁿ</span></td><td class="p-2">mī 唸起來像 <span class="poj-text text-red-500">mì</span> (第3調)</td></tr>
+                            <tr class="border-b hover:bg-gray-50"><td class="p-2 font-bold text-orange-600">3 變 2</td><td class="p-2"><span class="hanzi-text">貢丸</span> <span class="poj-text text-lg">kòng-oân</span></td><td class="p-2">kòng 唸起來像 <span class="poj-text text-red-500">kóng</span> (第2調)</td></tr>
+                            <tr class="border-b hover:bg-gray-50"><td class="p-2 font-bold text-orange-600">2 變 1</td><td class="p-2"><span class="hanzi-text">總統</span> <span class="poj-text text-lg">chóng-thóng</span></td><td class="p-2">chóng 唸起來像 <span class="poj-text text-red-500">chong</span> (第1調)</td></tr>
+                            <tr class="border-b hover:bg-gray-50"><td class="p-2 font-bold text-orange-600">1 變 7</td><td class="p-2"><span class="hanzi-text">飛機</span> <span class="poj-text text-lg">poe-ki</span></td><td class="p-2">poe 唸起來像 <span class="poj-text text-red-500">pōe</span> (第7調)</td></tr>
+                        </table>
+                    </div>
+
+                    <!-- 實體入聲字 -->
+                    <div>
+                        <h4 class="text-xl font-bold text-orange-800 mb-2 bg-orange-100 p-2 rounded inline-block">B. 入聲字 (-p, -t, -k)：結尾保留，高低互換</h4>
+                        <table class="w-full text-left mt-2 border">
+                            <tr class="bg-gray-100 border-b"><th class="p-2 w-1/4">規則</th><th class="p-2 w-1/3">詞彙</th><th class="p-2">唸法變化示範</th></tr>
+                            <tr class="border-b hover:bg-gray-50"><td class="p-2 font-bold text-orange-600">4 變 8 (低變高)</td><td class="p-2"><span class="hanzi-text">竹筒</span> <span class="poj-text text-lg">tek-tâng</span></td><td class="p-2">tek (第4調) 變成短促 <span class="font-bold text-red-500">高音</span></td></tr>
+                            <tr class="border-b hover:bg-gray-50"><td class="p-2 font-bold text-orange-600">8 變 4 (高變低)</td><td class="p-2"><span class="hanzi-text">學生</span> <span class="poj-text text-lg">ha̍k-seng</span></td><td class="p-2">ha̍k (第8調) 變成短促 <span class="font-bold text-red-500">低音</span></td></tr>
+                        </table>
+                    </div>
+
+                    <!-- h結尾入聲字 -->
+                    <div>
+                        <h4 class="text-xl font-bold text-orange-800 mb-2 bg-orange-100 p-2 rounded inline-block">C. 入聲字 (-h)：神奇變化！-h 脫落，音拉長</h4>
+                        <table class="w-full text-left mt-2 border">
+                            <tr class="bg-gray-100 border-b"><th class="p-2 w-1/4">規則</th><th class="p-2 w-1/3">詞彙</th><th class="p-2">唸法變化示範</th></tr>
+                            <tr class="border-b hover:bg-gray-50"><td class="p-2 font-bold text-orange-600">4 變 2 (-h脫落)</td><td class="p-2"><span class="hanzi-text">桌布</span> <span class="poj-text text-lg">toh-pò͘</span></td><td class="p-2">toh 的 h 不見，變成 <span class="poj-text text-red-500">tó</span> (第2調)</td></tr>
+                            <tr class="border-b hover:bg-gray-50"><td class="p-2 font-bold text-orange-600">8 變 3 (-h脫落)</td><td class="p-2"><span class="hanzi-text">食飯</span> <span class="poj-text text-lg">chia̍h-pn̄g</span></td><td class="p-2">chia̍h 的 h 不見，變成 <span class="poj-text text-red-500">chià</span> (第3調)</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 單字尋寶 -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6 border-l-8 border-green-400">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">3. 單字尋寶與實戰閱讀 (L16, L18, L20)</h3>
+                <p class="text-gray-600 mb-4">練習唸出長輩熟悉的單字與短句，享受能自己「讀懂台語」的成就感。</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="p-3 border rounded text-center hover:bg-green-50"><div class="poj-text">kam-chià</div><div class="hanzi-text">甘蔗</div></div>
+                    <div class="p-3 border rounded text-center hover:bg-green-50"><div class="poj-text">ông-lâi</div><div class="hanzi-text">鳳梨</div></div>
+                    <div class="p-3 border rounded text-center hover:bg-green-50"><div class="poj-text">Iâ-so͘</div><div class="hanzi-text">耶穌</div></div>
+                    <div class="p-3 border rounded text-center hover:bg-green-50"><div class="poj-text">Sèng-keng</div><div class="hanzi-text">聖經</div></div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        // 切換章節顯示
+        function showHour(hourId) {
+            // 隱藏所有區塊
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(sec => sec.classList.add('hidden'));
+            
+            // 顯示目標區塊
+            document.getElementById(hourId).classList.remove('hidden');
+
+            // 更新左邊選單的樣式 (高亮當前選項)
+            const navButtons = document.querySelectorAll('nav button');
+            navButtons.forEach(btn => {
+                btn.classList.remove('bg-blue-800', 'border-yellow-400', 'font-bold');
+                btn.classList.add('border-transparent');
+            });
+            const activeBtn = document.getElementById('nav-' + hourId);
+            activeBtn.classList.add('bg-blue-800', 'border-yellow-400', 'font-bold');
+            activeBtn.classList.remove('border-transparent');
+        }
+    </script>
+</body>
+</html>
