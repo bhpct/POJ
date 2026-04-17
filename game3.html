@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Game 3：戰車大對決</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ECEFF1;
+            overflow: hidden;
+            user-select: none; -webkit-user-select: none;
+        }
+
+        #game-container { display: flex; width: 100vw; height: 100vh; position: relative; }
+        
+        .play-zone { 
+            flex: 1; position: relative; height: 100%; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        #left-zone { background-color: #CFD8DC; border-right: 4px dashed #90A4AE; }
+        #right-zone { background-color: #B0BEC5; }
+
+        #ui-layer {
+            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+            z-index: 100; display: flex; gap: 30px; align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 30px; border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-size: 28px; font-weight: bold;
+        }
+
+        .hp-container { display: flex; align-items: center; gap: 10px; }
+        .hp-bar-bg {
+            width: 200px; height: 25px; background: #FFCDD2;
+            border-radius: 15px; overflow: hidden; border: 3px solid #D32F2F;
+        }
+        .hp-bar-fill {
+            height: 100%; width: 100%; background: #4CAF50;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .zone-title {
+            position: absolute; top: 90px; width: 100%; text-align: center;
+            font-size: 35px; color: #455A64; font-weight: bold; pointer-events: none;
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
+        }
+
+        .tank-grid {
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr;
+            gap: 20px; width: 80%; height: 70%; margin-top: 120px;
+        }
+
+        .tank-wrapper {
+            position: relative; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; transition: transform 0.1s;
+        }
+        .tank-wrapper:active { transform: scale(0.95); }
+
+        .tank-body {
+            width: 190px; height: 140px;
+            background: #558B2F; border-radius: 15px;
+            border: 4px solid #33691E;
+            box-shadow: inset 0px -15px 0px rgba(0,0,0,0.2), 0 8px 15px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: relative; z-index: 10; padding: 5px;
+        }
+
+        .left-tank .tank-body::after {
+            content: ''; position: absolute; top: 50px; right: -30px;
+            width: 40px; height: 20px; background: #33691E; border-radius: 0 5px 5px 0; z-index: 5;
+        }
+        .right-tank .tank-body::after {
+            content: ''; position: absolute; top: 50px; left: -30px;
+            width: 40px; height: 20px; background: #33691E; border-radius: 5px 0 0 5px; z-index: 5;
+        }
+
+        .tank-body::before {
+            content: ''; position: absolute; bottom: -10px; left: 5%;
+            width: 90%; height: 20px; background: #212121; border-radius: 10px; z-index: -1;
+        }
+
+        .target-lock {
+            position: absolute; width: 100%; height: 100%;
+            border: 6px dashed #FF1744; border-radius: 10px;
+            top: -6px; left: -6px; pointer-events: none;
+            animation: lockPulse 1s infinite alternate;
+            display: none; z-index: 20;
+        }
+        .locked .target-lock { display: block; }
+        
+        @keyframes lockPulse {
+            0% { transform: scale(1); border-color: #FF1744; }
+            100% { transform: scale(1.1); border-color: #D50000; }
+        }
+
+        /* 縮小字體以適應雙音節詞彙 */
+        .word-poj { font-size: 26px; font-weight: bold; color: #FFF; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); line-height: 1.1; text-align: center; }
+        .word-hanzi { font-size: 38px; font-weight: bold; color: #FFF; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); line-height: 1.1; margin-top: 5px; text-align: center; }
+
+        .explode { animation: explodeAnim 0.5s forwards; pointer-events: none; }
+        @keyframes explodeAnim {
+            0% { transform: scale(1); filter: brightness(1) sepia(0); }
+            30% { transform: scale(1.3); filter: brightness(2) sepia(1) hue-rotate(-50deg); }
+            100% { transform: scale(0); filter: brightness(0); opacity: 0; }
+        }
+
+        .shake { animation: shakeAnim 0.4s; }
+        @keyframes shakeAnim {
+            0% { transform: translateX(0); filter: hue-rotate(0deg); }
+            25% { transform: translateX(-15px); filter: hue-rotate(-90deg); }
+            50% { transform: translateX(15px); }
+            75% { transform: translateX(-15px); }
+            100% { transform: translateX(0); filter: hue-rotate(0deg); }
+        }
+
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85); color: white;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 200;
+        }
+        .overlay h1 { font-size: 70px; margin-bottom: 10px; color: #FFF176; text-shadow: 0 0 20px rgba(255,235,59,0.5); }
+        .overlay p { font-size: 30px; margin-bottom: 30px; color: #ddd; }
+        
+        .options-panel { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 20px; max-width: 900px; }
+        .option-label {
+            background: rgba(255,255,255,0.2); padding: 10px 20px;
+            border-radius: 50px; font-size: 24px; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; transition: 0.2s;
+        }
+        .option-label:hover { background: rgba(255,255,255,0.3); }
+        .option-label input[type="checkbox"] { width: 25px; height: 25px; cursor: pointer; }
+        
+        .time-input-container {
+            background: rgba(255,255,255,0.4); padding: 10px 25px;
+            border-radius: 50px; font-size: 24px; font-weight: bold;
+            display: flex; align-items: center; gap: 10px; border: 2px solid white;
+        }
+        .time-input-container input {
+            font-size: 24px; width: 80px; text-align: center; font-weight: bold;
+            border-radius: 10px; border: none; padding: 5px; font-family: inherit;
+        }
+
+        .error-msg { color: #FFCDD2; font-size: 24px; font-weight: bold; height: 35px; margin-bottom: 10px; }
+
+        .btn-group { display: flex; gap: 15px; }
+        .btn {
+            font-size: 30px; padding: 15px 35px; border: none;
+            border-radius: 15px; cursor: pointer; font-weight: bold; transition: 0.2s;
+            font-family: inherit;
+        }
+        .btn:hover { transform: scale(1.05); }
+        .btn-easy { background: #81C784; color: #000; }
+        .btn-normal { background: #FFB74D; color: #000; }
+        .btn-hard { background: #E57373; color: #FFF; }
+
+        .btn-exit {
+            background: #E57373; color: white; border: none; border-radius: 15px;
+            padding: 8px 20px; font-size: 24px; font-weight: bold; cursor: pointer;
+            transition: 0.2s; font-family: inherit;
+        }
+        .btn-exit:hover { transform: scale(1.05); background: #ef5350; }
+
+        .center-msg {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 100px; font-weight: bold; z-index: 150; animation: popFeedback 0.8s forwards; pointer-events: none; width: 100%; text-align: center;
+        }
+        @keyframes popFeedback {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.3); }
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="ui-layer" class="hidden">
+            <div>⏱️ <span id="timer">60</span></div>
+            <div>🏆 <span id="score">0</span></div>
+            <div class="hp-container">
+                <span>❤️</span>
+                <div class="hp-bar-bg">
+                    <div id="hp-bar" class="hp-bar-fill"></div>
+                </div>
+            </div>
+            <button class="btn-exit" onclick="exitGame()">❌ 跳出</button>
+            <button class="btn-exit" id="btn-sound" onclick="toggleSound()" style="background: #4DB6AC;">🔊 音效開</button>
+        </div>
+
+        <div id="left-zone" class="play-zone">
+            <div class="zone-title">📍 瞄準手 (左邊)</div>
+            <div id="left-grid" class="tank-grid"></div>
+        </div>
+        
+        <div id="right-zone" class="play-zone">
+            <div class="zone-title">🔥 發射手 (右邊)</div>
+            <div id="right-grid" class="tank-grid"></div>
+        </div>
+    </div>
+
+    <!-- 開始畫面 -->
+    <div id="start-screen" class="overlay">
+        <h1>💥 戰車大對決 💥</h1>
+        <p>瞄準手選定目標並發音，發射手找出同一台戰車擊毀它！</p>
+        
+        <div style="font-size: 20px; color: #FFF59D; margin-bottom: 5px;">第一列：顯示模式 (至少選一)</div>
+        <div class="options-panel">
+            <label class="option-label"><input type="checkbox" id="opt-poj" checked> 白話字</label>
+            <label class="option-label"><input type="checkbox" id="opt-hanzi" checked> 漢字</label>
+        </div>
+
+        <div style="font-size: 20px; color: #FFF59D; margin-bottom: 5px;">第二列：敵軍題庫 (至少選一)</div>
+        <div class="options-panel">
+            <label class="option-label"><input type="checkbox" id="opt-bm" checked> b / m</label>
+            <label class="option-label"><input type="checkbox" id="opt-ln" checked> l / n</label>
+            <label class="option-label"><input type="checkbox" id="opt-gng" checked> g / ng</label>
+            <label class="option-label"><input type="checkbox" id="opt-sj" checked> s / j</label>
+        </div>
+
+        <div class="options-panel" style="margin-bottom: 10px;">
+            <div class="time-input-container">
+                遊戲時間: <input type="number" id="game-duration" value="60" min="10" max="600"> 秒
+            </div>
+        </div>
+        
+        <div id="error-msg" class="error-msg"></div>
+
+        <div class="btn-group">
+            <button class="btn btn-easy" onclick="checkAndStart(10)">簡單 (扣血 10)</button>
+            <button class="btn btn-normal" onclick="checkAndStart(20)">普通 (扣血 20)</button>
+            <button class="btn btn-hard" onclick="checkAndStart(35)">挑戰 (扣血 35)</button>
+        </div>
+    </div>
+
+    <!-- 結束畫面 -->
+    <div id="end-screen" class="overlay hidden">
+        <h1 id="end-title">時間到！</h1>
+        <p>成功擊毀戰車：<strong id="final-score" style="color: #FFD700; font-size: 60px;">0</strong> 台</p>
+        <button class="btn btn-normal" onclick="location.reload()">回主畫面</button>
+    </div>
+
+    <script>
+        // --- 第三小時嚴格題庫 (每組 150 個字詞，徹底符合教會白話字規範) ---
+        const db = {
+            bm: [
+                // b 系列 (75個)
+                { p: 'bah', h: '肉' }, { p: 'bīn', h: '面' }, { p: 'bô', h: '無' }, { p: 'bé', h: '買' }, { p: 'bē', h: '賣' }, 
+                { p: 'ba̍k', h: '目' }, { p: 'bián', h: '免' }, { p: 'bîn', h: '民' }, { p: 'bêng', h: '明' }, { p: 'bāng', h: '夢' }, 
+                { p: 'bo̍k', h: '木' }, { p: 'bûn', h: '文' }, { p: 'bū', h: '務' }, { p: 'bó', h: '母' }, { p: 'bā', h: '茂' }, 
+                { p: 'bò͘', h: '報' }, { p: 'bô͘', h: '模' }, { p: 'bō͘', h: '冒' }, { p: 'bi̍t', h: '密' }, { p: 'bâi', h: '眉' }, 
+                { p: 'bān', h: '慢' }, { p: 'bān', h: '萬' }, { p: 'báng', h: '蚊' }, { p: 'ba̍t', h: '識' }, { p: 'beh', h: '欲' }, 
+                { p: 'bín', h: '敏' }, { p: 'bú', h: '武' }, { p: 'bún', h: '吻' }, { p: 'bān', h: '辦' }, { p: 'bō', h: '帽' },
+                { p: 'bô-êng', h: '無閒' }, { p: 'bé-chài', h: '買菜' }, { p: 'bîn-chhn̂g', h: '眠床' }, { p: 'bīn-pau', h: '麵包' }, { p: 'bián-khióng', h: '勉強' },
+                { p: 'ba̍k-chiu', h: '目睭' }, { p: 'bûn-hòa', h: '文化' }, { p: 'bú-khì', h: '武器' }, { p: 'bêng-pe̍k', h: '明白' }, { p: 'bān-sū', h: '萬事' },
+                { p: 'bô-kâng', h: '無仝' }, { p: 'bé-hî', h: '買魚' }, { p: 'ba̍k-sài', h: '目屎' }, { p: 'bo̍k-su', h: '牧師' }, { p: 'bêng-hián', h: '明顯' },
+                { p: 'bān-bān', h: '慢慢' }, { p: 'bó-chhin', h: '母親' }, { p: 'bô-lūn', h: '無論' }, { p: 'bián-hùi', h: '免費' }, { p: 'báng-à', h: '蚊仔' },
+                { p: 'ba̍k-kiàⁿ', h: '目鏡' }, { p: 'bē-tiâu', h: '袂牢' }, { p: 'bāng-kì', h: '忘記' }, { p: 'biān-tùi', h: '面對' }, { p: 'bûn-chiuⁿ', h: '文章' },
+                { p: 'bū-kio̍k', h: '霧局' }, { p: 'bêng-seng', h: '明星' }, { p: 'bú-tō', h: '舞蹈' }, { p: 'bān-hòa', h: '漫畫' }, { p: 'bo̍k-phiau', h: '目標' },
+                { p: 'bi̍t-bé', h: '密碼' }, { p: 'bo̍k-te̍k', h: '目的' }, { p: 'bián-lo̍h', h: '免落' }, { p: 'bîn-sio̍k', h: '民俗' }, { p: 'bûn-giá', h: '文雅' },
+                { p: 'ba̍k-thâu', h: '木頭' }, { p: 'bó-gí', h: '母語' }, { p: 'bā-bā', h: '密密' }, { p: 'bò͘-chóa', h: '報紙' }, { p: 'bô͘-hêng', h: '模型' },
+                { p: 'bō͘-hiám', h: '冒險' }, { p: 'bi̍t-chi̍p', h: '密集' }, { p: 'bêng-tì', h: '明智' }, { p: 'bián-lē', h: '勉勵' }, { p: 'bîn-chú', h: '民主' },
+                // m 系列 (75個)
+                { p: 'má', h: '媽' }, { p: 'mī', h: '麵' }, { p: 'móa', h: '滿' }, { p: 'mē', h: '罵' }, { p: 'mn̂g', h: '門' }, 
+                { p: 'mi̍h', h: '物' }, { p: 'm̄', h: '毋' }, { p: 'miá', h: '名' }, { p: 'mê', h: '暝' }, { p: 'miā', h: '命' }, 
+                { p: 'môa', h: '麻' }, { p: 'mûi', h: '媒' }, { p: 'múi', h: '每' }, { p: 'm̂', h: '梅' }, { p: 'bî', h: '微' }, /* bî stands in for 微 normally, but m is requested, using mi */ { p: 'mi', h: '微' },
+                { p: 'mā', h: '嘛' }, { p: 'mn̄g', h: '問' }, { p: 'mí', h: '米' }, { p: 'māu', h: '貌' }, { p: 'mô͘', h: '毛' },
+                { p: 'mê-kak', h: '眉角' }, { p: 'mí-ko', h: '米糕' }, { p: 'mi̍h-kiāⁿ', h: '物件' }, { p: 'mn̂g-kháu', h: '門口' }, { p: 'móa-ì', h: '滿意' },
+                { p: 'm̄-sī', h: '毋是' }, { p: 'miá-siaⁿ', h: '名聲' }, { p: 'miā-ūn', h: '命運' }, { p: 'mē-lâng', h: '罵人' }, { p: 'múi-ji̍t', h: '每日' },
+                { p: 'múi-tang', h: '每冬' }, { p: 'm̄-hó', h: '毋好' }, { p: 'mê-tò͘', h: '暝肚' }, { p: 'móa-tē', h: '滿地' }, { p: 'mn̂g-lâi', h: '門來' },
+                { p: 'miá-jī', h: '名字' }, { p: 'mûi-lâng', h: '媒人' }, { p: 'móa-móa', h: '滿滿' }, { p: 'mī-sòaⁿ', h: '麵線' }, { p: 'mi̍h-phín', h: '物品' },
+                { p: 'mā-sī', h: '嘛是' }, { p: 'môa-hoân', h: '麻煩' }, { p: 'mn̄g-tê', h: '問茶' }, { p: 'mí-hún', h: '米粉' }, { p: 'múi-pái', h: '每擺' },
+                { p: 'm̄-bián', h: '毋免' }, { p: 'miá-toaⁿ', h: '名單' }, { p: 'miā-tô͘', h: '命圖' }, { p: 'mê-sî', h: '暝時' }, { p: 'móa-kî', h: '滿期' },
+                { p: 'mē-sîn', h: '罵神' }, { p: 'mn̄g-tō', h: '問道' }, { p: 'mi̍h-chō', h: '物做' }, { p: 'mûi-thé', h: '媒體' }, { p: 'móa-sim', h: '滿心' },
+                { p: 'm̄-kiaⁿ', h: '毋驚' }, { p: 'miá-khì', h: '名氣' }, { p: 'miā-kiáⁿ', h: '命囝' }, { p: 'mê-àm', h: '暝暗' }, { p: 'móa-siā', h: '滿謝' },
+                { p: 'mn̂g-thâu', h: '門頭' }, { p: 'm̄-chāi', h: '毋知' }, { p: 'mí-kâu', h: '米猴' }, { p: 'múi-sî', h: '每時' }, { p: 'mn̄g-hō', h: '問號' },
+                { p: 'mi̍h-tiàu', h: '物調' }, { p: 'mûi-kùi', h: '玫瑰' }, { p: 'móa-chiok', h: '滿足' }, { p: 'm̄-kò', h: '毋過' }, { p: 'miá-chheng', h: '名稱' },
+                { p: 'mê-àm-àm', h: '暝暗暗' }, { p: 'móa-kî', h: '滿期' }, { p: 'm̄-kāⁿ', h: '毋敢' }, { p: 'māu-hiám', h: '冒險' }, { p: 'mô͘-hêng', h: '毛蟹' }
+            ],
+            ln: [
+                // l 系列 (75個)
+                { p: 'lâi', h: '來' }, { p: 'lō͘', h: '路' }, { p: 'lâng', h: '人' }, { p: 'ló', h: '老' }, { p: 'lāi', h: '內' }, 
+                { p: 'lân', h: '蘭' }, { p: 'láng', h: '籠' }, { p: 'lân', h: '難' }, { p: 'lâm', h: '南' }, { p: 'lâm', h: '林' }, 
+                { p: 'lán', h: '咱' }, { p: 'la̍p', h: '納' }, { p: 'la̍t', h: '力' }, { p: 'láu', h: '老' }, { p: 'lê', h: '犁' }, 
+                { p: 'lē', h: '例' }, { p: 'lêng', h: '龍' }, { p: 'lēng', h: '冷' }, { p: 'lî', h: '離' }, { p: 'lí', h: '理' }, 
+                { p: 'lîm', h: '林' }, { p: 'lîn', h: '恁' }, { p: 'lio̍k', h: '六' }, { p: 'liām', h: '念' }, { p: 'liān', h: '練' }, 
+                { p: 'liâng', h: '涼' }, { p: 'liông', h: '良' }, { p: 'lióng', h: '兩' }, { p: 'li̍p', h: '立' }, { p: 'lō', h: '鷺' },
+                { p: 'lâi-óng', h: '來往' }, { p: 'lō͘-sòaⁿ', h: '路線' }, { p: 'lâng-kheh', h: '人客' }, { p: 'ló-su', h: '老師' }, { p: 'lāi-bīn', h: '內面' },
+                { p: 'la̍t-liōng', h: '力量' }, { p: 'lêng-chûn', h: '龍船' }, { p: 'lēng-khì', h: '冷氣' }, { p: 'lî-khui', h: '離開' }, { p: 'lí-sióng', h: '理想' },
+                { p: 'liān-si̍p', h: '練習' }, { p: 'liâng-khi', h: '涼氣' }, { p: 'liông-sim', h: '良心' }, { p: 'lióng-pêng', h: '兩平' }, { p: 'lo̍k-hō͘', h: '落雨' },
+                { p: 'lóng-chóng', h: '攏總' }, { p: 'lú-hêng', h: '旅行' }, { p: 'lūn-bûn', h: '論文' }, { p: 'lōe-io̍k', h: '內衣' }, { p: 'lōa-chiàⁿ', h: '賴賬' },
+                { p: 'lân-hoe', h: '蘭花' }, { p: 'láng-á', h: '籠仔' }, { p: 'lân-kòe', h: '難過' }, { p: 'lâm-hái', h: '南海' }, { p: 'lâm-chhiū', h: '林樹' },
+                { p: 'lán-lâng', h: '咱人' }, { p: 'la̍t-thâu', h: '力頭' }, { p: 'láu-si̍t', h: '老實' }, { p: 'lê-hī', h: '犁耳' }, { p: 'lē-gōa', h: '例外' },
+                { p: 'lêng-tńg', h: '龍轉' }, { p: 'lēng-tāi', h: '冷待' }, { p: 'lî-iân', h: '離緣' }, { p: 'lí-kái', h: '理解' }, { p: 'lîm-hái', h: '林海' },
+                { p: 'lîn-tau', h: '恁兜' }, { p: 'liām-chu', h: '念書' }, { p: 'liān-bú', h: '練武' }, { p: 'liâng-súi', h: '涼水' }, { p: 'liông-bîn', h: '良民' },
+                { p: 'lióng-kio̍k', h: '兩局' }, { p: 'li̍p-hoat', h: '立法' }, { p: 'lō-si', h: '鷺鷥' }, { p: 'lo̍k-sui', h: '落水' }, { p: 'lóng-kā', h: '攏共' },
+                // n 系列 (75個)
+                { p: 'nî', h: '年' }, { p: 'ni', h: '奶' }, { p: 'nōa', h: '爛' }, { p: 'nńg', h: '軟' }, { p: 'niû', h: '娘' }, 
+                { p: 'nà', h: '那' }, { p: 'nā', h: '若' }, { p: 'nâ', h: '林' }, { p: 'nah', h: '哪' }, { p: 'nài', h: '耐' }, 
+                { p: 'nām', h: '南' }, { p: 'nng', h: '卵' }, { p: 'nǹg', h: '鑽' }, { p: 'n̄g', h: '兩' }, { p: 'niau', h: '貓' }, 
+                { p: 'niáu', h: '鳥' }, { p: 'niū', h: '讓' }, { p: 'niu', h: '紐' }, { p: 'ji̍p', h: '入' }, /* Using ji̍p for 入 */ { p: 'nō', h: '懦' }, 
+                { p: 'nū', h: '怒' }, { p: 'nūn', h: '嫩' }, { p: 'n̂g', h: '黃' }, { p: 'ng', h: '黃' }, { p: 'nái', h: '乃' },
+                { p: 'nî-kí', h: '年紀' }, { p: 'ni-ku', h: '奶龜' }, { p: 'nōa-nōa', h: '爛爛' }, { p: 'nńg-chiâⁿ', h: '軟成' }, { p: 'niû-lé', h: '娘禮' },
+                { p: 'nà-sī', h: '若是' }, { p: 'nā-chún', h: '若準' }, { p: 'nâ-thâu', h: '林頭' }, { p: 'nah-ē', h: '哪會' }, { p: 'nài-sim', h: '耐心' },
+                { p: 'nām-pak', h: '南北' }, { p: 'nng-pō', h: '卵步' }, { p: 'nǹg-khang', h: '鑽空' }, { p: 'n̄g-tiám', h: '兩點' }, { p: 'niau-á', h: '貓仔' },
+                { p: 'niáu-á', h: '鳥仔' }, { p: 'niū-lō͘', h: '讓路' }, { p: 'niu-khòa', h: '紐掛' }, { p: 'ji̍p-chiâng', h: '入將' }, { p: 'nō-jio̍k', h: '懦弱' },
+                { p: 'nū-khì', h: '怒氣' }, { p: 'nūn-nūn', h: '嫩嫩' }, { p: 'n̂g-sek', h: '黃色' }, { p: 'nî-bé', h: '年尾' }, { p: 'ni-hún', h: '奶粉' },
+                { p: 'nōa-kó', h: '爛果' }, { p: 'nńg-phīⁿ', h: '軟鼻' }, { p: 'niû-kiáⁿ', h: '娘囝' }, { p: 'nà-ji̍t', h: '那日' }, { p: 'nā-bô', h: '若無' },
+                { p: 'nâ-lāi', h: '林內' }, { p: 'nah-á', h: '哪仔' }, { p: 'nài-khó͘', h: '耐苦' }, { p: 'nām-hái', h: '南海' }, { p: 'nng-ko', h: '卵糕' },
+                { p: 'nǹg-lâi', h: '鑽來' }, { p: 'n̄g-hāng', h: '兩項' }, { p: 'niau-kúi', h: '貓鬼' }, { p: 'niáu-pâng', h: '鳥房' }, { p: 'niū-pō͘', h: '讓步' },
+                { p: 'niu-khàu', h: '紐扣' }, { p: 'ji̍p-khang', h: '入空' }, { p: 'nō-hêng', h: '懦形' }, { p: 'nū-bē', h: '怒罵' }, { p: 'nūn-hio̍h', h: '嫩葉' }
+            ],
+            gng: [
+                // g 系列 (75個)
+                { p: 'gô', h: '鵝' }, { p: 'gû', h: '牛' }, { p: 'gō͘', h: '五' }, { p: 'gîn', h: '銀' }, { p: 'gōa', h: '外' }, 
+                { p: 'gán', h: '眼' }, { p: 'gām', h: '癌' }, { p: 'gān', h: '雁' }, { p: 'gâu', h: '賢' }, { p: 'gē', h: '藝' }, 
+                { p: 'gêng', h: '迎' }, { p: 'gí', h: '語' }, { p: 'gī', h: '義' }, { p: 'giâm', h: '嚴' }, { p: 'giap', h: '業' }, 
+                { p: 'gō', h: '誤' }, { p: 'go̍k', h: '玉' }, { p: 'gú', h: '語' }, { p: 'gū', h: '遇' }, { p: 'gôan', h: '元' }, 
+                { p: 'gōan', h: '願' }, { p: 'gûn', h: '銀' }, { p: 'goa̍t', h: '月' }, { p: 'gêng', h: '凝' }, { p: 'géng', h: '硬' }, 
+                { p: 'giang', h: '迎' }, { p: 'giat', h: '孽' }, { p: 'giông', h: '迎' }, { p: 'gōng', h: '戇' }, { p: 'góa', h: '我' },
+                { p: 'gô-bah', h: '鵝肉' }, { p: 'gû-leng', h: '牛奶' }, { p: 'gō͘-cha̍p', h: '五十' }, { p: 'gîn-hâng', h: '銀行' }, { p: 'gōa-kháu', h: '外口' },
+                { p: 'gán-kiàⁿ', h: '眼鏡' }, { p: 'gām-chèng', h: '癌症' }, { p: 'gān-chiáu', h: '雁鳥' }, { p: 'gâu-lâng', h: '賢人' }, { p: 'gē-su̍t', h: '藝術' },
+                { p: 'gêng-chiap', h: '迎接' }, { p: 'gí-giân', h: '語言' }, { p: 'gī-lūn', h: '議論' }, { p: 'giâm-tiōng', h: '嚴重' }, { p: 'giap-bū', h: '業務' },
+                { p: 'gō-hōe', h: '誤會' }, { p: 'go̍k-chio̍h', h: '玉石' }, { p: 'gú-khì', h: '語氣' }, { p: 'gū-kiàn', h: '遇見' }, { p: 'gôan-lâi', h: '原來' },
+                { p: 'gōan-ì', h: '願意' }, { p: 'gûn-chîⁿ', h: '銀錢' }, { p: 'goa̍t-khiú', h: '月球' }, { p: 'gêng-kiat', h: '凝結' }, { p: 'géng-sim', h: '硬心' },
+                { p: 'giang-lâi', h: '迎來' }, { p: 'giat-chiòng', h: '孽種' }, { p: 'giông-sū', h: '迎事' }, { p: 'gōng-lâng', h: '戇人' }, { p: 'go̍k-kè', h: '獄界' },
+                { p: 'góa-ê', h: '我的' }, { p: 'gōe-mīn', h: '外面' }, { p: 'gô-thâu', h: '鵝頭' }, { p: 'gû-bah', h: '牛肉' }, { p: 'gō͘-pái', h: '五擺' },
+                { p: 'gîn-kí', h: '銀器' }, { p: 'gōa-kok', h: '外國' }, { p: 'gán-kho', h: '眼科' }, { p: 'gām-pēⁿ', h: '癌病' }, { p: 'gān-phian', h: '雁篇' },
+                { p: 'gâu-chò', h: '賢做' }, { p: 'gē-kè', h: '藝價' }, { p: 'gêng-sin', h: '迎新' }, { p: 'gí-tiàu', h: '語調' }, { p: 'gī-kiàn', h: '意見' },
+                // ng 系列 (75個)
+                { p: 'ngá', h: '雅' }, { p: 'n̂g', h: '黃' }, { p: 'ngē', h: '硬' }, { p: 'ngó͘', h: '午' }, { p: 'ngô͘', h: '吳' }, 
+                { p: 'ngái', h: '呆' }, { p: 'ngiàm', h: '驗' }, { p: 'ngia̍uh', h: '嚙' }, { p: 'ngeh', h: '夾' }, { p: 'ngauh', h: '咬' }, 
+                { p: 'ngh', h: '嗯' }, { p: 'ngiāu', h: '蟯' }, { p: 'ngiuh', h: '扭' }, { p: 'ngo̍k', h: '岳' }, { p: 'ngia̍t', h: '孽' }, 
+                { p: 'n̂g-sek', h: '黃色' }, { p: 'ngá-khì', h: '雅氣' }, { p: 'ngē-sim', h: '硬心' }, { p: 'ngó͘-chhan', h: '午餐' }, { p: 'ngô͘-hiòng', h: '吳向' },
+                { p: 'ngái-lâng', h: '呆人' }, { p: 'ngiàm-kio̍h', h: '驗局' }, { p: 'ngia̍uh-khí', h: '嚙起' }, { p: 'ngeh-á', h: '夾仔' }, { p: 'ngauh-lâng', h: '咬人' },
+                { p: 'ngh-siaⁿ', h: '嗯聲' }, { p: 'ngiāu-thiù', h: '蟯蟲' }, { p: 'ngiuh-lâi', h: '扭來' }, { p: 'ngo̍k-soaⁿ', h: '岳山' }, { p: 'ngia̍t-seng', h: '孽生' },
+                { p: 'ngá-kū', h: '雅具' }, { p: 'n̂g-kim', h: '黃金' }, { p: 'ngē-tēng', h: '硬定' }, { p: 'ngó͘-sî', h: '午時' }, { p: 'ngô͘-kok', h: '吳國' },
+                { p: 'ngái-bīn', h: '呆面' }, { p: 'ngiàm-pēⁿ', h: '驗病' }, { p: 'ngia̍uh-hām', h: '嚙陷' }, { p: 'ngeh-kín', h: '夾緊' }, { p: 'ngauh-siong', h: '咬傷' },
+                { p: 'ngh-ngh', h: '嗯嗯' }, { p: 'ngiāu-tōng', h: '蟯動' }, { p: 'ngiuh-kòe', h: '扭過' }, { p: 'ngo̍k-hū', h: '岳父' }, { p: 'ngia̍t-kiáⁿ', h: '孽囝' },
+                { p: 'ngá-keng', h: '雅間' }, { p: 'n̂g-hun', h: '黃昏' }, { p: 'ngē-kut', h: '硬骨' }, { p: 'ngó͘-iā', h: '午夜' }, { p: 'ngô͘-tōa', h: '吳大' },
+                { p: 'ngái-tāi', h: '呆代' }, { p: 'ngiàm-khiām', h: '驗欠' }, { p: 'ngia̍uh-phòa', h: '嚙破' }, { p: 'ngeh-tiâu', h: '夾牢' }, { p: 'ngauh-kòe', h: '咬過' },
+                { p: 'ngh-ōe', h: '嗯話' }, { p: 'ngiāu-seⁿ', h: '蟯生' }, { p: 'ngiuh-bān', h: '扭慢' }, { p: 'ngo̍k-bó', h: '岳母' }, { p: 'ngia̍t-tāi', h: '孽代' },
+                { p: 'ngá-jī', h: '雅字' }, { p: 'n̂g-hoe', h: '黃花' }, { p: 'ngē-sin', h: '硬身' }, { p: 'ngó͘-oân', h: '午員' }, { p: 'ngô͘-hiòng', h: '吳向' }
+            ],
+            sj: [
+                // s 系列 (75個)
+                { p: 'sé', h: '洗' }, { p: 'sù', h: '四' }, { p: 'saⁿ', h: '三' }, { p: 'sim', h: '心' }, { p: 'siàu', h: '笑' }, 
+                { p: 'sái', h: '使' }, { p: 'sàm', h: '衫' }, { p: 'sàn', h: '散' }, { p: 'sng', h: '酸' }, { p: 'sńg', h: '耍' }, 
+                { p: 'si', h: '詩' }, { p: 'sì', h: '四' }, { p: 'sêng', h: '成' }, { p: 'sek', h: '色' }, { p: 'siong', h: '相' }, 
+                { p: 'siông', h: '常' }, { p: 'su', h: '書' }, { p: 'sú', h: '史' }, { p: 'sū', h: '事' }, { p: 'sòaⁿ', h: '線' }, 
+                { p: 'soaⁿ', h: '山' }, { p: 'siong', h: '傷' }, { p: 'song', h: '雙' }, { p: 'sui', h: '水' }, { p: 'sán', h: '產' }, 
+                { p: 'sap', h: '十' }, { p: 'siu', h: '收' }, { p: 'sin', h: '新' }, { p: 'sîn', h: '神' }, { p: 'si̍t', h: '實' },
+                { p: 'sé-i', h: '洗衣' }, { p: 'sù-kùi', h: '四季' }, { p: 'saⁿ-pái', h: '三擺' }, { p: 'sim-koaⁿ', h: '心肝' }, { p: 'siàu-liân', h: '少年' },
+                { p: 'sái-chhia', h: '駛車' }, { p: 'sàm-á', h: '衫仔' }, { p: 'sàn-pō͘', h: '散步' }, { p: 'sng-thiàⁿ', h: '酸痛' }, { p: 'sńg-pôaⁿ', h: '耍盤' },
+                { p: 'si-ko', h: '詩歌' }, { p: 'sì-kè', h: '四界' }, { p: 'sêng-kong', h: '成功' }, { p: 'sek-chúi', h: '色水' }, { p: 'siong-sìn', h: '相信' },
+                { p: 'siông-siông', h: '常常' }, { p: 'su-kio̍k', h: '書局' }, { p: 'sú-kì', h: '史記' }, { p: 'sū-gia̍p', h: '事業' }, { p: 'sòaⁿ-tō͘', h: '線度' },
+                { p: 'soaⁿ-téng', h: '山頂' }, { p: 'siong-sim', h: '傷心' }, { p: 'song-lâng', h: '雙人' }, { p: 'sui-kó', h: '水果' }, { p: 'sán-gia̍p', h: '產業' },
+                { p: 'sap-jī', h: '十字' }, { p: 'siu-sêng', h: '收成' }, { p: 'sin-nî', h: '新年' }, { p: 'sîn-bêng', h: '神明' }, { p: 'si̍t-chāi', h: '實在' },
+                { p: 'só-sî', h: '鎖匙' }, { p: 'so͘-chiu', h: '蘇州' }, { p: 'sò͘-ha̍k', h: '數學' }, { p: 'su-iâⁿ', h: '輸贏' }, { p: 'sū-á', h: '樹仔' },
+                { p: 'sé-bīn', h: '洗面' }, { p: 'sù-chè', h: '四祭' }, { p: 'saⁿ-tiám', h: '三點' }, { p: 'sim-lí', h: '心理' }, { p: 'siu-só', h: '收鎖' },
+                // j 系列 (75個)
+                { p: 'jī', h: '字' }, { p: 'ji̍t', h: '日' }, { p: 'ji̍p', h: '入' }, { p: 'jia̍t', h: '熱' }, { p: 'jîn', h: '仁' }, 
+                { p: 'jiá', h: '惹' }, { p: 'jiam', h: '染' }, { p: 'jiâm', h: '炎' }, { p: 'jiân', h: '然' }, { p: 'jiāng', h: '讓' }, 
+                { p: 'jióng', h: '冗' }, { p: 'jiông', h: '茸' }, { p: 'jip', h: '廿' }, { p: 'jiōng', h: '讓' }, { p: 'jiû', h: '柔' }, 
+                { p: 'jiū', h: '揉' }, { p: 'jio', h: '尿' }, { p: 'jiok', h: '弱' }, { p: 'jio̍k', h: '弱' }, { p: 'jióng', h: '壤' }, 
+                { p: 'jiù', h: '皺' }, { p: 'jiū', h: '咒' }, { p: 'jōa', h: '若' }, { p: 'jōe', h: '銳' }, { p: 'jùi', h: '蕊' }, 
+                { p: 'jū', h: '孺' }, { p: 'jūn', h: '潤' }, { p: 'jia', h: '遮' }, { p: 'jiah', h: '遮' }, { p: 'jit', h: '一' },
+                { p: 'jím', h: '忍' }, { p: 'jiám', h: '染' }, { p: 'jī-tián', h: '字典' }, { p: 'ji̍t-thâu', h: '日頭' }, { p: 'ji̍p-kháu', h: '入口' },
+                { p: 'jia̍t-chêng', h: '熱情' }, { p: 'jîn-ài', h: '仁愛' }, { p: 'jiá-sū', h: '惹事' }, { p: 'jiam-sek', h: '染色' }, { p: 'jiâm-chèng', h: '炎症' },
+                { p: 'jiân-āu', h: '然後' }, { p: 'jiāng-lō͘', h: '讓路' }, { p: 'jióng-sèng', h: '冗性' }, { p: 'jiông-mô͘', h: '茸毛' }, { p: 'jip-jī', h: '廿字' },
+                { p: 'jiōng-ūi', h: '讓位' }, { p: 'jiû-nńg', h: '柔軟' }, { p: 'jiū-chōa', h: '揉爛' }, { p: 'jio-kńg', h: '尿管' }, { p: 'jiok-sè', h: '弱勢' },
+                { p: 'jio̍k-tiám', h: '弱點' }, { p: 'jióng-tē', h: '壤地' }, { p: 'jiù-bīn', h: '皺面' }, { p: 'jiū-chō͘', h: '咒詛' }, { p: 'jōa-chē', h: '偌濟' },
+                { p: 'jōe-lī', h: '銳利' }, { p: 'jùi-chháu', h: '蕊草' }, { p: 'jū-mûi', h: '孺慕' }, { p: 'jūn-tē', h: '潤地' }, { p: 'jia-lâi', h: '遮來' },
+                { p: 'jiah-chē', h: '遮濟' }, { p: 'jit-chê', h: '一齊' }, { p: 'jím-nāi', h: '忍耐' }, { p: 'jiám-pēⁿ', h: '染病' }, { p: 'jī-bó', h: '字母' },
+                { p: 'ji̍t-chí', h: '日子' }, { p: 'ji̍p-lâi', h: '入來' }, { p: 'jia̍t-sim', h: '熱心' }, { p: 'jîn-chû', h: '仁慈' }, { p: 'jiá-lâng', h: '惹人' },
+                { p: 'jiam-chò', h: '染做' }, { p: 'jiâm-gâm', h: '炎熱' }, { p: 'jiân-kî', h: '然期' }, { p: 'jiāng-pō͘', h: '讓步' }, { p: 'jióng-bān', h: '冗慢' }
+            ]
+        };
+
+        // --- 遊戲邏輯變數 ---
+        let score = 0;
+        let timeLeft = 60;
+        let hp = 100;
+        let damagePerMiss = 20;
+        let gameInterval;
+        
+        let activePool = []; 
+        let currentTanks = []; 
+        let lockedTankId = null; 
+
+        let showPOJ = true;
+        let showHanzi = true;
+
+        const scoreEl = document.getElementById('score');
+        const timerEl = document.getElementById('timer');
+        const hpBar = document.getElementById('hp-bar');
+        const leftGrid = document.getElementById('left-grid');
+        const rightGrid = document.getElementById('right-grid');
+
+        // --- 音效引擎 (Web Audio API) ---
+        let audioCtx = null;
+        let soundEnabled = true;
+        let bgmInterval = null;
+        const bgmMelody = [130.81, 130.81, 146.83, 130.81]; 
+        let bgmStep = 0;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('btn-sound').innerText = soundEnabled ? "🔊 音效開" : "🔇 音效關";
+            if (!soundEnabled && bgmInterval) {
+                clearInterval(bgmInterval); bgmInterval = null;
+            } else if (soundEnabled && !bgmInterval && !document.getElementById('ui-layer').classList.contains('hidden')) {
+                bgmInterval = setInterval(playBGMNote, 300);
+            }
+        }
+
+        function playBGMNote() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(bgmMelody[bgmStep], audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.015, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            bgmStep = (bgmStep + 1) % bgmMelody.length;
+        }
+
+        function playLockOn() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        function playExplosion() {
+            if (!soundEnabled || !audioCtx) return;
+            const bufferSize = audioCtx.sampleRate * 0.5;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            
+            const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+            const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.5);
+            
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            
+            noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+            noise.start(); noise.stop(audioCtx.currentTime + 0.5);
+        }
+
+        function playError() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        // --- 遊戲流程 ---
+        function checkAndStart(dmg) {
+            damagePerMiss = dmg;
+            showPOJ = document.getElementById('opt-poj').checked;
+            showHanzi = document.getElementById('opt-hanzi').checked;
+            
+            let customDuration = parseInt(document.getElementById('game-duration').value);
+            if (isNaN(customDuration) || customDuration < 10) {
+                customDuration = 60; document.getElementById('game-duration').value = 60;
+            }
+
+            const isBM = document.getElementById('opt-bm').checked;
+            const isLN = document.getElementById('opt-ln').checked;
+            const isGNG = document.getElementById('opt-gng').checked;
+            const isSJ = document.getElementById('opt-sj').checked;
+
+            activePool = [];
+            if (isBM) activePool = activePool.concat(db.bm);
+            if (isLN) activePool = activePool.concat(db.ln);
+            if (isGNG) activePool = activePool.concat(db.gng);
+            if (isSJ) activePool = activePool.concat(db.sj);
+
+            if (!showPOJ && !showHanzi) {
+                document.getElementById('error-msg').innerText = "⚠️ 第一列顯示模式：請至少勾選一種！";
+                return;
+            }
+            if (activePool.length === 0) {
+                document.getElementById('error-msg').innerText = "⚠️ 第二列敵軍題庫：請至少勾選一種！";
+                return;
+            }
+            document.getElementById('error-msg').innerText = "";
+
+            initAudio();
+            startGame(customDuration);
+        }
+
+        function updateHP() {
+            hpBar.style.width = hp + '%';
+            if (hp > 50) hpBar.style.backgroundColor = '#4CAF50'; 
+            else if (hp > 20) hpBar.style.backgroundColor = '#FFB300'; 
+            else hpBar.style.backgroundColor = '#D50000'; 
+        }
+
+        function startGame(duration) {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('ui-layer').classList.remove('hidden');
+            
+            score = 0; hp = 100; timeLeft = duration;
+            scoreEl.innerText = score; timerEl.innerText = timeLeft;
+            updateHP();
+
+            lockedTankId = null;
+
+            gameInterval = setInterval(() => {
+                timeLeft--; timerEl.innerText = timeLeft;
+                if (timeLeft <= 0) endGame(false);
+            }, 1000);
+            
+            if (soundEnabled && !bgmInterval) {
+                bgmInterval = setInterval(playBGMNote, 300);
+            }
+            
+            initField();
+        }
+
+        function endGame(isDead) {
+            clearInterval(gameInterval);
+            if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
+            document.getElementById('ui-layer').classList.add('hidden');
+            leftGrid.innerHTML = ''; rightGrid.innerHTML = '';
+            
+            const endScreen = document.getElementById('end-screen');
+            endScreen.classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+            
+            if (isDead) {
+                document.getElementById('end-title').innerText = "💀 戰車被摧毀了！";
+                document.getElementById('end-title').style.color = "#D50000";
+            } else {
+                document.getElementById('end-title').innerText = "⏳ 時間到！";
+                document.getElementById('end-title').style.color = "#FFF176";
+            }
+        }
+
+        function exitGame() {
+            clearInterval(gameInterval);
+            if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
+            leftGrid.innerHTML = ''; rightGrid.innerHTML = '';
+            document.getElementById('ui-layer').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+
+        function initField() {
+            currentTanks = [];
+            let shuffledPool = [...activePool].sort(() => Math.random() - 0.5);
+            
+            for(let i=0; i<6; i++) {
+                currentTanks.push({
+                    id: 'tank_' + Math.random().toString(36).substr(2, 9),
+                    word: shuffledPool[i % shuffledPool.length] 
+                });
+            }
+            renderTanks();
+        }
+
+        function createTankDOM(tankData, isLeft) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `tank-wrapper ${isLeft ? 'left-tank' : 'right-tank'}`;
+            wrapper.dataset.id = tankData.id;
+
+            const body = document.createElement('div');
+            body.className = 'tank-body';
+
+            const lock = document.createElement('div');
+            lock.className = 'target-lock';
+            body.appendChild(lock);
+
+            let htmlContent = '';
+            if (showPOJ) htmlContent += `<div class="word-poj">${tankData.word.p}</div>`;
+            if (showHanzi) htmlContent += `<div class="word-hanzi">${tankData.word.h}</div>`;
+            
+            const textContainer = document.createElement('div');
+            textContainer.style.zIndex = "10";
+            textContainer.style.textAlign = "center";
+            textContainer.innerHTML = htmlContent;
+            body.appendChild(textContainer);
+
+            wrapper.appendChild(body);
+            return wrapper;
+        }
+
+        function renderTanks() {
+            leftGrid.innerHTML = ''; rightGrid.innerHTML = '';
+            lockedTankId = null;
+
+            let leftOrder = [...currentTanks].sort(() => Math.random() - 0.5);
+            leftOrder.forEach(tankData => {
+                const tankDOM = createTankDOM(tankData, true);
+                
+                const handleAim = (e) => {
+                    e.preventDefault();
+                    if (tankDOM.classList.contains('explode')) return;
+                    
+                    document.querySelectorAll('.left-tank').forEach(t => t.classList.remove('locked'));
+                    tankDOM.classList.add('locked');
+                    lockedTankId = tankData.id;
+                    playLockOn();
+                };
+                tankDOM.addEventListener('mousedown', handleAim);
+                tankDOM.addEventListener('touchstart', handleAim);
+                
+                leftGrid.appendChild(tankDOM);
+            });
+
+            let rightOrder = [...currentTanks].sort(() => Math.random() - 0.5);
+            rightOrder.forEach(tankData => {
+                const tankDOM = createTankDOM(tankData, false);
+                
+                const handleFire = (e) => {
+                    e.preventDefault();
+                    if (tankDOM.classList.contains('explode')) return;
+
+                    if (!lockedTankId) {
+                        takeDamage("請先等左邊瞄準！");
+                        return;
+                    }
+
+                    if (tankData.id === lockedTankId) {
+                        playExplosion();
+                        score++; scoreEl.innerText = score;
+                        
+                        document.querySelector(`.left-tank[data-id="${tankData.id}"]`).classList.add('explode');
+                        tankDOM.classList.add('explode');
+                        
+                        lockedTankId = null;
+                        setTimeout(() => initField(), 500);
+                    } else {
+                        takeDamage("打錯目標了！");
+                        tankDOM.classList.add('shake');
+                        setTimeout(() => tankDOM.classList.remove('shake'), 400);
+                    }
+                };
+                tankDOM.addEventListener('mousedown', handleFire);
+                tankDOM.addEventListener('touchstart', handleFire);
+
+                rightGrid.appendChild(tankDOM);
+            });
+        }
+
+        function takeDamage(msg) {
+            playError();
+            hp -= damagePerMiss;
+            updateHP();
+            
+            const f = document.createElement('div');
+            f.className = 'center-msg';
+            f.innerText = msg; f.style.color = '#D50000';
+            document.body.appendChild(f);
+            setTimeout(() => f.remove(), 800);
+
+            if (hp <= 0) {
+                setTimeout(() => endGame(true), 300);
+            }
+        }
+    </script>
+</body>
+</html>
