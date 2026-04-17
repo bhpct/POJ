@@ -21,7 +21,7 @@
         .poj-text {
             font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             letter-spacing: 0 !important;
-            padding-right: 0.1em;
+            padding-right: 0.15em;
             display: inline-block;
         }
 
@@ -59,30 +59,51 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 2.5rem;
-            color: rgba(255, 255, 255, 0.4);
+            font-size: 3rem;
+            color: rgba(30, 136, 229, 0.15); /* text-blue-800/15 */
             font-weight: 900;
             pointer-events: none;
             text-align: center;
             z-index: 0;
+            white-space: nowrap;
         }
         @media (min-width: 768px) {
-            .zone-title { font-size: 4rem; }
+            .zone-title { font-size: 5rem; }
+        }
+
+        /* 車道包裝器：確保氣球不會互相重疊或出界 */
+        .balloon-wrapper {
+            position: absolute;
+            bottom: -20%; /* 從畫面下方外開始 */
+            z-index: 10;
+        }
+
+        /* 升空動畫 */
+        .floating {
+            animation: floatUp linear forwards;
+        }
+        @keyframes floatUp {
+            0% { transform: translateX(-50%) translateY(0); }
+            100% { transform: translateX(-50%) translateY(-140vh); }
         }
 
         /* 氣球樣式與 RWD 尺寸 */
         .balloon {
-            position: absolute;
-            bottom: -20%; /* 從畫面下方外開始 */
             border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
             display: flex; justify-content: center; align-items: center;
             font-weight: bold; cursor: pointer;
             box-shadow: inset -10px -10px 20px rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.2);
-            transition: transform 0.1s;
-            z-index: 10;
+            transition: all 0.2s ease-out;
+            position: relative;
+            /* 氣球微微搖擺特效 */
+            animation: wiggle 3s ease-in-out infinite alternate;
         }
-        .balloon:active { transform: scale(0.9); }
         
+        @keyframes wiggle {
+            0% { transform: rotate(-5deg); }
+            100% { transform: rotate(5deg); }
+        }
+
         /* 氣球綁線 */
         .balloon::after {
             content: '';
@@ -93,26 +114,17 @@
             background-color: rgba(0,0,0,0.5);
         }
 
+        .balloon:active { transform: scale(0.9) !important; }
+        
         /* 響應式氣球大小 */
         .balloon-size { width: 60px; height: 80px; font-size: 1.5rem; }
         @media (min-width: 480px) { .balloon-size { width: 80px; height: 105px; font-size: 2rem; } }
         @media (min-width: 768px) { .balloon-size { width: 100px; height: 130px; font-size: 2.5rem; } }
 
-        /* 升空動畫 */
-        @keyframes floatUp {
-            0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-60vh) rotate(5deg); }
-            100% { transform: translateY(-120vh) rotate(-5deg); }
-        }
-        .floating {
-            animation: floatUp linear forwards;
-        }
-
         /* 破掉動畫 */
         .popped {
             transform: scale(1.5) !important;
             opacity: 0 !important;
-            transition: all 0.2s ease-out;
             pointer-events: none;
         }
 
@@ -146,13 +158,11 @@
         </div>
 
         <div id="left-zone" class="play-zone">
-            <div class="zone-title hidden md:block">出題區<br><span class="text-3xl">(左邊)</span></div>
-            <div class="zone-title md:hidden">出題區<br><span class="text-xl">(上方)</span></div>
+            <div class="zone-title">出題區</div>
         </div>
         
         <div id="right-zone" class="play-zone">
-            <div class="zone-title hidden md:block">答題區<br><span class="text-3xl">(右邊)</span></div>
-            <div class="zone-title md:hidden">答題區<br><span class="text-xl">(下方)</span></div>
+            <div class="zone-title">答題區</div>
         </div>
     </div>
 
@@ -189,8 +199,8 @@
             
             <div class="flex flex-wrap justify-center gap-4 w-full">
                 <button onclick="checkAndStart(3, 4)" class="flex-1 min-w-[140px] bg-green-500 hover:bg-green-600 text-white text-2xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#2E7D32] hover:translate-y-1 hover:shadow-[0_2px_0_#2E7D32] transition-all">簡單</button>
-                <button onclick="checkAndStart(5, 6)" class="flex-1 min-w-[140px] bg-orange-500 hover:bg-orange-600 text-white text-2xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#E65100] hover:translate-y-1 hover:shadow-[0_2px_0_#E65100] transition-all">普通</button>
-                <button onclick="checkAndStart(6, 8)" class="flex-1 min-w-[140px] bg-red-500 hover:bg-red-600 text-white text-2xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#C62828] hover:translate-y-1 hover:shadow-[0_2px_0_#C62828] transition-all">挑戰</button>
+                <button onclick="checkAndStart(4, 5)" class="flex-1 min-w-[140px] bg-orange-500 hover:bg-orange-600 text-white text-2xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#E65100] hover:translate-y-1 hover:shadow-[0_2px_0_#E65100] transition-all">普通</button>
+                <button onclick="checkAndStart(5, 6)" class="flex-1 min-w-[140px] bg-red-500 hover:bg-red-600 text-white text-2xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#C62828] hover:translate-y-1 hover:shadow-[0_2px_0_#C62828] transition-all">挑戰</button>
             </div>
         </div>
     </div>
@@ -212,6 +222,8 @@
         const balloonColors = ['#EF5350', '#EC407A', '#AB47BC', '#7E57C2', '#5C6BC0', '#42A5F5', '#29B6F6', '#26C6DA', '#26A69A', '#66BB6A', '#9CCC65', '#D4E157', '#FFEE58', '#FFCA28', '#FFA726', '#FF7043'];
 
         let activeVowels = [];
+        let vowelWeights = {}; // 記錄出現權重 (預設100)
+        
         let score = 0;
         let timeLeft = 60;
         let gameInterval;
@@ -226,7 +238,7 @@
         let audioCtx = null;
         let soundEnabled = true;
         let bgmInterval = null;
-        const bgmMelody = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63]; // 輕快的C大調琶音
+        const bgmMelody = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63]; 
         let bgmStep = 0;
 
         function initAudio() {
@@ -301,6 +313,38 @@
         const leftZone = document.getElementById('left-zone');
         const rightZone = document.getElementById('right-zone');
 
+        // 初始化權重系統
+        function initWeights() {
+            vowelWeights = {};
+            activeVowels.forEach(v => { vowelWeights[v] = 100; });
+        }
+
+        // 權重隨機抽取器 (保證本次抽取內不重複)
+        function getWeightedRandomVowels(count, excludeVowel = null) {
+            let pool = activeVowels.filter(v => v !== excludeVowel);
+            // 防呆：如果要求的數量大於可選池子，最多只能抽出池子的數量 (防重複核心)
+            let actualCount = Math.min(count, pool.length);
+            let results = [];
+
+            for (let i = 0; i < actualCount; i++) {
+                let totalWeight = pool.reduce((sum, v) => sum + vowelWeights[v], 0);
+                if (totalWeight <= 0) break; // 異常保護
+                
+                let random = Math.random() * totalWeight;
+                let currentWeight = 0;
+                
+                for (let j = 0; j < pool.length; j++) {
+                    currentWeight += vowelWeights[pool[j]];
+                    if (random <= currentWeight) {
+                        results.push(pool[j]);
+                        pool.splice(j, 1); // 將抽中的移出本次的暫存池，確保不重複
+                        break;
+                    }
+                }
+            }
+            return results;
+        }
+
         // --- 核心遊戲流程 ---
         function checkAndStart(lCount, rCount) {
             leftCount = lCount;
@@ -308,8 +352,8 @@
             
             // 難度影響氣球上升速度
             if(lCount === 3) floatSpeed = 7;
+            if(lCount === 4) floatSpeed = 6;
             if(lCount === 5) floatSpeed = 5;
-            if(lCount === 6) floatSpeed = 3.5;
 
             activeVowels = [];
             if (document.getElementById('vowel-single').checked) activeVowels = activeVowels.concat(db_single);
@@ -327,6 +371,7 @@
             timeLeft = customDuration;
 
             initAudio();
+            initWeights(); // 重置並啟動機率權重
             startGame();
         }
 
@@ -353,8 +398,8 @@
             clearInterval(gameInterval); clearTimeout(phaseTimeout);
             if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
             document.getElementById('ui-layer').classList.add('hidden');
-            leftZone.innerHTML = '<div class="zone-title hidden md:block">出題區<br><span class="text-3xl">(左邊)</span></div><div class="zone-title md:hidden">出題區<br><span class="text-xl">(上方)</span></div>';
-            rightZone.innerHTML = '<div class="zone-title hidden md:block">答題區<br><span class="text-3xl">(右邊)</span></div><div class="zone-title md:hidden">答題區<br><span class="text-xl">(下方)</span></div>';
+            leftZone.innerHTML = '<div class="zone-title text-blue-800/20 font-black">出題區</div>';
+            rightZone.innerHTML = '<div class="zone-title text-blue-800/20 font-black">答題區</div>';
             
             document.getElementById('end-screen').classList.remove('hidden');
             document.getElementById('final-score').innerText = score;
@@ -363,33 +408,32 @@
         function exitGame() {
             clearInterval(gameInterval); clearTimeout(phaseTimeout);
             if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
-            leftZone.innerHTML = '<div class="zone-title hidden md:block">出題區<br><span class="text-3xl">(左邊)</span></div><div class="zone-title md:hidden">出題區<br><span class="text-xl">(上方)</span></div>';
-            rightZone.innerHTML = '<div class="zone-title hidden md:block">答題區<br><span class="text-3xl">(右邊)</span></div><div class="zone-title md:hidden">答題區<br><span class="text-xl">(下方)</span></div>';
+            leftZone.innerHTML = '<div class="zone-title text-blue-800/20 font-black">出題區</div>';
+            rightZone.innerHTML = '<div class="zone-title text-blue-800/20 font-black">答題區</div>';
             document.getElementById('ui-layer').classList.add('hidden');
             document.getElementById('start-screen').classList.remove('hidden');
         }
 
-        // --- 氣球產生器 ---
+        // --- 氣球產生器 (防重疊車道設計) ---
         function createBalloon(text, index, totalCount, delay, isTargetMode, clickCallback) {
-            const b = document.createElement('div');
-            b.className = `balloon balloon-size floating`;
+            const wrapper = document.createElement('div');
+            wrapper.className = `balloon-wrapper floating`;
             
-            // 隨機顏色與白話字
+            // 完美劃分車道，氣球永遠待在自己的車道正中央，絕對防撞防出界
+            const laneWidth = 100 / totalCount;
+            wrapper.style.left = `${(index * laneWidth) + (laneWidth / 2)}%`;
+            wrapper.style.animationDuration = floatSpeed + 's';
+            wrapper.style.animationDelay = delay + 's';
+
+            const b = document.createElement('div');
+            b.className = `balloon balloon-size`;
             b.style.backgroundColor = balloonColors[Math.floor(Math.random() * balloonColors.length)];
             b.style.color = '#FFFFFF';
             b.style.textShadow = "2px 2px 4px rgba(0,0,0,0.5)";
             b.innerHTML = `<span class="poj-text">${text}</span>`;
 
-            // 動態均勻分佈在水平方向 (避免重疊)
-            const sectionWidth = 100 / totalCount;
-            const randomOffset = Math.random() * (sectionWidth * 0.6); // 在區塊內微調
-            b.style.left = `calc(${index * sectionWidth}% + ${randomOffset}%)`;
-            
-            // 動畫設定
-            b.style.animationDuration = floatSpeed + 's';
-            b.style.animationDelay = delay + 's';
+            wrapper.appendChild(b);
 
-            // 點擊事件 (支援滑鼠與觸控)
             const handleInteract = (e) => {
                 e.preventDefault();
                 if (b.classList.contains('popped')) return;
@@ -398,15 +442,15 @@
                 clickCallback();
             };
 
+            // 事件綁在氣球本體上，精準判定點擊
             b.addEventListener('mousedown', handleInteract);
             b.addEventListener('touchstart', handleInteract);
 
-            // 動畫結束後自動移除 DOM
-            b.addEventListener('animationend', () => {
-                if(b.parentNode) b.parentNode.removeChild(b);
+            wrapper.addEventListener('animationend', () => {
+                if(wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
             });
 
-            return b;
+            return wrapper;
         }
 
         function showFeedback(text, colorStr) {
@@ -419,38 +463,32 @@
             setTimeout(() => fb.remove(), 800);
         }
 
-        function getRandomVowels(count) {
-            let shuffled = [...activeVowels].sort(() => Math.random() - 0.5);
-            let results = [];
-            while(results.length < count) {
-                results = results.concat(shuffled); // 若題庫太少就重複補滿
-            }
-            return results.slice(0, count);
-        }
-
         // --- 階段 1：左側/上方出題區 ---
         function startLeftPhase() {
-            rightZone.innerHTML = '<div class="zone-title hidden md:block">答題區<br><span class="text-3xl">(右邊)</span></div><div class="zone-title md:hidden">答題區<br><span class="text-xl">(下方)</span></div>'; 
-            leftZone.innerHTML = '<div class="zone-title hidden md:block text-blue-800/20">請出題</div><div class="zone-title md:hidden text-blue-800/20">請出題</div>';
+            rightZone.innerHTML = '<div class="zone-title text-blue-800/20 font-black">答題區</div>'; 
+            leftZone.innerHTML = '<div class="zone-title text-blue-800/20 font-black">請出題</div>';
 
-            let picks = getRandomVowels(leftCount);
-            let delayOrder = Array.from({length: leftCount}, (_, i) => i).sort(() => Math.random() - 0.5);
+            let actualLeftCount = Math.min(leftCount, activeVowels.length); // 確保不重複的最大數量
+            let picks = getWeightedRandomVowels(actualLeftCount);
+            
+            // 隨機錯開上升的延遲時間 (避免水平切齊)
+            let delayOrder = Array.from({length: actualLeftCount}, (_, i) => i).sort(() => Math.random() - 0.5);
 
             picks.forEach((v, i) => {
-                let randomDelay = delayOrder[i] * 0.4;
-                const b = createBalloon(v, i, leftCount, randomDelay, false, () => {
+                let randomDelay = delayOrder[i] * 0.6;
+                const wrapper = createBalloon(v, i, actualLeftCount, randomDelay, false, () => {
                     clearTimeout(phaseTimeout);
                     playPop();
                     currentTargetVowel = v;
                     startRightPhase();
                 });
-                leftZone.appendChild(b);
+                leftZone.appendChild(wrapper);
             });
 
             phaseTimeout = setTimeout(() => {
                 if (document.getElementById('ui-layer').classList.contains('hidden')) return;
-                startLeftPhase(); // 沒人按就重來
-            }, (floatSpeed + leftCount * 0.4) * 1000);
+                startLeftPhase(); 
+            }, (floatSpeed + actualLeftCount * 0.6) * 1000);
         }
 
         // --- 階段 2：右側/下方答題區 ---
@@ -458,35 +496,40 @@
             leftZone.innerHTML = `<div class="zone-title" style="color:#1E88E5;">尋找：<br><span class="poj-text" style="font-size:inherit;">${currentTargetVowel}</span></div>`;
             rightZone.innerHTML = '';
 
-            let rightChoices = getRandomVowels(rightCount - 1);
-            rightChoices.push(currentTargetVowel); // 保證至少有一個正確答案
-            rightChoices.sort(() => Math.random() - 0.5);
+            let actualRightCount = Math.min(rightCount, activeVowels.length);
+            
+            // 取得其他混淆選項 (排除目前目標)
+            let rightChoices = getWeightedRandomVowels(actualRightCount - 1, currentTargetVowel);
+            rightChoices.push(currentTargetVowel); // 將目標加回選項中，保證有答案
+            rightChoices.sort(() => Math.random() - 0.5); // 打亂順序
 
-            let delayOrder = Array.from({length: rightCount}, (_, i) => i).sort(() => Math.random() - 0.5);
+            let delayOrder = Array.from({length: rightChoices.length}, (_, i) => i).sort(() => Math.random() - 0.5);
 
             rightChoices.forEach((v, i) => {
-                let randomDelay = delayOrder[i] * 0.2;
-                const b = createBalloon(v, i, rightCount, randomDelay, true, () => {
+                let randomDelay = delayOrder[i] * 0.6;
+                const wrapper = createBalloon(v, i, rightChoices.length, randomDelay, true, () => {
                     clearTimeout(phaseTimeout);
                     if (v === currentTargetVowel) {
                         score++; scoreEl.innerText = score;
                         playCorrect();
                         showFeedback('⭕', '#4CAF50');
+                        // 🌟 機率自適應：答對後大幅降低該母音下次出現的機率
+                        vowelWeights[v] = Math.max(10, vowelWeights[v] - 35);
                     } else {
                         playWrong();
                         showFeedback('❌', '#F44336');
                     }
                     setTimeout(startLeftPhase, 600);
                 });
-                rightZone.appendChild(b);
+                rightZone.appendChild(wrapper);
             });
 
             phaseTimeout = setTimeout(() => {
                 if (document.getElementById('ui-layer').classList.contains('hidden')) return;
                 playWrong();
-                showFeedback('💨', '#9E9E9E'); // 太慢飛走了
+                showFeedback('💨', '#9E9E9E'); 
                 setTimeout(startLeftPhase, 600);
-            }, (floatSpeed + rightCount * 0.2) * 1000);
+            }, (floatSpeed + rightChoices.length * 0.6) * 1000);
         }
     </script>
 </body>
