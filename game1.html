@@ -125,6 +125,7 @@
             <div>⏱️ <span id="timer">60</span></div>
             <div>🏆 <span id="score">0</span></div>
             <button class="btn-exit" onclick="exitGame()">❌ 跳出</button>
+            <button class="btn-exit" id="btn-sound" onclick="toggleSound()" style="background: #4DB6AC;">🔊 音效開</button>
         </div>
         <div id="left-zone" class="play-zone"><div class="zone-title">出題區</div></div>
         <div id="right-zone" class="play-zone"><div class="zone-title">答題區</div></div>
@@ -188,6 +189,94 @@
         let phaseTimeout;
         let vowelStats = {};
 
+        // --- 音效合成系統 (免載入外部檔案) ---
+        let audioCtx = null;
+        let soundEnabled = true;
+        let bgmInterval = null;
+        const bgmMelody = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63]; // 輕快的C大調琶音
+        let bgmStep = 0;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('btn-sound').innerText = soundEnabled ? "🔊 音效開" : "🔇 音效關";
+            if (!soundEnabled && bgmInterval) {
+                clearInterval(bgmInterval);
+                bgmInterval = null;
+            } else if (soundEnabled && !bgmInterval && !document.getElementById('ui-layer').classList.contains('hidden')) {
+                bgmInterval = setInterval(playBGMNote, 250);
+            }
+        }
+
+        function playBGMNote() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(bgmMelody[bgmStep], audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.03, audioCtx.currentTime); // 背景音量較小，不干擾講話
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.2);
+            bgmStep = (bgmStep + 1) % bgmMelody.length;
+        }
+
+        function playCorrect() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime); // 叮！
+            osc.frequency.setValueAtTime(1046.5, audioCtx.currentTime + 0.1); 
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function playWrong() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime); // 叭！
+            osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function playPop() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime); // 啵！
+            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+        // --- 音效系統結束 ---
+
         const scoreEl = document.getElementById('score');
         const timerEl = document.getElementById('timer');
         const leftZone = document.getElementById('left-zone');
@@ -219,6 +308,8 @@
             }
             errorMsgEl.innerText = ""; // 清除錯誤訊息
 
+            initAudio(); // 啟動音效引擎
+
             // 初始化或保留該題庫的學習統計資料
             activeVowels.forEach(v => {
                 if (vowelStats[v] === undefined) {
@@ -245,12 +336,17 @@
                 if (timeLeft <= 0) endGame();
             }, 1000);
             
+            if (soundEnabled && !bgmInterval) {
+                bgmInterval = setInterval(playBGMNote, 250); // 啟動輕快背景音樂
+            }
+            
             startLeftPhase();
         }
 
         function endGame() {
             clearInterval(gameInterval);
             clearTimeout(phaseTimeout);
+            if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
             document.getElementById('ui-layer').classList.add('hidden');
             document.getElementById('end-screen').classList.remove('hidden');
             document.getElementById('final-score').innerText = score;
@@ -260,6 +356,7 @@
         function exitGame() {
             clearInterval(gameInterval);
             clearTimeout(phaseTimeout);
+            if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
             
             // 清空畫面上的氣球
             leftZone.querySelectorAll('.balloon').forEach(b => b.remove());
@@ -345,6 +442,7 @@
                 let randomDelay = delayOrder[i] * 0.4;
                 const b = createBalloon(v, i, leftCount, randomDelay, false, () => {
                     clearTimeout(phaseTimeout);
+                    playPop(); // 播放點擊音效
                     currentTargetVowel = v;
                     startRightPhase();
                 });
@@ -381,8 +479,10 @@
                         score++;
                         scoreEl.innerText = score;
                         vowelStats[v]++; 
+                        playCorrect(); // 播放答對音效
                         showFeedback('⭕', '#4CAF50');
                     } else {
+                        playWrong(); // 播放答錯音效
                         showFeedback('❌', '#F44336');
                     }
                     setTimeout(startLeftPhase, 600);
