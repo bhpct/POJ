@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>母音氣球升空賽 V4</title>
+    <title>母音氣球升空賽 V5</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0; padding: 0;
-            /* 將字體強制設定為 Noto Sans，確保 o͘ 完美顯示 */
             font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f8ff;
             overflow: hidden;
@@ -62,7 +61,7 @@
         .btn {
             font-size: 32px; padding: 15px 40px; margin: 10px; border: none;
             border-radius: 15px; cursor: pointer; font-weight: bold; transition: 0.2s;
-            font-family: inherit; /* 讓按鈕也繼承相同字體 */
+            font-family: inherit;
         }
         .btn:hover { transform: scale(1.05); }
         .btn-easy { background: #81C784; color: white; }
@@ -160,15 +159,34 @@
             return results;
         }
 
-        function createBalloon(vowel, colIndex, totalCols, staggerDelay, onClick) {
+        // 修改：新增 isRightZone 參數，用於精準計算像素防撞
+        function createBalloon(vowel, colIndex, totalCols, staggerDelay, isRightZone, onClick) {
             const b = document.createElement('div');
             b.className = 'balloon';
             b.innerText = vowel;
             b.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
             
+            // 取得該區域(左半邊或右半邊)的實際像素寬度
+            const zoneWidth = isRightZone ? rightZone.clientWidth : leftZone.clientWidth;
+            // 氣球本身的寬度(140px) + 安全邊距(20px) = 160px
+            const safeBalloonWidth = 160; 
+            
+            // 算出這顆氣球大概要在百分之多少的位置
             let colWidth = 100 / totalCols;
             let randomOffset = (Math.random() * (colWidth * 0.4));
-            b.style.left = (colIndex * colWidth + 5 + randomOffset) + '%';
+            let leftPercent = (colIndex * colWidth) + randomOffset + 2; 
+
+            // 將百分比轉換為絕對像素 (px)
+            let calculatedLeft = (zoneWidth * leftPercent) / 100;
+
+            // 核心防撞邏輯：
+            // 1. 如果算出來的位置超出右邊界，就強制拉回 (zoneWidth - safeBalloonWidth)
+            calculatedLeft = Math.min(calculatedLeft, zoneWidth - safeBalloonWidth);
+            // 2. 如果算出來的位置太靠左邊界，就強制保留 10px 的間距
+            calculatedLeft = Math.max(calculatedLeft, 10);
+            
+            // 套用安全計算後的 px 位置
+            b.style.left = calculatedLeft + 'px';
             
             b.style.animation = `floatUp ${floatSpeed}s linear ${staggerDelay}s forwards`;
 
@@ -196,7 +214,8 @@
             
             picks.forEach((v, i) => {
                 let randomDelay = delayOrder[i] * 0.4;
-                const b = createBalloon(v, i, 3, randomDelay, () => {
+                // 傳入 false 代表是左邊出題區
+                const b = createBalloon(v, i, 3, randomDelay, false, () => {
                     clearTimeout(phaseTimeout);
                     currentTargetVowel = v;
                     startRightPhase();
@@ -215,7 +234,8 @@
             
             all.forEach((v, i) => {
                 let randomDelay = delayOrder[i] * 0.2;
-                const b = createBalloon(v, i, 6, randomDelay, () => {
+                // 傳入 true 代表是右邊答題區
+                const b = createBalloon(v, i, 6, randomDelay, true, () => {
                     clearTimeout(phaseTimeout);
                     if (v === currentTargetVowel) {
                         score++;
