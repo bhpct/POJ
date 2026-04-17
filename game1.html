@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>母音氣球升空賽</title>
+    <title>母音氣球升空賽 V4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0; padding: 0;
-            font-family: 'Arial', sans-serif;
+            /* 將字體強制設定為 Noto Sans，確保 o͘ 完美顯示 */
+            font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f8ff;
             overflow: hidden;
             user-select: none; -webkit-user-select: none;
@@ -60,6 +62,7 @@
         .btn {
             font-size: 32px; padding: 15px 40px; margin: 10px; border: none;
             border-radius: 15px; cursor: pointer; font-weight: bold; transition: 0.2s;
+            font-family: inherit; /* 讓按鈕也繼承相同字體 */
         }
         .btn:hover { transform: scale(1.05); }
         .btn-easy { background: #81C784; color: white; }
@@ -89,7 +92,7 @@
     </div>
 
     <div id="start-screen" class="overlay">
-        <h1>母音氣球升空賽 V3</h1>
+        <h1>母音氣球升空賽</h1>
         <p>左邊出題、右邊答題，看誰反應快！</p>
         <div style="display: flex;">
             <button class="btn btn-easy" onclick="startGame(10)">簡單 (10秒)</button>
@@ -157,7 +160,6 @@
             return results;
         }
 
-        // 修改：傳入 staggerDelay (獨立的延遲時間) 而不是用區域判斷
         function createBalloon(vowel, colIndex, totalCols, staggerDelay, onClick) {
             const b = document.createElement('div');
             b.className = 'balloon';
@@ -168,7 +170,6 @@
             let randomOffset = (Math.random() * (colWidth * 0.4));
             b.style.left = (colIndex * colWidth + 5 + randomOffset) + '%';
             
-            // 使用傳入的亂數延遲時間
             b.style.animation = `floatUp ${floatSpeed}s linear ${staggerDelay}s forwards`;
 
             const handleEvent = (e) => { e.preventDefault(); onClick(); };
@@ -190,12 +191,10 @@
             rightZone.querySelectorAll('.balloon').forEach(b => b.remove());
             clearTimeout(phaseTimeout);
 
-            // 修改：建立一個隨機的延遲陣列 (例如打亂 [0, 1, 2] 變成 [2, 0, 1])
             let delayOrder = [0, 1, 2].sort(() => Math.random() - 0.5);
             let picks = getWeightedVowels(3);
             
             picks.forEach((v, i) => {
-                // 將打亂的順序乘上 0.4 秒，產生獨立的起飛時間
                 let randomDelay = delayOrder[i] * 0.4;
                 const b = createBalloon(v, i, 3, randomDelay, () => {
                     clearTimeout(phaseTimeout);
@@ -205,19 +204,16 @@
                 leftZone.appendChild(b);
             });
 
-            // 確保計時器涵蓋了最大延遲時間
             phaseTimeout = setTimeout(() => startLeftPhase(), (floatSpeed + 1.5) * 1000);
         }
 
         function startRightPhase() {
             leftZone.querySelectorAll('.balloon').forEach(b => b.remove());
             
-            // 修改：為 6 個氣球建立隨機的延遲陣列
             let delayOrder = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5);
             let all = [...vowels].sort(() => Math.random() - 0.5);
             
             all.forEach((v, i) => {
-                // 將打亂的順序乘上 0.2 秒，產生獨立的起飛時間
                 let randomDelay = delayOrder[i] * 0.2;
                 const b = createBalloon(v, i, 6, randomDelay, () => {
                     clearTimeout(phaseTimeout);
