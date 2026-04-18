@@ -116,10 +116,10 @@
 
         .balloon:active { transform: scale(0.9) !important; }
         
-        /* 響應式氣球大小 */
-        .balloon-size { width: 60px; height: 80px; font-size: 1.5rem; }
-        @media (min-width: 480px) { .balloon-size { width: 80px; height: 105px; font-size: 2rem; } }
-        @media (min-width: 768px) { .balloon-size { width: 100px; height: 130px; font-size: 2.5rem; } }
+        /* 響應式氣球大小：全面調大 */
+        .balloon-size { width: 75px; height: 100px; font-size: 2rem; }
+        @media (min-width: 480px) { .balloon-size { width: 100px; height: 130px; font-size: 2.5rem; } }
+        @media (min-width: 768px) { .balloon-size { width: 125px; height: 160px; font-size: 3.5rem; } }
 
         /* 破掉動畫 */
         .popped {
@@ -350,10 +350,10 @@
             leftCount = lCount;
             rightCount = rCount;
             
-            // 難度影響氣球上升速度
-            if(lCount === 3) floatSpeed = 7;
-            if(lCount === 4) floatSpeed = 6;
-            if(lCount === 5) floatSpeed = 5;
+            // 難度影響氣球上升速度 (增加鑑別度：簡單更慢、困難更快)
+            if(lCount === 3) floatSpeed = 9;   // 簡單：9秒 (原本7秒)
+            if(lCount === 4) floatSpeed = 6;   // 普通：6秒 (維持)
+            if(lCount === 5) floatSpeed = 3.5; // 挑戰：3.5秒 (原本5秒)
 
             activeVowels = [];
             if (document.getElementById('vowel-single').checked) activeVowels = activeVowels.concat(db_single);
