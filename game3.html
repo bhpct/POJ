@@ -563,11 +563,13 @@
                 // 左/上方 是攻擊方
                 titleL_md.innerHTML = "<span class='text-2xl md:text-3xl'>(請點擊戰車出題)</span>";
                 titleL_sm.innerHTML = "<span class='text-xl'>(請點擊戰車出題)</span>";
-                titleL_md.className = titleL_sm.className = "zone-title text-red-800/30";
+                titleL_md.className = "zone-title hidden md:block text-red-800/30";
+                titleL_sm.className = "zone-title md:hidden text-red-800/30";
                 
                 titleR_md.innerHTML = "<span class='text-2xl md:text-3xl'>(請大聲唸出被鎖定的字)</span>";
-                titleR_sm.innerHTML = "<span class='text-xl'>(請大聲唸出字)</span>";
-                titleR_md.className = titleR_sm.className = "zone-title text-gray-800/20";
+                titleR_sm.innerHTML = "<span class='text-xl'>(請大聲唸出被鎖定的字)</span>";
+                titleR_md.className = "zone-title hidden md:block text-gray-800/20";
+                titleR_sm.className = "zone-title md:hidden text-gray-800/20";
                 
                 leftZone.style.backgroundColor = '#FFF9C4'; // 出題方背景亮
                 rightZone.style.backgroundColor = '#CFD8DC';
@@ -588,11 +590,13 @@
                 // 右/下方 是攻擊方
                 titleR_md.innerHTML = "<span class='text-2xl md:text-3xl'>(請點擊戰車出題)</span>";
                 titleR_sm.innerHTML = "<span class='text-xl'>(請點擊戰車出題)</span>";
-                titleR_md.className = titleR_sm.className = "zone-title text-red-800/30";
+                titleR_md.className = "zone-title hidden md:block text-red-800/30";
+                titleR_sm.className = "zone-title md:hidden text-red-800/30";
 
                 titleL_md.innerHTML = "<span class='text-2xl md:text-3xl'>(請大聲唸出被鎖定的字)</span>";
-                titleL_sm.innerHTML = "<span class='text-xl'>(請大聲唸出字)</span>";
-                titleL_md.className = titleL_sm.className = "zone-title text-gray-800/20";
+                titleL_sm.innerHTML = "<span class='text-xl'>(請大聲唸出被鎖定的字)</span>";
+                titleL_md.className = "zone-title hidden md:block text-gray-800/20";
+                titleL_sm.className = "zone-title md:hidden text-gray-800/20";
                 
                 leftZone.style.backgroundColor = '#CFD8DC';
                 rightZone.style.backgroundColor = '#FFF9C4'; 
@@ -618,6 +622,7 @@
         function startGame(duration) {
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('ui-layer').classList.remove('hidden');
+            document.getElementById('ui-layer').classList.add('flex');
             document.getElementById('river-divider').classList.remove('hidden');
             document.getElementById('river-divider').classList.add('flex');
             
@@ -637,12 +642,14 @@
             }
             
             initField();
+            updateTurnUI();
         }
 
         function endGame(isDeath) {
             clearInterval(gameInterval);
             if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
             document.getElementById('ui-layer').classList.add('hidden');
+            document.getElementById('ui-layer').classList.remove('flex');
             document.getElementById('judge-panel-left').classList.add('hidden');
             document.getElementById('judge-panel-left').classList.remove('flex');
             document.getElementById('judge-panel-right').classList.add('hidden');
@@ -682,6 +689,7 @@
             if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
             leftGrid.innerHTML = ''; rightGrid.innerHTML = '';
             document.getElementById('ui-layer').classList.add('hidden');
+            document.getElementById('ui-layer').classList.remove('flex');
             document.getElementById('judge-panel-left').classList.add('hidden');
             document.getElementById('judge-panel-left').classList.remove('flex');
             document.getElementById('judge-panel-right').classList.add('hidden');
@@ -701,7 +709,6 @@
             }
             
             renderTanks();
-            updateTurnUI();
         }
 
         function createTankDOM(wordObj, sideStr) {
@@ -780,25 +787,6 @@
             rightOrder.forEach(w => { rightGrid.appendChild(createTankDOM(w, 'right')); });
         }
 
-        // --- 更新盤面上被消耗掉的字 ---
-        function refreshWord(oldWordObj) {
-            // 從總題庫中找出尚未在盤面上的字
-            let availableWords = activePool.filter(w => !currentWordsOnBoard.includes(w));
-            if (availableWords.length === 0) availableWords = activePool; 
-            
-            let newWord = availableWords[Math.floor(Math.random() * availableWords.length)];
-            
-            // 更新內部陣列
-            let idx = currentWordsOnBoard.indexOf(oldWordObj);
-            if(idx !== -1) currentWordsOnBoard[idx] = newWord;
-
-            // 更新畫面上左右兩邊對應的戰車 DOM
-            document.querySelectorAll(`.tank-wrapper[data-word="${oldWordObj.p}"]`).forEach(tank => {
-                tank.dataset.word = newWord.p;
-                tank.querySelector('.text-container').innerHTML = (showPOJ ? `<div class="word-poj poj-text">${newWord.p}</div>` : '') + (showHanzi ? `<div class="word-hanzi">${newWord.h}</div>` : '');
-            });
-        }
-
         // --- O/X 裁判判定邏輯 ---
         function judgeTarget(isCorrect) {
             // 隱藏兩個裁判面板
@@ -820,7 +808,7 @@
                 
                 // 答對不扣血，短暫延遲後更新單字並攻守交換
                 setTimeout(() => {
-                    refreshWord(targetedWordObj);
+                    initField(); // 重新產生 6 個新題目並重新渲染雙方戰車
                     targetedWordObj = null;
                     switchTurn();
                 }, 400);
@@ -842,8 +830,7 @@
                     setTimeout(() => endGame(true), 800);
                 } else {
                     setTimeout(() => {
-                        if(defTank) defTank.classList.remove('explode');
-                        refreshWord(targetedWordObj);
+                        initField(); // 重新產生 6 個新題目並重新渲染雙方戰車
                         targetedWordObj = null;
                         switchTurn(); // 開火完也要攻守交換
                     }, 800);
