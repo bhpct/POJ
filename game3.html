@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Game 3：戰車大對決</title>
+    <title>Game 3：戰車大對決 (雙人攻守版)</title>
     <!-- 引入 Tailwind CSS 快速排版 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Noto Sans 確保中文字與白話字顯示乾淨現代 -->
@@ -20,13 +20,13 @@
 
         /* RWD 變數定義：根據螢幕寬度切換戰車與字體大小 */
         :root {
-            --tank-w: 130px;
-            --tank-h: 95px;
-            --poj-sz: 22px;
-            --hanzi-sz: 28px;
-            --barrel-w: 25px;
-            --barrel-h: 14px;
-            --barrel-top: 40px;
+            --tank-w: 120px;
+            --tank-h: 90px;
+            --poj-sz: 20px;
+            --hanzi-sz: 24px;
+            --barrel-w: 20px;
+            --barrel-h: 12px;
+            --barrel-top: 39px;
         }
         @media (min-width: 480px) {
             :root {
@@ -43,7 +43,7 @@
             }
         }
 
-        /* 完美防護白話字體設定 (防豆腐字、防被切斷) */
+        /* 完美防護白話字體設定 */
         .poj-text { 
             font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             letter-spacing: 0 !important;
@@ -56,44 +56,52 @@
         .play-zone { 
             flex: 1; position: relative; height: 100%; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: all 0.5s ease;
         }
-        #left-zone { background-color: #CFD8DC; }
-        #right-zone { background-color: #B0BEC5; }
 
-        .hp-container { display: flex; align-items: center; gap: 5px; }
+        /* 雙血條 UI 設定 */
+        .hp-container { display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .hp-bar-bg {
-            background: #FFCDD2; border-radius: 15px; overflow: hidden; border: 3px solid #D32F2F;
+            width: 100px; height: 16px; background: #FFF; border-radius: 10px; overflow: hidden; border: 2px solid #555;
         }
-        .hp-bar-fill {
-            height: 100%; width: 100%; background: #4CAF50;
-            transition: width 0.3s, background-color 0.3s;
+        @media (min-width: 768px) {
+            .hp-bar-bg { width: 180px; height: 20px; border: 3px solid #555; }
         }
+        .hp-bar-fill { height: 100%; transition: width 0.3s ease-out; }
+        #hp-bar-1 { background: #4CAF50; width: 100%; } 
+        #hp-bar-2 { background: #4CAF50; width: 100%; } 
 
         .zone-title {
             position: absolute; width: 100%; text-align: center;
-            color: rgba(69, 90, 100, 0.15); font-weight: 900; pointer-events: none;
-            z-index: 0;
-            top: 50%; transform: translateY(-50%); font-size: 40px;
+            font-weight: 900; pointer-events: none; z-index: 0;
+            top: 50%; transform: translateY(-50%); font-size: 35px;
+            transition: color 0.3s;
         }
         @media (min-width: 768px) {
-            .zone-title { top: 80px; transform: translateY(0); font-size: 60px; }
+            .zone-title { top: 80px; transform: translateY(0); font-size: 55px; }
         }
 
+        /* 網格推離中央，避免被圖示或河流擋住 */
         .tank-grid {
             display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr;
-            gap: 10px; width: 95%; max-width: 380px; height: 85%;
+            gap: 15px; width: 95%; max-width: 380px; height: 85%;
             justify-items: center; align-items: center; z-index: 10;
         }
         @media (min-width: 768px) {
-            .tank-grid { gap: 20px; width: 80%; max-width: none; height: 70%; margin-top: 100px; }
+            .tank-grid { gap: 25px; width: 80%; max-width: none; height: 70%; margin-top: 100px; }
         }
 
         .tank-wrapper {
             position: relative; display: flex; justify-content: center; align-items: center;
-            cursor: pointer; transition: transform 0.1s;
+            transition: transform 0.1s;
         }
-        .tank-wrapper:active { transform: scale(0.95); }
+        
+        /* 當輪到該區域攻擊時，戰車允許被點擊 */
+        .can-attack .tank-wrapper { cursor: pointer; }
+        .can-attack .tank-wrapper:hover { transform: scale(1.05); }
+        .can-attack .tank-wrapper:active { transform: scale(0.95); }
 
+        /* 移除 overflow: hidden 讓砲管跟履帶能正確超出車體顯示！ */
         .tank-body {
             width: var(--tank-w); height: var(--tank-h);
             background: #558B2F; border-radius: 15px;
@@ -101,64 +109,79 @@
             box-shadow: inset 0px -15px 0px rgba(0,0,0,0.2), 0 8px 15px rgba(0,0,0,0.3);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             position: relative; z-index: 10; padding: 5px;
+            transition: all 0.2s;
         }
 
         .left-tank .tank-body::after {
             content: ''; position: absolute; top: var(--barrel-top); right: calc(var(--barrel-w) * -0.75);
-            width: var(--barrel-w); height: var(--barrel-h); background: #33691E; border-radius: 0 5px 5px 0; z-index: 5;
+            width: var(--barrel-w); height: var(--barrel-h); background: #33691E; border-radius: 0 5px 5px 0; z-index: -1;
         }
         .right-tank .tank-body::after {
             content: ''; position: absolute; top: var(--barrel-top); left: calc(var(--barrel-w) * -0.75);
-            width: var(--barrel-w); height: var(--barrel-h); background: #33691E; border-radius: 5px 0 0 5px; z-index: 5;
+            width: var(--barrel-w); height: var(--barrel-h); background: #33691E; border-radius: 5px 0 0 5px; z-index: -1;
         }
 
         .tank-body::before {
-            content: ''; position: absolute; bottom: -10%; left: 5%;
-            width: 90%; height: 20%; background: #212121; border-radius: 10px; z-index: -1;
+            content: ''; position: absolute; bottom: -12%; left: 5%;
+            width: 90%; height: 20%; background: #212121; border-radius: 10px; z-index: -2;
         }
 
-        .target-lock {
-            position: absolute; width: 100%; height: 100%;
-            border: 6px dashed #FF1744; border-radius: 10px;
-            top: -6px; left: -6px; pointer-events: none;
-            animation: lockPulse 1s infinite alternate;
-            display: none; z-index: 20;
+        /* 攻擊方鎖定的高亮特效 */
+        .attacker-selected .tank-body {
+            border-color: #FFD600; box-shadow: 0 0 20px #FFD600, inset 0px -15px 0px rgba(0,0,0,0.2);
         }
-        .locked .target-lock { display: block; }
-        
-        @keyframes lockPulse {
-            0% { transform: scale(1); border-color: #FF1744; }
-            100% { transform: scale(1.1); border-color: #D50000; }
+
+        /* 防守方被瞄準的紅色準星特效 */
+        .crosshair-overlay {
+            position: absolute; inset: 0; border-radius: 11px;
+            background: rgba(0, 0, 0, 0.7); z-index: 15;
+            pointer-events: none; opacity: 0; transition: opacity 0.2s;
+            display: flex; justify-content: center; align-items: center;
         }
+        .crosshair-overlay::after {
+            content: ''; position: absolute; width: 140%; height: 140%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" stroke="%23FF1744" stroke-width="4" fill="none" stroke-dasharray="15, 10"/><line x1="50" y1="0" x2="50" y2="15" stroke="%23FF1744" stroke-width="5"/><line x1="50" y1="85" x2="50" y2="100" stroke="%23FF1744" stroke-width="5"/><line x1="0" y1="50" x2="15" y2="50" stroke="%23FF1744" stroke-width="5"/><line x1="85" y1="50" x2="100" y2="50" stroke="%23FF1744" stroke-width="5"/></svg>') no-repeat center center;
+            background-size: contain;
+            animation: rotateTarget 8s linear infinite;
+        }
+        @keyframes rotateTarget { 100% { transform: rotate(360deg); } }
+
+        .targeted .crosshair-overlay { opacity: 1; }
+        .targeted .text-container { z-index: 20; position: relative; transform: scale(1.15); transition: 0.2s; }
+        .targeted .word-poj, .targeted .word-hanzi { color: #FFF; text-shadow: 0 0 10px #FFEB3B, 0 0 20px #FF5252; }
 
         .word-poj { font-size: var(--poj-sz); font-weight: bold; color: #FFF; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); line-height: 1.1; text-align: center; }
         .word-hanzi { font-size: var(--hanzi-sz); font-weight: bold; color: #FFF; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); line-height: 1.1; margin-top: 5px; text-align: center; }
 
-        .explode { animation: explodeAnim 0.5s forwards; pointer-events: none; }
+        .explode { animation: explodeAnim 0.6s forwards; pointer-events: none; }
         @keyframes explodeAnim {
             0% { transform: scale(1); filter: brightness(1) sepia(0); }
-            30% { transform: scale(1.3); filter: brightness(2) sepia(1) hue-rotate(-50deg); }
+            30% { transform: scale(1.4); filter: brightness(2) sepia(1) hue-rotate(-50deg); }
             100% { transform: scale(0); filter: brightness(0); opacity: 0; }
         }
 
-        .shake { animation: shakeAnim 0.4s; }
-        @keyframes shakeAnim {
-            0% { transform: translateX(0); filter: hue-rotate(0deg); }
-            25% { transform: translateX(-15px); filter: hue-rotate(-90deg); }
-            50% { transform: translateX(15px); }
-            75% { transform: translateX(-15px); }
-            100% { transform: translateX(0); filter: hue-rotate(0deg); }
+        /* 遊戲結束結果標示 */
+        .end-result-text {
+            font-size: 80px; font-weight: 900; z-index: 50; text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            animation: fadeInResult 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @media (min-width: 768px) { .end-result-text { font-size: 130px; } }
+        @keyframes fadeInResult {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
         }
 
-        .center-msg {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 80px; font-weight: bold; z-index: 150; animation: popFeedback 0.8s forwards; pointer-events: none; width: 100%; text-align: center;
+        /* 流動的河水效果 */
+        .river-pattern {
+            background-color: #64B5F6;
+            background-image: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent);
+            background-size: 40px 40px;
+            animation: riverFlow 2s linear infinite;
         }
-        @media (min-width: 768px) { .center-msg { font-size: 100px; } }
-        @keyframes popFeedback {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.3); }
+        @keyframes riverFlow {
+            100% { background-position: 40px 0; }
         }
+        
         .hidden { display: none !important; }
     </style>
 </head>
@@ -166,38 +189,91 @@
 
     <!-- 自動切換上下(手機) 或 左右(電腦) 佈局 -->
     <div id="game-container" class="flex-col md:flex-row">
-        <!-- 頂部 UI 面板 -->
-        <div id="ui-layer" class="hidden absolute top-4 md:top-6 left-1/2 transform -translate-x-1/2 flex gap-3 md:gap-6 z-50 bg-white/95 px-3 md:px-8 py-2 md:py-3 rounded-full shadow-lg items-center w-max max-w-[95vw]">
-            <div class="text-xl md:text-3xl font-black text-gray-800 flex items-center">⏱️ <span id="timer" class="ml-1 w-8 text-center text-blue-600">60</span></div>
-            <div class="text-xl md:text-3xl font-black text-gray-800 flex items-center">🏆 <span id="score" class="ml-1 w-8 text-center text-orange-500">0</span></div>
-            <div class="hp-container flex items-center gap-1 md:gap-2">
-                <span class="text-xl md:text-3xl">❤️</span>
-                <div class="hp-bar-bg w-20 md:w-40 h-4 md:h-6">
-                    <div id="hp-bar" class="hp-bar-fill"></div>
+        
+        <!-- 頂部 雙血條 UI 面板 -->
+        <div id="ui-layer" class="hidden absolute top-4 md:top-6 left-1/2 transform -translate-x-1/2 flex justify-between items-center z-50 bg-white/95 px-4 md:px-8 py-2 md:py-3 rounded-full shadow-lg w-11/12 max-w-2xl border-2 border-gray-200">
+            <!-- 左/上方 血條 -->
+            <div class="hp-container">
+                <span id="hp-name-1" class="text-xs md:text-sm font-black text-gray-700 transition-colors">P1 血量</span>
+                <div class="hp-bar-bg"><div id="hp-bar-1" class="hp-bar-fill"></div></div>
+            </div>
+
+            <!-- 時間與控制 -->
+            <div class="flex flex-col items-center mx-2 md:mx-4">
+                <div class="text-2xl md:text-4xl font-black text-gray-800 flex items-center">⏱️ <span id="timer" class="text-blue-600 ml-1">60</span></div>
+                <div class="flex gap-2 mt-1">
+                    <button onclick="exitGame()" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded font-bold text-xs md:text-sm transition-transform hover:scale-105">跳出</button>
+                    <button id="btn-sound" onclick="toggleSound()" class="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 rounded font-bold text-xs md:text-sm transition-transform hover:scale-105">音效</button>
                 </div>
             </div>
-            <button onclick="exitGame()" class="bg-red-500 hover:bg-red-600 text-white px-2 md:px-4 py-1 md:py-2 rounded-lg font-bold text-sm md:text-lg transition-transform hover:scale-105 shadow">❌</button>
-            <button id="btn-sound" onclick="toggleSound()" class="bg-teal-500 hover:bg-teal-600 text-white px-2 md:px-4 py-1 md:py-2 rounded-lg font-bold text-sm md:text-lg transition-transform hover:scale-105 shadow">🔊</button>
+
+            <!-- 右/下方 血條 -->
+            <div class="hp-container">
+                <span id="hp-name-2" class="text-xs md:text-sm font-black text-gray-700 transition-colors">P2 血量</span>
+                <div class="hp-bar-bg"><div id="hp-bar-2" class="hp-bar-fill"></div></div>
+            </div>
         </div>
 
-        <div id="left-zone" class="play-zone pt-14 md:pt-0 border-b-4 md:border-b-0 md:border-r-4 border-dashed border-[#90A4AE]">
-            <div class="zone-title hidden md:block">📍 瞄準手<br><span class="text-4xl">(左邊)</span></div>
-            <div class="zone-title md:hidden">📍 瞄準手<br><span class="text-2xl">(上方)</span></div>
-            <div id="left-grid" class="tank-grid"></div>
+        <!-- 重玩按鈕 (遊戲結束顯示) -->
+        <div id="restart-layer" class="hidden absolute top-10 left-1/2 transform -translate-x-1/2 z-[200]">
+            <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white text-3xl font-black px-10 py-4 rounded-full shadow-[0_6px_0_#1565C0] hover:translate-y-1 hover:shadow-[0_2px_0_#1565C0] transition-all border-4 border-white">再玩一次</button>
+        </div>
+
+        <!-- 戰場區：左/上 -->
+        <div id="left-zone" class="play-zone pt-24 md:pt-0">
+            <div id="title-l-md" class="zone-title hidden md:block"></div>
+            <div id="title-l-sm" class="zone-title md:hidden"></div>
+            <div id="left-grid" class="tank-grid mb-12 md:mb-0 md:mr-24"></div>
+            
+            <!-- 左方專屬裁判面板 -->
+            <div id="judge-panel-left" class="hidden absolute inset-0 bg-white/80 z-[60] flex-col items-center justify-center gap-4 backdrop-blur-sm">
+                <div class="text-xl md:text-3xl font-black text-gray-800 bg-yellow-200 px-6 py-2 rounded-full shadow-md">對方唸對了嗎？</div>
+                <div id="judge-word-left" class="text-4xl md:text-6xl font-black text-blue-900 bg-white border-4 border-blue-400 px-8 py-3 rounded-2xl shadow-lg my-2"></div>
+                <div class="flex gap-4">
+                    <button onclick="judgeTarget(true)" class="bg-green-500 hover:bg-green-600 text-white px-6 md:px-10 py-4 md:py-6 rounded-3xl font-black text-3xl md:text-5xl shadow-[0_6px_0_#2E7D32] hover:translate-y-1 hover:shadow-[0_2px_0_#2E7D32] transition-all">⭕ 對</button>
+                    <button onclick="judgeTarget(false)" class="bg-red-500 hover:bg-red-600 text-white px-6 md:px-10 py-4 md:py-6 rounded-3xl font-black text-3xl md:text-5xl shadow-[0_6px_0_#C62828] hover:translate-y-1 hover:shadow-[0_2px_0_#C62828] transition-all">❌ 錯</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中間分隔河道與身分圖示 -->
+        <div id="river-divider" class="hidden w-full h-14 md:w-24 md:h-full relative z-20 shadow-[inset_0_0_15px_rgba(0,0,0,0.3)] river-pattern flex justify-center items-center shrink-0 border-y-4 md:border-y-0 md:border-x-4 border-blue-600">
+            <!-- 左/上的狀態圖示 -->
+            <div id="role-indicator-1" class="absolute flex flex-col items-center justify-center top-[-100px] md:top-1/2 md:left-[-150px] md:-translate-y-1/2 drop-shadow-2xl z-30 transition-transform duration-500 pointer-events-none">
+                <div class="text-6xl md:text-8xl" id="icon-1">⚔️</div>
+                <div class="text-xl md:text-3xl font-black text-red-600 mt-2 bg-white/90 px-4 py-1 rounded-full shadow-md border-2 border-red-300" id="role-text-1">攻擊</div>
+            </div>
+            
+            <!-- 右/下的狀態圖示 -->
+            <div id="role-indicator-2" class="absolute flex flex-col items-center justify-center bottom-[-100px] md:bottom-auto md:top-1/2 md:right-[-150px] md:-translate-y-1/2 drop-shadow-2xl z-30 transition-transform duration-500 pointer-events-none">
+                <div class="text-6xl md:text-8xl" id="icon-2">🛡️</div>
+                <div class="text-xl md:text-3xl font-black text-blue-600 mt-2 bg-white/90 px-4 py-1 rounded-full shadow-md border-2 border-blue-300" id="role-text-2">防守</div>
+            </div>
         </div>
         
+        <!-- 戰場區：右/下 -->
         <div id="right-zone" class="play-zone pb-4 md:pb-0">
-            <div class="zone-title hidden md:block">🔥 發射手<br><span class="text-4xl">(右邊)</span></div>
-            <div class="zone-title md:hidden">🔥 發射手<br><span class="text-2xl">(下方)</span></div>
-            <div id="right-grid" class="tank-grid"></div>
+            <div id="title-r-md" class="zone-title hidden md:block"></div>
+            <div id="title-r-sm" class="zone-title md:hidden"></div>
+            <div id="right-grid" class="tank-grid mt-12 md:mt-0 md:ml-24"></div>
+
+            <!-- 右方專屬裁判面板 -->
+            <div id="judge-panel-right" class="hidden absolute inset-0 bg-white/80 z-[60] flex-col items-center justify-center gap-4 backdrop-blur-sm">
+                <div class="text-xl md:text-3xl font-black text-gray-800 bg-yellow-200 px-6 py-2 rounded-full shadow-md">對方唸對了嗎？</div>
+                <div id="judge-word-right" class="text-4xl md:text-6xl font-black text-blue-900 bg-white border-4 border-blue-400 px-8 py-3 rounded-2xl shadow-lg my-2"></div>
+                <div class="flex gap-4">
+                    <button onclick="judgeTarget(true)" class="bg-green-500 hover:bg-green-600 text-white px-6 md:px-10 py-4 md:py-6 rounded-3xl font-black text-3xl md:text-5xl shadow-[0_6px_0_#2E7D32] hover:translate-y-1 hover:shadow-[0_2px_0_#2E7D32] transition-all">⭕ 對</button>
+                    <button onclick="judgeTarget(false)" class="bg-red-500 hover:bg-red-600 text-white px-6 md:px-10 py-4 md:py-6 rounded-3xl font-black text-3xl md:text-5xl shadow-[0_6px_0_#C62828] hover:translate-y-1 hover:shadow-[0_2px_0_#C62828] transition-all">❌ 錯</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- 開始選單 -->
     <div id="start-screen" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center z-[100] p-4 overflow-y-auto">
         <div class="bg-white/10 p-6 md:p-10 rounded-3xl backdrop-blur-md max-w-4xl w-full border border-white/20 shadow-2xl flex flex-col items-center my-auto">
-            <h1 class="text-4xl md:text-6xl text-yellow-300 font-black mb-2 text-center drop-shadow-lg">💥 戰車大對決</h1>
-            <p class="text-gray-200 text-lg md:text-2xl mb-8 text-center font-bold">瞄準手選定目標並發音，發射手找出同一台戰車擊毀它！</p>
+            <h1 class="text-4xl md:text-6xl text-yellow-300 font-black mb-2 text-center drop-shadow-lg">💥 戰車大對決 (雙人對戰)</h1>
+            <p class="text-gray-200 text-lg md:text-2xl mb-8 text-center font-bold">攻擊方鎖定戰車，防守方大聲唸出字。<br>若防守方唸錯，攻擊方按下 ❌ 開火擊毀對方！</p>
             
             <div class="w-full bg-white/20 p-4 md:p-6 rounded-2xl mb-6">
                 <div class="text-xl md:text-2xl text-white font-bold mb-4 border-b border-white/30 pb-2">👁️ 顯示模式 (至少選一)</div>
@@ -241,23 +317,15 @@
             </div>
             
             <div class="flex flex-wrap justify-center gap-4 w-full">
-                <button onclick="checkAndStart(10)" class="flex-1 min-w-[140px] bg-green-500 hover:bg-green-600 text-white text-xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#2E7D32] hover:translate-y-1 hover:shadow-[0_2px_0_#2E7D32] transition-all">簡單<br><span class="text-sm md:text-lg opacity-80">(扣血 10)</span></button>
-                <button onclick="checkAndStart(20)" class="flex-1 min-w-[140px] bg-orange-500 hover:bg-orange-600 text-white text-xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#E65100] hover:translate-y-1 hover:shadow-[0_2px_0_#E65100] transition-all">普通<br><span class="text-sm md:text-lg opacity-80">(扣血 20)</span></button>
-                <button onclick="checkAndStart(35)" class="flex-1 min-w-[140px] bg-red-500 hover:bg-red-600 text-white text-xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#C62828] hover:translate-y-1 hover:shadow-[0_2px_0_#C62828] transition-all">挑戰<br><span class="text-sm md:text-lg opacity-80">(扣血 35)</span></button>
+                <button onclick="checkAndStart(10)" class="flex-1 min-w-[140px] bg-green-500 hover:bg-green-600 text-white text-xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#2E7D32] hover:translate-y-1 hover:shadow-[0_2px_0_#2E7D32] transition-all">簡單<br><span class="text-sm md:text-lg opacity-80">(X 扣 10滴血)</span></button>
+                <button onclick="checkAndStart(20)" class="flex-1 min-w-[140px] bg-orange-500 hover:bg-orange-600 text-white text-xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#E65100] hover:translate-y-1 hover:shadow-[0_2px_0_#E65100] transition-all">普通<br><span class="text-sm md:text-lg opacity-80">(X 扣 20滴血)</span></button>
+                <button onclick="checkAndStart(35)" class="flex-1 min-w-[140px] bg-red-500 hover:bg-red-600 text-white text-xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#C62828] hover:translate-y-1 hover:shadow-[0_2px_0_#C62828] transition-all">挑戰<br><span class="text-sm md:text-lg opacity-80">(X 扣 35滴血)</span></button>
             </div>
         </div>
     </div>
 
-    <!-- 結束畫面 -->
-    <div id="end-screen" class="hidden absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-[100] p-4 text-center">
-        <h1 id="end-title" class="text-6xl md:text-8xl text-yellow-400 font-black mb-4 drop-shadow-[0_0_15px_rgba(253,224,71,0.8)]">時間到！</h1>
-        <p class="text-white text-2xl md:text-4xl mb-10">成功擊毀戰車：<strong id="final-score" class="text-6xl md:text-8xl text-green-400 mx-2">0</strong> 台</p>
-        <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white text-3xl font-black px-10 py-4 rounded-full shadow-[0_6px_0_#1565C0] hover:translate-y-1 hover:shadow-[0_2px_0_#1565C0] transition-all">再玩一次</button>
-    </div>
-
     <script>
-        // --- Game 3 全新精選題庫：8組 x 30個生活常用字 (不重複) ---
-        
+        // --- 精選無錯 240字 題庫 (8組 x 30個) ---
         const b_words = [
             {p:'bah',h:'肉'}, {p:'bīn',h:'面'}, {p:'bô',h:'無'}, {p:'bé',h:'買'}, {p:'bē',h:'賣'},
             {p:'ba̍k',h:'目'}, {p:'bián',h:'免'}, {p:'bîn',h:'民'}, {p:'bêng',h:'明'}, {p:'bāng',h:'夢'},
@@ -266,7 +334,6 @@
             {p:'báng',h:'蚊'}, {p:'ba̍t',h:'識'}, {p:'beh',h:'欲'}, {p:'bín',h:'敏'}, {p:'bō',h:'帽'},
             {p:'bông',h:'亡'}, {p:'bong',h:'摸'}, {p:'bûn',h:'門'}, {p:'béng',h:'猛'}, {p:'beng',h:'盲'}
         ];
-        
         const m_words = [
             {p:'má',h:'媽'}, {p:'mī',h:'麵'}, {p:'móa',h:'滿'}, {p:'mē',h:'罵'}, {p:'mn̂g',h:'門'},
             {p:'mi̍h',h:'物'}, {p:'m̄',h:'毋'}, {p:'miá',h:'名'}, {p:'miā',h:'命'}, {p:'môa',h:'麻'},
@@ -275,7 +342,6 @@
             {p:'mê',h:'暝'}, {p:'miáu',h:'秒'}, {p:'mō͘',h:'慕'}, {p:'mûi',h:'梅'}, {p:'máng',h:'猛'},
             {p:'mān',h:'慢'}, {p:'mô͘',h:'模'}, {p:'mê',h:'謎'}, {p:'mī',h:'味'}, {p:'môa',h:'瞞'}
         ];
-
         const l_words = [
             {p:'lâi',h:'來'}, {p:'lō͘',h:'路'}, {p:'lâng',h:'人'}, {p:'ló',h:'老'}, {p:'lāi',h:'內'},
             {p:'lân',h:'蘭'}, {p:'láng',h:'籠'}, {p:'lâm',h:'南'}, {p:'lán',h:'咱'}, {p:'la̍p',h:'納'},
@@ -284,7 +350,6 @@
             {p:'lio̍k',h:'六'}, {p:'liām',h:'念'}, {p:'liān',h:'練'}, {p:'lo̍h',h:'落'}, {p:'li̍p',h:'立'},
             {p:'lūn',h:'論'}, {p:'lok',h:'樂'}, {p:'liâng',h:'涼'}, {p:'lêng',h:'靈'}, {p:'lū',h:'慮'}
         ];
-
         const n_words = [
             {p:'nî',h:'年'}, {p:'ni',h:'奶'}, {p:'nōa',h:'爛'}, {p:'nńg',h:'軟'}, {p:'niû',h:'娘'},
             {p:'nā',h:'若'}, {p:'nâ',h:'籃'}, {p:'nah',h:'哪'}, {p:'nāi',h:'耐'}, {p:'nām',h:'湳'},
@@ -293,7 +358,6 @@
             {p:'nái',h:'乃'}, {p:'nau',h:'撓'}, {p:'nōe',h:'內'}, {p:'nih',h:'呢'}, {p:'nà',h:'那'},
             {p:'ng',h:'嗯'}, {p:'nn̄g',h:'卵'}, {p:'ni',h:'呢'}, {p:'nō͘',h:'怒'}, {p:'niū',h:'丈'}
         ];
-
         const g_words = [
             {p:'gô',h:'鵝'}, {p:'gû',h:'牛'}, {p:'gō͘',h:'五'}, {p:'gîn',h:'銀'}, {p:'gōa',h:'外'},
             {p:'gán',h:'眼'}, {p:'gām',h:'癌'}, {p:'gān',h:'雁'}, {p:'gâu',h:'賢'}, {p:'gē',h:'藝'},
@@ -302,7 +366,6 @@
             {p:'goa̍t',h:'月'}, {p:'géng',h:'硬'}, {p:'góa',h:'我'}, {p:'gia̍h',h:'夯'}, {p:'giàu',h:'撟'},
             {p:'goe̍h',h:'月'}, {p:'gōng',h:'戇'}, {p:'gāi',h:'礙'}, {p:'gâi',h:'涯'}, {p:'gî',h:'疑'}
         ];
-
         const ng_words = [
             {p:'ngá',h:'雅'}, {p:'ngē',h:'硬'}, {p:'ngó͘',h:'午'}, {p:'ngô͘',h:'吳'}, {p:'ngái',h:'呆'},
             {p:'ngiàm',h:'驗'}, {p:'ngeh',h:'夾'}, {p:'ngauh',h:'咬'}, {p:'ngiāu',h:'蟯'}, {p:'ngo̍k',h:'岳'},
@@ -311,7 +374,6 @@
             {p:'ngi',h:'兒'}, {p:'ngoh',h:'哦'}, {p:'ngong',h:'戇'}, {p:'nge',h:'倪'}, {p:'ngai',h:'艾'},
             {p:'ngam',h:'岩'}, {p:'ngiau',h:'貓'}, {p:'ngo',h:'鵞'}, {p:'ngh',h:'嗯'}, {p:'nng',h:'卵'}
         ];
-
         const s_words = [
             {p:'sé',h:'洗'}, {p:'sù',h:'四'}, {p:'saⁿ',h:'三'}, {p:'sim',h:'心'}, {p:'siàu',h:'笑'},
             {p:'sái',h:'使'}, {p:'sàn',h:'散'}, {p:'sng',h:'酸'}, {p:'sńg',h:'耍'}, {p:'si',h:'詩'},
@@ -320,7 +382,6 @@
             {p:'sui',h:'水'}, {p:'sán',h:'產'}, {p:'siu',h:'收'}, {p:'sin',h:'新'}, {p:'sîn',h:'神'},
             {p:'si̍t',h:'實'}, {p:'seng',h:'生'}, {p:'siong',h:'傷'}, {p:'so',h:'梳'}, {p:'sio',h:'燒'}
         ];
-
         const j_words = [
             {p:'jī',h:'字'}, {p:'ji̍t',h:'日'}, {p:'ji̍p',h:'入'}, {p:'jia̍t',h:'熱'}, {p:'jîn',h:'仁'},
             {p:'jiá',h:'惹'}, {p:'jiám',h:'染'}, {p:'jiân',h:'然'}, {p:'jiāng',h:'讓'}, {p:'jióng',h:'冗'},
@@ -330,7 +391,6 @@
             {p:'jiâm',h:'冉'}, {p:'jiáng',h:'攘'}, {p:'jī',h:'二'}, {p:'jîn',h:'人'}, {p:'jiá',h:'喏'}
         ];
 
-        // 重新組合題庫，不再使用 flatMap，直接匯入 30 個單字
         const db = {
             bm: [...b_words, ...m_words],
             ln: [...l_words, ...n_words],
@@ -338,27 +398,31 @@
             sj: [...s_words, ...j_words]
         };
 
-        // --- 遊戲邏輯變數 ---
-        let score = 0;
+        // --- 遊戲邏輯變數 (PvP) ---
         let timeLeft = 60;
-        let hp = 100;
         let damagePerMiss = 20;
         let gameInterval;
         
+        let p1Hp = 100; // 左/上方血量 (玩家1)
+        let p2Hp = 100; // 右/下方血量 (玩家2)
+        let currentTurn = 1; // 1 = P1攻擊(選自己), 2 = P2攻擊(選自己)
+        
         let activePool = []; 
-        let currentTanks = []; 
-        let lockedTankId = null; 
+        let currentWordsOnBoard = []; 
+        let targetedWordObj = null; 
 
         let showPOJ = true;
         let showHanzi = true;
 
-        const scoreEl = document.getElementById('score');
         const timerEl = document.getElementById('timer');
-        const hpBar = document.getElementById('hp-bar');
+        const hpBar1 = document.getElementById('hp-bar-1');
+        const hpBar2 = document.getElementById('hp-bar-2');
         const leftGrid = document.getElementById('left-grid');
         const rightGrid = document.getElementById('right-grid');
+        const leftZone = document.getElementById('left-zone');
+        const rightZone = document.getElementById('right-zone');
 
-        // --- 音效引擎 (Web Audio API) ---
+        // --- 音效引擎 ---
         let audioCtx = null;
         let soundEnabled = true;
         let bgmInterval = null;
@@ -407,6 +471,18 @@
             osc.start(); osc.stop(audioCtx.currentTime + 0.1);
         }
 
+        function playCorrect() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(1046.5, audioCtx.currentTime + 0.1); 
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+
         function playExplosion() {
             if (!soundEnabled || !audioCtx) return;
             const bufferSize = audioCtx.sampleRate * 0.5;
@@ -427,28 +503,14 @@
             noise.start(); noise.stop(audioCtx.currentTime + 0.5);
         }
 
-        function playError() {
-            if (!soundEnabled || !audioCtx) return;
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
-            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-        }
-
-        // --- 遊戲流程 ---
+        // --- PvP 對戰流程邏輯 ---
         function checkAndStart(dmg) {
             damagePerMiss = dmg;
             showPOJ = document.getElementById('opt-poj').checked;
             showHanzi = document.getElementById('opt-hanzi').checked;
             
             let customDuration = parseInt(document.getElementById('game-duration').value);
-            if (isNaN(customDuration) || customDuration < 10) {
-                customDuration = 60; document.getElementById('game-duration').value = 60;
-            }
+            if (isNaN(customDuration) || customDuration < 10) customDuration = 60;
 
             const isBM = document.getElementById('opt-bm').checked;
             const isLN = document.getElementById('opt-ln').checked;
@@ -476,21 +538,94 @@
         }
 
         function updateHP() {
-            hpBar.style.width = hp + '%';
-            if (hp > 50) hpBar.style.backgroundColor = '#4CAF50'; 
-            else if (hp > 20) hpBar.style.backgroundColor = '#FFB300'; 
-            else hpBar.style.backgroundColor = '#D50000'; 
+            hpBar1.style.width = Math.max(0, p1Hp) + '%';
+            if (p1Hp > 50) hpBar1.style.backgroundColor = '#4CAF50'; 
+            else if (p1Hp > 20) hpBar1.style.backgroundColor = '#FFB300'; 
+            else hpBar1.style.backgroundColor = '#D50000'; 
+
+            hpBar2.style.width = Math.max(0, p2Hp) + '%';
+            if (p2Hp > 50) hpBar2.style.backgroundColor = '#4CAF50'; 
+            else if (p2Hp > 20) hpBar2.style.backgroundColor = '#FFB300'; 
+            else hpBar2.style.backgroundColor = '#D50000'; 
+        }
+
+        function updateTurnUI() {
+            const titleL_md = document.getElementById('title-l-md');
+            const titleL_sm = document.getElementById('title-l-sm');
+            const titleR_md = document.getElementById('title-r-md');
+            const titleR_sm = document.getElementById('title-r-sm');
+            const icon1 = document.getElementById('icon-1');
+            const text1 = document.getElementById('role-text-1');
+            const icon2 = document.getElementById('icon-2');
+            const text2 = document.getElementById('role-text-2');
+
+            if (currentTurn === 1) {
+                // 左/上方 是攻擊方
+                titleL_md.innerHTML = "<span class='text-2xl md:text-3xl'>(請點擊戰車出題)</span>";
+                titleL_sm.innerHTML = "<span class='text-xl'>(請點擊戰車出題)</span>";
+                titleL_md.className = titleL_sm.className = "zone-title text-red-800/30";
+                
+                titleR_md.innerHTML = "<span class='text-2xl md:text-3xl'>(請大聲唸出被鎖定的字)</span>";
+                titleR_sm.innerHTML = "<span class='text-xl'>(請大聲唸出字)</span>";
+                titleR_md.className = titleR_sm.className = "zone-title text-gray-800/20";
+                
+                leftZone.style.backgroundColor = '#FFF9C4'; // 出題方背景亮
+                rightZone.style.backgroundColor = '#CFD8DC';
+                
+                leftZone.classList.add('can-attack');
+                rightZone.classList.remove('can-attack');
+
+                // 河道中央圖示切換
+                icon1.innerText = "⚔️"; text1.innerText = "攻擊"; 
+                text1.className = "text-xl md:text-3xl font-black text-red-600 mt-1 md:mt-2 bg-white/90 px-4 py-1 rounded-full shadow-sm border-2 border-red-300";
+                document.getElementById('role-indicator-1').classList.add('scale-110');
+                
+                icon2.innerText = "🛡️"; text2.innerText = "防守";
+                text2.className = "text-xl md:text-3xl font-black text-blue-600 mt-1 md:mt-2 bg-white/90 px-4 py-1 rounded-full shadow-sm border-2 border-blue-300";
+                document.getElementById('role-indicator-2').classList.remove('scale-110');
+
+            } else {
+                // 右/下方 是攻擊方
+                titleR_md.innerHTML = "<span class='text-2xl md:text-3xl'>(請點擊戰車出題)</span>";
+                titleR_sm.innerHTML = "<span class='text-xl'>(請點擊戰車出題)</span>";
+                titleR_md.className = titleR_sm.className = "zone-title text-red-800/30";
+
+                titleL_md.innerHTML = "<span class='text-2xl md:text-3xl'>(請大聲唸出被鎖定的字)</span>";
+                titleL_sm.innerHTML = "<span class='text-xl'>(請大聲唸出字)</span>";
+                titleL_md.className = titleL_sm.className = "zone-title text-gray-800/20";
+                
+                leftZone.style.backgroundColor = '#CFD8DC';
+                rightZone.style.backgroundColor = '#FFF9C4'; 
+                
+                rightZone.classList.add('can-attack');
+                leftZone.classList.remove('can-attack');
+
+                icon1.innerText = "🛡️"; text1.innerText = "防守"; 
+                text1.className = "text-xl md:text-3xl font-black text-blue-600 mt-1 md:mt-2 bg-white/90 px-4 py-1 rounded-full shadow-sm border-2 border-blue-300";
+                document.getElementById('role-indicator-1').classList.remove('scale-110');
+                
+                icon2.innerText = "⚔️"; text2.innerText = "攻擊";
+                text2.className = "text-xl md:text-3xl font-black text-red-600 mt-1 md:mt-2 bg-white/90 px-4 py-1 rounded-full shadow-sm border-2 border-red-300";
+                document.getElementById('role-indicator-2').classList.add('scale-110');
+            }
+        }
+
+        function switchTurn() {
+            currentTurn = currentTurn === 1 ? 2 : 1;
+            updateTurnUI();
         }
 
         function startGame(duration) {
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('ui-layer').classList.remove('hidden');
+            document.getElementById('river-divider').classList.remove('hidden');
+            document.getElementById('river-divider').classList.add('flex');
             
-            score = 0; hp = 100; timeLeft = duration;
-            scoreEl.innerText = score; timerEl.innerText = timeLeft;
+            p1Hp = 100; p2Hp = 100; timeLeft = duration; currentTurn = 1;
+            timerEl.innerText = timeLeft;
             updateHP();
 
-            lockedTankId = null;
+            targetedWordObj = null;
 
             gameInterval = setInterval(() => {
                 timeLeft--; timerEl.innerText = timeLeft;
@@ -504,26 +639,42 @@
             initField();
         }
 
-        function endGame(isDead) {
+        function endGame(isDeath) {
             clearInterval(gameInterval);
             if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
             document.getElementById('ui-layer').classList.add('hidden');
+            document.getElementById('judge-panel-left').classList.add('hidden');
+            document.getElementById('judge-panel-left').classList.remove('flex');
+            document.getElementById('judge-panel-right').classList.add('hidden');
+            document.getElementById('judge-panel-right').classList.remove('flex');
+            document.getElementById('river-divider').classList.add('hidden');
+            document.getElementById('river-divider').classList.remove('flex');
+            
             leftGrid.innerHTML = ''; rightGrid.innerHTML = '';
+            document.getElementById('title-l-md').innerHTML = '';
+            document.getElementById('title-l-sm').innerHTML = '';
+            document.getElementById('title-r-md').innerHTML = '';
+            document.getElementById('title-r-sm').innerHTML = '';
             
-            const endScreen = document.getElementById('end-screen');
-            endScreen.classList.remove('hidden');
-            document.getElementById('final-score').innerText = score;
-            
-            const endTitle = document.getElementById('end-title');
-            if (isDead) {
-                endTitle.innerText = "💀 戰車被摧毀了！";
-                endTitle.style.color = "#ef4444"; // Tailwind red-500
-                endTitle.classList.remove('text-yellow-400');
+            // 決定勝利與打光效果
+            if (p1Hp > p2Hp) {
+                leftZone.className = "play-zone bg-yellow-300 flex items-center justify-center border-b-8 md:border-b-0 md:border-r-8 border-yellow-500 transition-all duration-500";
+                leftZone.innerHTML = "<div class='end-result-text text-yellow-800'>🏆<br>戰勝</div>";
+                rightZone.className = "play-zone bg-gray-800 flex items-center justify-center transition-all duration-500";
+                rightZone.innerHTML = "<div class='end-result-text text-gray-500'>💀<br>戰敗</div>";
+            } else if (p2Hp > p1Hp) {
+                rightZone.className = "play-zone bg-yellow-300 flex items-center justify-center border-t-8 md:border-t-0 md:border-l-8 border-yellow-500 transition-all duration-500";
+                rightZone.innerHTML = "<div class='end-result-text text-yellow-800'>🏆<br>戰勝</div>";
+                leftZone.className = "play-zone bg-gray-800 flex items-center justify-center transition-all duration-500";
+                leftZone.innerHTML = "<div class='end-result-text text-gray-500'>💀<br>戰敗</div>";
             } else {
-                endTitle.innerText = "時間到！";
-                endTitle.style.color = ""; // Reset inline color
-                endTitle.classList.add('text-yellow-400');
+                leftZone.className = "play-zone bg-blue-200 flex items-center justify-center transition-all duration-500";
+                leftZone.innerHTML = "<div class='end-result-text text-blue-800'>🤝<br>平手</div>";
+                rightZone.className = "play-zone bg-blue-200 flex items-center justify-center transition-all duration-500";
+                rightZone.innerHTML = "<div class='end-result-text text-blue-800'>🤝<br>平手</div>";
             }
+
+            document.getElementById('restart-layer').classList.remove('hidden');
         }
 
         function exitGame() {
@@ -531,128 +682,172 @@
             if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
             leftGrid.innerHTML = ''; rightGrid.innerHTML = '';
             document.getElementById('ui-layer').classList.add('hidden');
+            document.getElementById('judge-panel-left').classList.add('hidden');
+            document.getElementById('judge-panel-left').classList.remove('flex');
+            document.getElementById('judge-panel-right').classList.add('hidden');
+            document.getElementById('judge-panel-right').classList.remove('flex');
+            document.getElementById('river-divider').classList.add('hidden');
+            document.getElementById('river-divider').classList.remove('flex');
             document.getElementById('start-screen').classList.remove('hidden');
         }
 
         function initField() {
-            currentTanks = [];
+            currentWordsOnBoard = [];
+            let poolCopy = [...activePool].sort(() => Math.random() - 0.5);
             
-            // 隨機選出 6 個不重複的單字
-            let poolCopy = [...activePool];
-            let selectedWords = [];
-            for (let i = 0; i < 6; i++) {
-                if (poolCopy.length === 0) poolCopy = [...activePool]; // 題庫抽乾就重置
-                let rIdx = Math.floor(Math.random() * poolCopy.length);
-                selectedWords.push(poolCopy[rIdx]);
-                poolCopy.splice(rIdx, 1);
-            }
-            
+            // 選出 6 個不重複的字作為初始盤面
             for(let i=0; i<6; i++) {
-                currentTanks.push({
-                    id: 'tank_' + Math.random().toString(36).substr(2, 9),
-                    word: selectedWords[i] 
-                });
+                currentWordsOnBoard.push(poolCopy[i]);
             }
+            
             renderTanks();
+            updateTurnUI();
         }
 
-        function createTankDOM(tankData, isLeft) {
+        function createTankDOM(wordObj, sideStr) {
             const wrapper = document.createElement('div');
-            wrapper.className = `tank-wrapper ${isLeft ? 'left-tank' : 'right-tank'}`;
-            wrapper.dataset.id = tankData.id;
+            wrapper.className = `tank-wrapper ${sideStr === 'left' ? 'left-tank' : 'right-tank'}`;
+            wrapper.dataset.word = wordObj.p;
 
             const body = document.createElement('div');
             body.className = 'tank-body';
 
-            const lock = document.createElement('div');
-            lock.className = 'target-lock';
-            body.appendChild(lock);
+            // 準星與暗化特效層
+            const crosshair = document.createElement('div');
+            crosshair.className = 'crosshair-overlay';
+            body.appendChild(crosshair);
 
             let htmlContent = '';
-            if (showPOJ) htmlContent += `<div class="word-poj poj-text">${tankData.word.p}</div>`;
-            if (showHanzi) htmlContent += `<div class="word-hanzi">${tankData.word.h}</div>`;
+            if (showPOJ) htmlContent += `<div class="word-poj poj-text">${wordObj.p}</div>`;
+            if (showHanzi) htmlContent += `<div class="word-hanzi">${wordObj.h}</div>`;
             
             const textContainer = document.createElement('div');
-            textContainer.style.zIndex = "10";
-            textContainer.style.textAlign = "center";
+            textContainer.className = 'text-container';
             textContainer.innerHTML = htmlContent;
             body.appendChild(textContainer);
 
             wrapper.appendChild(body);
+            
+            // 點擊事件：攻擊方點擊自己畫面上的戰車來出題
+            const handleInteract = (e) => {
+                e.preventDefault();
+                if (wrapper.classList.contains('explode')) return;
+                
+                // 防呆：攻擊方只能點擊「自己」區域的戰車
+                if (currentTurn === 1 && sideStr !== 'left') return;
+                if (currentTurn === 2 && sideStr !== 'right') return;
+                if (targetedWordObj !== null) return; // 已經鎖定後就不能再點
+
+                targetedWordObj = wordObj;
+
+                // 自己的戰車打黃光
+                wrapper.classList.add('attacker-selected');
+
+                // 對手畫面上「對應單字」的戰車出現紅色準星
+                let defSide = sideStr === 'left' ? 'right' : 'left';
+                let defTank = document.querySelector(`.tank-wrapper[data-word="${wordObj.p}"].${defSide}-tank`);
+                if(defTank) defTank.classList.add('targeted');
+
+                playLockOn();
+
+                // 在「攻擊方」的畫面上彈出裁判面板 (O/X)，並顯示被鎖定的題目
+                if (sideStr === 'left') {
+                    document.getElementById('judge-word-left').innerText = wordObj.p + (showHanzi ? ` (${wordObj.h})` : '');
+                    document.getElementById('judge-panel-left').classList.remove('hidden');
+                    document.getElementById('judge-panel-left').classList.add('flex');
+                } else {
+                    document.getElementById('judge-word-right').innerText = wordObj.p + (showHanzi ? ` (${wordObj.h})` : '');
+                    document.getElementById('judge-panel-right').classList.remove('hidden');
+                    document.getElementById('judge-panel-right').classList.add('flex');
+                }
+            };
+
+            wrapper.addEventListener('mousedown', handleInteract);
+            wrapper.addEventListener('touchstart', handleInteract);
+
             return wrapper;
         }
 
         function renderTanks() {
             leftGrid.innerHTML = ''; rightGrid.innerHTML = '';
-            lockedTankId = null;
+            targetedWordObj = null;
 
-            let leftOrder = [...currentTanks].sort(() => Math.random() - 0.5);
-            leftOrder.forEach(tankData => {
-                const tankDOM = createTankDOM(tankData, true);
-                
-                const handleAim = (e) => {
-                    e.preventDefault();
-                    if (tankDOM.classList.contains('explode')) return;
-                    
-                    document.querySelectorAll('.left-tank').forEach(t => t.classList.remove('locked'));
-                    tankDOM.classList.add('locked');
-                    lockedTankId = tankData.id;
-                    playLockOn();
-                };
-                tankDOM.addEventListener('mousedown', handleAim);
-                tankDOM.addEventListener('touchstart', handleAim);
-                
-                leftGrid.appendChild(tankDOM);
-            });
+            // 左右兩邊都用相同的 6 個字，但是各自打亂順序
+            let leftOrder = [...currentWordsOnBoard].sort(() => Math.random() - 0.5);
+            let rightOrder = [...currentWordsOnBoard].sort(() => Math.random() - 0.5);
 
-            let rightOrder = [...currentTanks].sort(() => Math.random() - 0.5);
-            rightOrder.forEach(tankData => {
-                const tankDOM = createTankDOM(tankData, false);
-                
-                const handleFire = (e) => {
-                    e.preventDefault();
-                    if (tankDOM.classList.contains('explode')) return;
+            leftOrder.forEach(w => { leftGrid.appendChild(createTankDOM(w, 'left')); });
+            rightOrder.forEach(w => { rightGrid.appendChild(createTankDOM(w, 'right')); });
+        }
 
-                    if (!lockedTankId) {
-                        takeDamage("請先等左邊瞄準！");
-                        return;
-                    }
+        // --- 更新盤面上被消耗掉的字 ---
+        function refreshWord(oldWordObj) {
+            // 從總題庫中找出尚未在盤面上的字
+            let availableWords = activePool.filter(w => !currentWordsOnBoard.includes(w));
+            if (availableWords.length === 0) availableWords = activePool; 
+            
+            let newWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+            
+            // 更新內部陣列
+            let idx = currentWordsOnBoard.indexOf(oldWordObj);
+            if(idx !== -1) currentWordsOnBoard[idx] = newWord;
 
-                    if (tankData.id === lockedTankId) {
-                        playExplosion();
-                        score++; scoreEl.innerText = score;
-                        
-                        document.querySelector(`.left-tank[data-id="${tankData.id}"]`).classList.add('explode');
-                        tankDOM.classList.add('explode');
-                        
-                        lockedTankId = null;
-                        setTimeout(() => initField(), 500);
-                    } else {
-                        takeDamage("打錯目標了！");
-                        tankDOM.classList.add('shake');
-                        setTimeout(() => tankDOM.classList.remove('shake'), 400);
-                    }
-                };
-                tankDOM.addEventListener('mousedown', handleFire);
-                tankDOM.addEventListener('touchstart', handleFire);
-
-                rightGrid.appendChild(tankDOM);
+            // 更新畫面上左右兩邊對應的戰車 DOM
+            document.querySelectorAll(`.tank-wrapper[data-word="${oldWordObj.p}"]`).forEach(tank => {
+                tank.dataset.word = newWord.p;
+                tank.querySelector('.text-container').innerHTML = (showPOJ ? `<div class="word-poj poj-text">${newWord.p}</div>` : '') + (showHanzi ? `<div class="word-hanzi">${newWord.h}</div>` : '');
             });
         }
 
-        function takeDamage(msg) {
-            playError();
-            hp -= damagePerMiss;
-            updateHP();
-            
-            const f = document.createElement('div');
-            f.className = 'center-msg';
-            f.innerText = msg; f.style.color = '#D50000';
-            document.body.appendChild(f);
-            setTimeout(() => f.remove(), 800);
+        // --- O/X 裁判判定邏輯 ---
+        function judgeTarget(isCorrect) {
+            // 隱藏兩個裁判面板
+            document.getElementById('judge-panel-left').classList.add('hidden');
+            document.getElementById('judge-panel-left').classList.remove('flex');
+            document.getElementById('judge-panel-right').classList.add('hidden');
+            document.getElementById('judge-panel-right').classList.remove('flex');
 
-            if (hp <= 0) {
-                setTimeout(() => endGame(true), 300);
+            let atkSide = currentTurn === 1 ? 'left' : 'right';
+            let defSide = currentTurn === 1 ? 'right' : 'left';
+            
+            let atkTank = document.querySelector(`.tank-wrapper[data-word="${targetedWordObj.p}"].${atkSide}-tank`);
+            let defTank = document.querySelector(`.tank-wrapper[data-word="${targetedWordObj.p}"].${defSide}-tank`);
+
+            if (isCorrect) {
+                playCorrect();
+                if(atkTank) atkTank.classList.remove('attacker-selected');
+                if(defTank) defTank.classList.remove('targeted');
+                
+                // 答對不扣血，短暫延遲後更新單字並攻守交換
+                setTimeout(() => {
+                    refreshWord(targetedWordObj);
+                    targetedWordObj = null;
+                    switchTurn();
+                }, 400);
+                
+            } else {
+                playExplosion();
+                if(atkTank) atkTank.classList.remove('attacker-selected');
+                if(defTank) {
+                    defTank.classList.remove('targeted');
+                    defTank.classList.add('explode'); // 防守方戰車爆炸
+                }
+                
+                // 扣除防守方血量
+                if (currentTurn === 1) { p2Hp -= damagePerMiss; } 
+                else { p1Hp -= damagePerMiss; }
+                updateHP();
+
+                if (p1Hp <= 0 || p2Hp <= 0) {
+                    setTimeout(() => endGame(true), 800);
+                } else {
+                    setTimeout(() => {
+                        if(defTank) defTank.classList.remove('explode');
+                        refreshWord(targetedWordObj);
+                        targetedWordObj = null;
+                        switchTurn(); // 開火完也要攻守交換
+                    }, 800);
+                }
             }
         }
     </script>
