@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Game 4：鼻腔共鳴大發電</title>
+    <title>Game 4：鼻音深夜食堂 (送餐大作戰)</title>
+    <!-- 引入 Tailwind CSS 快速排版 -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Noto Sans 確保中文字與白話字顯示乾淨現代 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0; padding: 0; overflow: hidden;
             font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #ECEFF1;
+            background-color: #0F172A; /* 深色食堂背景 */
             user-select: none; -webkit-user-select: none;
             touch-action: none;
         }
 
-        /* Pe̍h-ōe-jī 結合字元防破圖保護罩 */
+        /* POJ 白話字防切字型防護罩 */
         .poj-text {
             font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             letter-spacing: 0 !important;
@@ -23,167 +25,331 @@
             display: inline-block;
         }
 
-        /* 能量方塊響應式尺寸 */
-        .energy-core {
-            cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            background: #FFFFFF; border: 4px solid #90A4AE;
-            position: relative; overflow: hidden;
+        /* 食堂燈籠發光效果 */
+        .lantern {
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6), 0 0 5px rgba(239, 68, 68, 0.4);
         }
-        .energy-core:hover { transform: scale(1.03); }
-        .energy-core:active { transform: scale(0.95); }
 
-        /* 答對收集成功的電光動畫 */
-        .charged {
-            animation: chargeAnim 0.5s ease-out forwards;
+        /* 廚房出餐區木盤微幅震動 */
+        .plate-bounce {
+            animation: plateBounce 1.5s ease-in-out infinite alternate;
+        }
+        @keyframes plateBounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-6px); }
+        }
+
+        /* 食客吧檯點擊卡片 */
+        .customer-seat {
+            cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .customer-seat:hover { transform: translateY(-4px) scale(1.02); }
+        .customer-seat:active { transform: scale(0.95); }
+
+        /* 答對飛入食客嘴巴動畫 */
+        .serve-animation {
+            animation: serveFood 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
             pointer-events: none;
         }
-        @keyframes chargeAnim {
-            0% { transform: scale(1); background: #FFF9C4; filter: brightness(1.2); }
-            100% { transform: scale(0); opacity: 0; }
+        @keyframes serveFood {
+            0% { transform: scale(1) translateY(0); opacity: 1; }
+            100% { transform: scale(0.3) translateY(180px); opacity: 0; }
         }
 
-        /* 答錯的震撼抖動 */
-        .shake { animation: shakeAnim 0.4s ease-in-out; }
-        @keyframes shakeAnim {
-            0%, 100% { transform: translateX(0); border-color: #90A4AE; }
-            20%, 60% { transform: translateX(-8px); border-color: #EF5350; background: #FFEBEE; }
-            40%, 80% { transform: translateX(8px); border-color: #EF5350; background: #FFEBEE; }
+        /* 答錯劇烈搖晃 */
+        .wrong-shake {
+            animation: wrongShake 0.4s ease-in-out;
+        }
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
         }
 
-        /* 大大回饋標記 */
-        .feedback-symbol {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 6rem; z-index: 50; pointer-events: none;
-            animation: popFeedback 0.8s forwards;
+        .feedback-pop {
+            position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 6rem; z-index: 100; pointer-events: none;
+            animation: popSymbol 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
-        @media (min-width: 768px) { .feedback-symbol { font-size: 10rem; } }
-        @keyframes popFeedback {
+        @keyframes popSymbol {
             0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.4); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
         }
+
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="bg-slate-900 text-white flex flex-col h-screen overflow-hidden">
+<body class="flex flex-col h-screen justify-between">
 
-    <div id="ui-layer" class="hidden shrink-0 bg-slate-800 border-b-4 border-slate-700 p-3 md:p-4 flex justify-between items-center z-50">
+    <!-- 頂部食堂狀態列 -->
+    <div id="ui-layer" class="hidden shrink-0 bg-slate-900 border-b-2 border-amber-600 px-4 py-3 flex justify-between items-center z-50">
         <div class="flex items-center gap-4 md:gap-8">
-            <div class="text-xl md:text-2xl font-black">⏱️ <span id="timer" class="text-yellow-400">60</span> 秒</div>
-            <div class="text-xl md:text-2xl font-black">⚡ 電力：<span id="score" class="text-green-400">0</span> W</div>
+            <div class="text-sm md:text-xl font-black text-white">⏱️ 營業時間：<span id="timer" class="text-yellow-400">60</span> 秒</div>
+            <div class="text-sm md:text-xl font-black text-white">💰 小費：<span id="score" class="text-green-400">0</span> 元</div>
+            <div class="text-sm md:text-xl font-black text-white">❤️ 生命：<span id="lives" class="text-red-400">❤️❤️❤️</span></div>
         </div>
         <div class="flex gap-2">
-            <button onclick="exitGame()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-xl font-bold text-sm md:text-base transition">❌ 跳出</button>
-            <button id="btn-sound" onclick="toggleSound()" class="bg-teal-500 hover:bg-teal-600 text-white px-3 py-1.5 rounded-xl font-bold text-sm md:text-base transition">🔊 音效開</button>
+            <button onclick="exitGame()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-xl font-bold text-xs md:text-sm transition-transform active:scale-95">❌ 休息</button>
+            <button id="btn-sound" onclick="toggleSound()" class="bg-teal-500 hover:bg-teal-600 text-white px-3 py-1.5 rounded-xl font-bold text-xs md:text-sm transition-transform active:scale-95">🔊 音效</button>
         </div>
     </div>
 
-    <div id="game-zone" class="flex-1 flex flex-col p-4 max-w-4xl w-full mx-auto justify-between gap-4 overflow-hidden relative">
+    <!-- 主要遊戲畫面 -->
+    <div id="game-zone" class="flex-1 relative w-full flex flex-col justify-between p-4 max-w-4xl mx-auto overflow-hidden">
         
-        <div id="target-panel" class="hidden shrink-0 bg-amber-100 border-4 border-amber-400 text-slate-900 rounded-3xl p-4 md:p-6 shadow-xl flex flex-col items-center justify-center text-center mt-2">
-            <div id="target-desc" class="text-lg md:text-2xl font-bold text-slate-600 mb-1">正在收集發電能源...</div>
-            <div id="target-title" class="text-3xl md:text-5xl font-black text-blue-900 tracking-wide"></div>
+        <!-- 頂部日式食堂裝飾：紅燈籠 -->
+        <div id="decorations" class="hidden flex justify-around w-full shrink-0 z-10">
+            <div class="lantern bg-red-600 text-white font-black px-3 py-1.5 rounded-b-lg border-2 border-red-700 text-xs md:text-sm">🏮 鼻</div>
+            <div class="lantern bg-red-600 text-white font-black px-3 py-1.5 rounded-b-lg border-2 border-red-700 text-xs md:text-sm">🏮 音</div>
+            <div class="lantern bg-red-600 text-white font-black px-3 py-1.5 rounded-b-lg border-2 border-red-700 text-xs md:text-sm">🏮 食</div>
+            <div class="lantern bg-red-600 text-white font-black px-3 py-1.5 rounded-b-lg border-2 border-red-700 text-xs md:text-sm">🏮 堂</div>
         </div>
 
-        <div id="core-grid" class="flex-1 grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 my-2 items-center justify-items-center w-full"></div>
+        <!-- 中部：出餐口 (出餐木盤，放著隨機單字) -->
+        <div id="kitchen-spotlight" class="hidden flex-1 flex flex-col items-center justify-center gap-2 z-20 my-2">
+            <div class="text-xs md:text-base font-bold text-amber-400 bg-slate-800/80 px-4 py-1.5 rounded-full border border-amber-600/30">
+                🔔 廚房剛出餐！請判斷發音，送去給正確的食客：
+            </div>
+
+            <!-- 熱騰騰的木製餐盤 -->
+            <div id="dish-plate" class="plate-bounce bg-amber-50 border-4 border-amber-800 shadow-[0_15px_30px_rgba(0,0,0,0.5)] rounded-[2.5rem] p-4 md:p-6 flex flex-col items-center justify-center min-w-[200px] md:min-w-[260px] text-center border-b-[10px]">
+                <div id="dish-emoji" class="text-4xl md:text-6xl mb-2">🍣</div>
+                <div id="word-poj" class="poj-text text-2xl md:text-4xl text-slate-800 font-black leading-none">àm</div>
+                <div id="word-hanzi" class="text-sm md:text-xl font-bold text-slate-500 mt-1">暗</div>
+            </div>
+        </div>
+
+        <!-- 錯誤提示大看板 (答錯時彈出) -->
+        <div id="error-banner" class="hidden shrink-0 bg-red-950/95 border-4 border-red-500 text-white rounded-2xl p-3 md:p-4 text-center max-w-xl w-full mx-auto shadow-2xl z-40 zoom-in animate-pulse mb-2">
+            <div class="text-base md:text-xl font-black text-red-300 mb-1">⚠️ 哎呀！客人不吃這盤菜喔</div>
+            <p id="error-desc" class="text-xs md:text-base text-gray-200 font-bold leading-relaxed"></p>
+        </div>
+
+        <!-- 下部：吧檯食客座席 (點擊送餐) -->
+        <div id="counter-area" class="hidden shrink-0 flex flex-col items-center w-full z-20 mb-2">
+            <!-- 吧檯食客 row (手機版 2x2 網格，電腦版橫排座) -->
+            <div id="customer-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3 w-full">
+                <!-- 阿閉伯 -->
+                <div onclick="serveFood('m')" class="customer-seat bg-slate-800 border-4 border-slate-600 hover:border-amber-400 p-3 rounded-2xl flex flex-col items-center text-center shadow-md relative" id="seat-m">
+                    <div class="text-4xl md:text-6xl mb-1 transition-transform" id="avatar-m">🤐</div>
+                    <div class="text-xs md:text-sm font-black text-amber-400">阿閉伯</div>
+                    <div class="text-[10px] md:text-xs text-slate-300 mt-1 bg-slate-900/60 px-2 py-0.5 rounded-full font-bold">🤐 只吃閉嘴音 -m</div>
+                </div>
+                <!-- 舌尖妹 -->
+                <div onclick="serveFood('n')" class="customer-seat bg-slate-800 border-4 border-slate-600 hover:border-amber-400 p-3 rounded-2xl flex flex-col items-center text-center shadow-md relative" id="seat-n">
+                    <div class="text-4xl md:text-6xl mb-1 transition-transform" id="avatar-n">👅</div>
+                    <div class="text-xs md:text-sm font-black text-amber-400">舌尖妹</div>
+                    <div class="text-[10px] md:text-xs text-slate-300 mt-1 bg-slate-900/60 px-2 py-0.5 rounded-full font-bold">👅 只吃頂上顎 -n</div>
+                </div>
+                <!-- 大嘴王 -->
+                <div onclick="serveFood('ng')" class="customer-seat bg-slate-800 border-4 border-slate-600 hover:border-amber-400 p-3 rounded-2xl flex flex-col items-center text-center shadow-md relative" id="seat-ng">
+                    <div class="text-4xl md:text-6xl mb-1 transition-transform" id="avatar-ng">😮</div>
+                    <div class="text-xs md:text-sm font-black text-amber-400">大嘴王</div>
+                    <div class="text-[10px] md:text-xs text-slate-300 mt-1 bg-slate-900/60 px-2 py-0.5 rounded-full font-bold">😮 只吃發喉音 -ng</div>
+                </div>
+                <!-- 鼻塞弟 -->
+                <div onclick="serveFood('nasalized')" class="customer-seat bg-slate-800 border-4 border-slate-600 hover:border-amber-400 p-3 rounded-2xl flex flex-col items-center text-center shadow-md relative" id="seat-nasalized">
+                    <div class="text-4xl md:text-6xl mb-1 transition-transform" id="avatar-nasalized">👃</div>
+                    <div class="text-xs md:text-sm font-black text-amber-400">鼻塞弟</div>
+                    <div class="text-[10px] md:text-xs text-slate-300 mt-1 bg-slate-900/60 px-2 py-0.5 rounded-full font-bold">👃 只吃鼻化音 ⁿ</div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
+    <!-- 開始選單 -->
     <div id="start-screen" class="absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center z-[100] p-4 overflow-y-auto">
-        <div class="bg-white/10 p-6 md:p-10 rounded-3xl backdrop-blur-md max-w-2xl w-full border border-white/10 shadow-2xl flex flex-col items-center my-auto">
-            <h1 class="text-4xl md:text-5xl text-yellow-300 font-black mb-3 text-center drop-shadow-lg">⚡ 鼻腔共鳴大發電</h1>
-            <p class="text-gray-300 text-base md:text-xl mb-8 text-center leading-relaxed">
-                台語的鼻音分為許多共鳴位置！<br>請看清中央發電機的指令，點擊正確的鼻音字核輸送電力。
+        <div class="bg-white/10 p-6 md:p-10 rounded-3xl backdrop-blur-md max-w-4xl w-full border border-white/10 shadow-2xl flex flex-col items-center my-auto">
+            <h1 class="text-4xl md:text-6xl text-yellow-300 font-black mb-3 text-center drop-shadow-lg">🍜 鼻音深夜食堂</h1>
+            <p class="text-gray-300 text-lg md:text-2xl mb-8 text-center font-bold">
+                這是一堂考驗「送餐小弟」反應的台語營業課！<br>看準出餐口剛出爐的菜色，將它精確送交到正確嘴型特徵的饕客手中！
             </p>
+            
+            <div class="w-full bg-white/20 p-4 md:p-6 rounded-2xl mb-6">
+                <div class="text-xl md:text-2xl text-white font-bold mb-4 border-b border-white/30 pb-2">👁️ 顯示模式 (至少選一)</div>
+                <div class="flex flex-wrap justify-center gap-4 md:gap-6 mb-6">
+                    <label class="flex items-center gap-3 cursor-pointer bg-blue-900/50 hover:bg-blue-800/80 p-3 md:p-4 rounded-xl transition">
+                        <input type="checkbox" id="opt-poj" checked class="w-6 h-6 md:w-8 md:h-8 accent-blue-500">
+                        <span class="text-white text-lg md:text-2xl font-bold">白話字 (POJ)</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer bg-green-900/50 hover:bg-green-800/80 p-3 md:p-4 rounded-xl transition">
+                        <input type="checkbox" id="opt-hanzi" checked class="w-6 h-6 md:w-8 md:h-8 accent-green-500">
+                        <span class="text-white text-lg md:text-2xl font-bold">漢字</span>
+                    </label>
+                </div>
+                <div id="error-msg" class="text-red-300 font-bold text-lg md:text-xl text-center mt-3 h-6"></div>
+            </div>
 
-            <div class="flex items-center gap-4 bg-white/10 p-3 md:p-4 rounded-full mb-8">
-                <span class="text-white text-base md:text-xl font-bold ml-2">⏳ 遊戲時間：</span>
-                <input type="number" id="game-duration" value="60" min="10" max="600" class="w-20 md:w-24 text-center text-lg md:text-xl font-black rounded-lg p-1 bg-white text-slate-900 border-none outline-none">
-                <span class="text-white text-base md:text-xl font-bold mr-2">秒</span>
+            <div class="flex items-center gap-4 bg-white/20 p-3 md:p-4 rounded-full mb-8">
+                <span class="text-white text-lg md:text-2xl font-bold ml-2">⏳ 營業挑戰時間：</span>
+                <input type="number" id="game-duration" value="60" min="10" max="600" class="w-20 md:w-24 text-center text-xl md:text-2xl font-black rounded-lg p-1 bg-white text-slate-900 border-none outline-none">
+                <span class="text-white text-lg md:text-2xl font-bold mr-2">秒</span>
             </div>
             
-            <div class="flex flex-wrap justify-center gap-4 w-full">
-                <button onclick="checkAndStart(4)" class="flex-1 min-w-[140px] bg-green-500 hover:bg-green-600 text-white text-xl md:text-2xl font-black py-4 rounded-2xl shadow-[0_6px_0_#2E7D32] hover:translate-y-1 hover:shadow-[0_2px_0_#2E7D32] transition-all">新手電廠<br><span class="text-xs md:text-sm font-normal opacity-80">(盤面 4 個字)</span></button>
-                <button onclick="checkAndStart(6)" class="flex-1 min-w-[140px] bg-orange-500 hover:bg-orange-600 text-white text-xl md:text-2xl font-black py-4 rounded-2xl shadow-[0_6px_0_#E65100] hover:translate-y-1 hover:shadow-[0_2px_0_#E65100] transition-all">標準電廠<br><span class="text-xs md:text-sm font-normal opacity-80">(盤面 6 個字)</span></button>
-            </div>
+            <button onclick="checkAndStart()" class="w-full max-w-md bg-orange-500 hover:bg-orange-600 text-white text-2xl md:text-4xl font-black py-5 rounded-2xl shadow-[0_6px_0_#E65100] hover:translate-y-1 hover:shadow-[0_2px_0_#E65100] transition-all">🍽️ 送餐大作戰開張！</button>
         </div>
     </div>
 
+    <!-- 結束畫面 -->
     <div id="end-screen" class="hidden absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center z-[100] p-4 text-center">
-        <h1 class="text-6xl md:text-8xl text-yellow-400 font-black mb-4 drop-shadow-[0_0_20px_rgba(250,204,21,0.6)]">發電結束！</h1>
-        <p class="text-white text-xl md:text-3xl mb-10">您本次共成功輸送了 <strong id="final-score" class="text-5xl md:text-7xl text-green-400 mx-2">0</strong> 瓦特的綠色電力！</p>
-        <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white text-2xl md:text-3xl font-black px-12 py-4 rounded-full shadow-[0_6px_0_#1565C0] hover:translate-y-1 hover:shadow-[0_2px_0_#1565C0] transition-all">再發一次電</button>
+        <h1 id="end-title" class="text-6xl md:text-8xl text-yellow-400 font-black mb-4 drop-shadow-[0_0_20px_rgba(250,204,21,0.6)]">打烊結算</h1>
+        <p class="text-white text-xl md:text-3xl mb-10">食堂送餐小弟任務結束！賺取小費總額：<strong id="final-score" class="text-5xl md:text-7xl text-green-400 mx-2">0</strong> 元</p>
+        <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white text-3xl font-black px-12 py-4 rounded-full shadow-[0_6px_0_#1565C0] hover:translate-y-1 hover:shadow-[0_2px_0_#1565C0] transition-all border-4 border-white">重啟送餐大挑戰</button>
     </div>
 
     <script>
-        // --- 四大鼻中共鳴題庫資料 ---
+        // --- 100% 精選無重複、零方言爭議的 120 字黃金題庫 ---
         const nasalDB = {
             m: [
-                { p: 'am', h: '暗', hint: '💡 -m 結尾：唸完上下嘴唇要閉緊！' },
-                { p: 'im', h: '音', hint: '💡 -m 結尾：唸完上下嘴唇要閉緊！' },
-                { p: 'iam', h: '閹', hint: '💡 -m 結尾：唸完上下嘴唇要閉緊！' },
-                { p: 'sam', h: '三', hint: '💡 -m 結尾：唸完上下嘴唇要閉緊！' },
-                { p: 'sim', h: '心', hint: '💡 -m 結尾：唸完上下嘴唇要閉緊！' },
-                { p: 'kiam', h: '兼', hint: '💡 -m 結尾：唸完上下嘴唇要閉緊！' },
-                { p: 'tam', h: '淡', hint: '💡 -m 結尾：唸完上下嘴唇要閉緊！' },
-                { p: 'lim', h: '林', hint: '💡 -m 結尾：唸完上下嘴唇要閉緊！' },
-                { p: 'ham', h: '含', hint: '💡 -m 結尾：唸完上下嘴唇要閉緊！' },
-                { p: 'kam', h: '甘', hint: '💡 -m 結尾：唸完上下嘴唇要閉緊！' }
+                { p: 'àm', h: '暗', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「暗 àm」)' },
+                { p: 'im', h: '音', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「音 im」)' },
+                { p: 'iam', h: '閹', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「閹 iam」)' },
+                { p: 'sam', h: '三', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「三 sam」)' },
+                { p: 'sim', h: '心', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「心 sim」)' },
+                { p: 'kam', h: '甘', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「甘 kam」)' },
+                { p: 'kám', h: '敢', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「敢 kám」)' },
+                { p: 'kham', h: '堪', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「堪 kham」)' },
+                { p: 'khàm', h: '崁', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「崁 khàm」)' },
+                { p: 'lâm', h: '南', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「南 lâm」)' },
+                { p: 'liâm', h: '鐮', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「鐮 liâm」)' },
+                { p: 'liām', h: '念', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「念 liām」)' },
+                { p: 'chím', h: '審', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「阿審 chím」)' },
+                { p: 'tām', h: '淡', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「淡 tām」)' },
+                { p: 'tâm', h: '濕', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「濕 tâm」)' },
+                { p: 'kiâm', h: '鹹', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「鹹 kiâm」)' },
+                { p: 'chām', h: '站', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「站 chām」)' },
+                { p: 'chiam', h: '針', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「針 chiam」)' },
+                { p: 'chiàm', h: '佔', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「佔 chiàm」)' },
+                { p: 'chham', h: '參', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「參 chham」)' },
+                { p: 'hîm', h: '熊', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「熊 hîm」)' },
+                { p: 'iâm', h: '鹽', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「鹽巴 iâm」)' },
+                { p: 'lim', h: '飲/喝', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「飲水 lim」)' },
+                { p: 'chhâm', h: '蠶', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「蠶 chhâm」)' },
+                { p: 'tîm', h: '沉', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「沉下去 tîm」)' },
+                { p: 'siám', h: '閃', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「閃開 siám」)' },
+                { p: 'tiám', h: '點', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「點心 tiám」)' },
+                { p: 'khiam', h: '謙', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「謙虛 khiam」)' },
+                { p: 'kiám', h: '減', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「減少 kiám」)' },
+                { p: 'khiàm', h: '欠', hint: '阿閉伯 🤐：這盤是「-m」結尾！發音時上下唇必須緊緊抿住！(像「欠錢 khiàm」)' }
             ],
             n: [
-                { p: 'an', h: '安', hint: '💡 -n 結尾：舌尖要頂住門牙內側上顎！' },
-                { p: 'in', h: '印', hint: '💡 -n 結尾：舌尖要頂住門牙內側上顎！' },
-                { p: 'un', h: '恩', hint: '💡 -n 結尾：舌尖要頂住門牙內側上顎！' },
-                { p: 'ian', h: '燕', hint: '💡 -n 結尾：舌尖要頂住門牙內側上顎！' },
-                { p: 'oan', h: '灣', hint: '💡 -n 結尾：舌尖要頂住門牙內側上顎！' },
-                { p: 'pan', h: '班', hint: '💡 -n 結尾：舌尖要頂住門牙內側上顎！' },
-                { p: 'sin', h: '新', hint: '💡 -n 結尾：舌尖要頂住門牙內側上顎！' },
-                { p: 'tun', h: '鈍', hint: '💡 -n 結尾：舌尖要頂住門牙內側上顎！' },
-                { p: 'tian', h: '電', hint: '💡 -n 結尾：舌尖要頂住門牙內側上顎！' },
-                { p: 'koan', h: '關', hint: '💡 -n 結尾：舌尖要頂住門牙內側上顎！' }
+                { p: 'an', h: '安', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「平安 an」)' },
+                { p: 'in', h: '因', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「原因 in」)' },
+                { p: 'un', h: '溫', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「溫柔 un」)' },
+                { p: 'ian', h: '煙', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「食煙 ian」)' },
+                { p: 'oan', h: '冤', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「冤家 oan」)' },
+                { p: 'pan', h: '班', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「班級 pan」)' },
+                { p: 'sin', h: '新', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「新年 sin」)' },
+                { p: 'tùn', h: '鈍', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「刀真鈍 tùn」)' },
+                { p: 'tian', h: '電', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「電腦 tian」)' },
+                { p: 'koān', h: '縣', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「縣市 koān」)' },
+                { p: 'kín', h: '緊', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「快點 kín」)' },
+                { p: 'bān', h: '慢', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「慢慢走 bān」)' },
+                { p: 'pān', h: '辦', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「辦法 pān」)' },
+                { p: 'phàn', h: '盼', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「盼望 phàn」)' },
+                { p: 'tan', h: '單', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「單純 tan」)' },
+                { p: 'tân', h: '陳', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「姓陳 tân」)' },
+                { p: 'thàn', h: '賺', hint: '舌尖妹 👅：這盤是「-n} 結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「賺錢 thàn」)' },
+                { p: 'lán', h: '咱', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「我們 lán」)' },
+                { p: 'lân', h: '難', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「困難 lân」)' },
+                { p: 'lân', h: '鱗', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「魚鱗 lân」)' },
+                { p: 'lín', h: '恁', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「你們 lín」)' },
+                { p: 'liân', h: '連', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「連結 liân」)' },
+                { p: 'liān', h: '練', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「練習 liān」)' },
+                { p: 'kan', h: '干', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「豆干 kan」)' },
+                { p: 'khan', h: '牽', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「牽手 khan」)' },
+                { p: 'khùn', h: '睏', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「睏醒 khùn」)' },
+                { p: 'hān', h: '限', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「限制 hān」)' },
+                { p: 'hân', h: '寒', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「寒冷 hân」)' },
+                { p: 'hûn', h: '雲', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「白雲 hûn」)' },
+                { p: 'chân', h: '層', hint: '舌尖妹 👅：這盤是「-n」結尾！舌尖記得要緊頂住上門牙背後門齒齦喔！(像「樓層 chân」)' }
             ],
             ng: [
-                { p: 'ang', h: '翁', hint: '💡 -ng 結尾：張開嘴巴，氣流從喉嚨後方發出！' },
-                { p: 'ong', h: '王', hint: '💡 -ng 結尾：張開嘴巴，氣流從喉嚨後方發出！' },
-                { p: 'eng', h: '英', hint: '💡 -ng 結尾：張開嘴巴，氣流從喉嚨後方發出！' },
-                { p: 'iong', h: '羊', hint: '💡 -ng 結尾：張開嘴巴，氣流從喉嚨後方發出！' },
-                { p: 'oang', h: '汪', hint: '💡 -ng 結尾：張開嘴巴，氣流從喉嚨後方發出！' },
-                { p: 'pang', h: '板', hint: '💡 -ng 結尾：張開嘴巴，氣流從喉嚨後方發出！' },
-                { p: 'bong', h: '亡', hint: '💡 -ng 結尾：張開嘴巴，氣流從喉嚨後方發出！' },
-                { p: 'teng', h: '燈', hint: '💡 -ng 結尾：張開嘴巴，氣流從喉嚨後方發出！' },
-                { p: 'kiong', h: '恭', hint: '💡 -ng 結尾：張開嘴巴，氣流從喉嚨後方發出！' },
-                { p: 'hong', h: '風', hint: '💡 -ng 結尾：張開嘴巴，氣流從喉嚨後方發出！' }
+                { p: 'ang', h: '翁', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「尪 ang」)' },
+                { p: 'ông', h: '王', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「國王 ông」)' },
+                { p: 'eng', h: '英', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「英文 eng」)' },
+                { p: 'chêng', h: '情', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「感情 chêng」)' },
+                { p: 'káng', h: '港', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「港口 káng」)' },
+                { p: 'pâng', h: '房', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「房間 pâng」)' },
+                { p: 'bông', h: '亡', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「死亡 bông」)' },
+                { p: 'teng', h: '燈', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「電燈 teng」)' },
+                { p: 'kiong', h: '恭', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「恭喜 kiong」)' },
+                { p: 'hong', h: '風', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「風吹 hong」)' },
+                { p: 'kóng', h: '講', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「講話 kóng」)' },
+                { p: 'kang', h: '工', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「做工 kang」)' },
+                { p: 'lâng', h: '人', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「好人 lâng」)' },
+                { p: 'lông', h: '農', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「農夫 lông」)' },
+                { p: 'bāng', h: '夢', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「做夢 bāng」)' },
+                { p: 'pàng', h: '放', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「放手 pàng」)' },
+                { p: 'phang', h: '香', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「真香 phang」)' },
+                { p: 'thng', h: '湯', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「熱湯 thng」)' },
+                { p: 'thn̂g', h: '糖', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「砂糖 thn̂g」)' },
+                { p: 'chhang', h: '蔥', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「青蔥 chhang」)' },
+                { p: 'chheng', h: '清', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「乾淨 chheng」)' },
+                { p: 'chhēng', h: '穿', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「穿衫 chhēng」)' },
+                { p: 'keng', h: '肩', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「肩頭 keng」)' },
+                { p: 'khèng', h: '慶', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「慶祝 khèng」)' },
+                { p: 'heng', h: '胸', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「胸膛 heng」)' },
+                { p: 'hêng', h: '形', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「圖形 hêng」)' },
+                { p: 'sng', h: '酸', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「檸檬酸 sng」)' },
+                { p: 'sńg', h: '耍', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「玩耍 sńg」)' },
+                { p: 'sèng', h: '聖', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「聖經 sèng」)' },
+                { p: 'hâng', h: '烘', hint: '大嘴王 😮：這盤是「-ng」結尾！發音時嘴巴張大，舌頭後縮，音送鼻腔！(像「烘爐 hâng」)' }
             ],
             nasalized: [
-                { p: 'saⁿ', h: '三', hint: '💡 ⁿ 鼻化音：嘴型不變，把音連同鼻塞的氣一起哼出來！' },
-                { p: 'siⁿ', h: '生', hint: '💡 ⁿ 鼻化音：嘴型不變，把音連同鼻塞的氣一起哼出來！' },
-                { p: 'peⁿ', h: '平', hint: '💡 ⁿ 鼻化音：嘴型不變，把音連同鼻塞的氣一起哼出來！' },
-                { p: 'cho͘ⁿ', h: '粗', hint: '💡 ⁿ 鼻化音：嘴型不變，把音連同鼻塞的氣一起哼出來！' },
-                { p: 'āⁿ', h: '餡', hint: '💡 ⁿ 鼻化音：嘴型不變，把音連同鼻塞的氣一起哼出來！' },
-                { p: 'īⁿ', h: '院', hint: '💡 ⁿ 鼻化音：嘴型不變，把音連同鼻塞的氣一起哼出來！' },
-                { p: 'eⁿ', h: '嬰', hint: '💡 ⁿ 鼻化音：嘴型不變，把音連同鼻塞的氣一起哼出來！' },
-                { p: 'o͘ⁿ', h: '喔', hint: '💡 ⁿ 鼻化音：嘴型不變，把音連同鼻塞的氣一起哼出來！' },
-                { p: 'iaⁿ', h: '贏', hint: '💡 ⁿ 鼻化音：嘴型不變，把音連同鼻塞的氣一起哼出來！' },
-                { p: 'oaⁿ', h: '鞍', hint: '💡 ⁿ 鼻化音：嘴型不變，把音連同鼻塞的氣一起哼出來！' }
+                { p: 'saⁿ', h: '衫', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「衫 saⁿ」)' },
+                { p: 'siⁿ', h: '生', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「先生 siⁿ」)' },
+                { p: 'pêⁿ', h: '平', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「公平 pêⁿ」)' },
+                { p: 'sēⁿ', h: '姓', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「姓名 sēⁿ」)' },
+                { p: 'āⁿ', h: '餡', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「內餡 āⁿ」)' },
+                { p: 'īⁿ', h: '院', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「醫院 īⁿ」)' },
+                { p: 'eⁿ', h: '嬰', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「嬰仔 eⁿ」)' },
+                { p: 'iâⁿ', h: '贏', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「打贏 iâⁿ」)' },
+                { p: 'ôaⁿ', h: '碗', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「飯碗 ôaⁿ」)' },
+                { p: 'koaiⁿ', h: '關', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「關門 koaiⁿ」)' },
+                { p: 'chhiⁿ', h: '星', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「天星 chhiⁿ」)' },
+                { p: 'pēⁿ', h: '病', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「生病 pēⁿ」)' },
+                { p: 'chhiūⁿ', h: '像', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「親像 chhiūⁿ」)' },
+                { p: 'hīⁿ', h: '耳', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「耳朵 hīⁿ」)' },
+                { p: 'koaⁿ', h: '官', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「做官 koaⁿ」)' },
+                { p: 'tôaⁿ', h: '彈', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「彈琴 tôaⁿ」)' },
+                { p: 'thoaⁿ', h: '攤', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「路邊攤 thoaⁿ」)' },
+                { p: 'pòaⁿ', h: '半', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「一半 pòaⁿ」)' },
+                { p: 'pháiⁿ', h: '歹', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「壞人 pháiⁿ」)' },
+                { p: 'iûⁿ', h: '羊', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「綿羊 iûⁿ」)' },
+                { p: 'chîⁿ', h: '錢', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「用錢 chîⁿ」)' },
+                { p: 'kiáⁿ', h: '囝', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「囝仔 kiáⁿ」)' },
+                { p: 'siáⁿ', h: '啥', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「啥人 siáⁿ」)' },
+                { p: 'thiⁿ', h: '天', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「天氣 thiⁿ」)' },
+                { p: 'piáⁿ', h: '餅', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「餅乾 piáⁿ」)' },
+                { p: 'choâⁿ', h: '泉', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「溫泉 choâⁿ」)' },
+                { p: 'hoaⁿ', h: '歡', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「歡喜 hoaⁿ」)' },
+                { p: 'sòaⁿ', h: '線', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「毛線 sòaⁿ」)' },
+                { p: 'khoàⁿ', h: '看', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「看電視 khoàⁿ」)' },
+                { p: 'kiaⁿ', h: '驚', hint: '鼻塞弟 👃：這盤是帶有右上角小 [ⁿ] 的鼻化韻！發音時嘴巴不動，氣流直接從鼻子哼出來！(像「害怕 kiaⁿ」)' }
             ]
         };
 
-        const targetTypes = [
-            { key: 'm', title: '閉嘴唇 [-m] 結尾', desc: '找出唸完後嘴唇要緊閉的字核！' },
-            { key: 'n', title: '頂上顎 [-n] 結尾', desc: '找出舌尖頂住上顎門牙後方的字核！' },
-            { key: 'ng', title: '發喉音 [-ng] 結尾', desc: '找出嘴巴張開、氣流由喉嚨後方送出的字核！' },
-            { key: 'nasalized', title: '神奇鼻化小開關 [ⁿ]', desc: '找出右上角帶有小 ⁿ 、音從鼻腔哼出的字核！' }
+        const diners = [
+            { key: 'm', name: '阿閉伯 🤐', avatar: '🤐', text: '「嘴唇要閉緊緊～我想吃 [-m] 結尾的食物！」' },
+            { key: 'n', name: '舌尖妹 👅', avatar: '👅', text: '「舌頭要頂上去～我想吃 [-n] 結尾的食物！」' },
+            { key: 'ng', name: '大嘴王 😮', avatar: '😮', text: '「啊～嘴巴張大大的～我想吃 [-ng] 結尾的食物！」' },
+            { key: 'nasalized', name: '鼻塞弟 👃', avatar: '👃', text: '「哼哼（鼻音）～我想吃帶有小 [ⁿ] 的鼻化音食物！」' }
         ];
 
         let score = 0;
+        let lives = 3;
         let timeLeft = 60;
-        let gameInterval;
-        let boardSize = 6; // 預設盤面核心數
-        let currentTarget = null;
-        let correctCountOnBoard = 0;
+        let gameInterval = null;
+        let currentTargetKey = null; // 本局目標分類 (m, n, ng, nasalized)
+        let currentDish = null;     // 本局出餐的食物資料
 
-        // --- 音效引擎 (Web Audio API) ---
+        // --- 音效引擎 ---
         let audioCtx = null;
         let soundEnabled = true;
         let bgmInterval = null;
-        const bgmMelody = [196.00, 220.00, 261.63, 293.66, 329.63, 261.63]; // 活潑的五聲音階
+        const bgmMelody = [261.63, 329.63, 392.00, 440.00, 392.00, 329.63]; // 活潑旋律
         let bgmStep = 0;
 
         function initAudio() {
@@ -195,8 +361,8 @@
             soundEnabled = !soundEnabled;
             document.getElementById('btn-sound').innerText = soundEnabled ? "🔊 音效開" : "🔇 音效關";
             document.getElementById('btn-sound').className = soundEnabled 
-                ? "bg-teal-500 hover:bg-teal-600 text-white px-3 py-1.5 rounded-xl font-bold text-sm md:text-base transition shadow"
-                : "bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 rounded-xl font-bold text-sm md:text-base transition shadow";
+                ? "bg-teal-500 hover:bg-teal-600 text-white px-2.5 py-1.5 rounded-xl font-bold text-xs md:text-sm transition-transform active:scale-95 shadow"
+                : "bg-gray-500 hover:bg-gray-600 text-white px-2.5 py-1.5 rounded-xl font-bold text-xs md:text-sm transition-transform active:scale-95 shadow";
             
             if (!soundEnabled && bgmInterval) {
                 clearInterval(bgmInterval); bgmInterval = null;
@@ -208,43 +374,62 @@
         function playBGMNote() {
             if (!soundEnabled || !audioCtx) return;
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.type = 'sine';
+            osc.type = 'triangle';
             osc.frequency.setValueAtTime(bgmMelody[bgmStep], audioCtx.currentTime);
             gain.gain.setValueAtTime(0.02, audioCtx.currentTime); 
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
             osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
             bgmStep = (bgmStep + 1) % bgmMelody.length;
         }
 
         function playCorrect() {
             if (!soundEnabled || !audioCtx) return;
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.type = 'triangle';
+            osc.type = 'sine';
             osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08); // E5
-            osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.16); // G5
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
             gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
             osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.35);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         }
 
         function playWrong() {
             if (!soundEnabled || !audioCtx) return;
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(90, audioCtx.currentTime + 0.25);
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.25);
             gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
             osc.connect(gain); gain.connect(audioCtx.destination);
             osc.start(); osc.stop(audioCtx.currentTime + 0.25);
         }
 
-        // --- 核心遊戲控制流程 ---
-        function checkAndStart(size) {
-            boardSize = size;
+        function playEat() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        // --- 核心流程控制 ---
+        function checkAndStart() {
+            showPOJ = document.getElementById('opt-poj').checked;
+            showHanzi = document.getElementById('opt-hanzi').checked;
+
+            if (!showPOJ && !showHanzi) {
+                document.getElementById('error-msg').innerText = "⚠️ 請至少勾選一種顯示模式！";
+                return;
+            }
+            document.getElementById('error-msg').innerText = "";
+
             let customDuration = parseInt(document.getElementById('game-duration').value);
             if (isNaN(customDuration) || customDuration < 10) customDuration = 60;
             timeLeft = customDuration;
@@ -253,135 +438,176 @@
             startGame();
         }
 
+        function updateLivesUI() {
+            let heartStr = '';
+            for(let i=0; i<3; i++) {
+                heartStr += (i < lives) ? '❤️' : '🖤';
+            }
+            document.getElementById('lives').innerText = heartStr;
+        }
+
         function startGame() {
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('ui-layer').classList.remove('hidden');
-            document.getElementById('target-panel').classList.remove('hidden');
-            
-            score = 0;
+            document.getElementById('decorations').classList.remove('hidden');
+            document.getElementById('decorations').classList.add('flex');
+            document.getElementById('kitchen-spotlight').classList.remove('hidden');
+            document.getElementById('kitchen-spotlight').classList.add('flex');
+            document.getElementById('counter-area').classList.remove('hidden');
+            document.getElementById('counter-area').classList.add('flex');
+
+            score = 0; lives = 3;
             document.getElementById('score').innerText = score;
+            updateLivesUI();
             document.getElementById('timer').innerText = timeLeft;
 
             gameInterval = setInterval(() => {
                 timeLeft--;
                 document.getElementById('timer').innerText = timeLeft;
-                if (timeLeft <= 0) endGame();
+                if (timeLeft <= 0) endGame(false);
             }, 1000);
 
             if (soundEnabled && !bgmInterval) {
                 bgmInterval = setInterval(playBGMNote, 250);
             }
 
-            refreshRound();
+            nextOrder();
         }
 
-        function endGame() {
+        function endGame(isDead) {
             clearInterval(gameInterval);
             if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
+
             document.getElementById('ui-layer').classList.add('hidden');
-            document.getElementById('target-panel').classList.add('hidden');
-            document.getElementById('core-grid').innerHTML = '';
+            document.getElementById('decorations').classList.add('hidden');
+            document.getElementById('kitchen-spotlight').classList.add('hidden');
+            document.getElementById('kitchen-spotlight').classList.remove('flex');
+            document.getElementById('counter-area').classList.add('hidden');
+            document.getElementById('counter-area').classList.remove('flex');
+            document.getElementById('error-banner').classList.add('hidden');
+
             document.getElementById('end-screen').classList.remove('hidden');
             document.getElementById('final-score').innerText = score;
+
+            const endTitle = document.getElementById('end-title');
+            if (isDead) {
+                endTitle.innerText = "💀 食堂歇業！";
+                endTitle.style.color = "#EF4444";
+            } else {
+                endTitle.innerText = "⏳ 挑戰結束！";
+                endTitle.style.color = "#FBBF24";
+            }
         }
 
         function exitGame() {
             clearInterval(gameInterval);
             if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
-            document.getElementById('core-grid').innerHTML = '';
+
             document.getElementById('ui-layer').classList.add('hidden');
-            document.getElementById('target-panel').classList.add('hidden');
+            document.getElementById('decorations').classList.add('hidden');
+            document.getElementById('kitchen-spotlight').classList.add('hidden');
+            document.getElementById('kitchen-spotlight').classList.remove('flex');
+            document.getElementById('counter-area').classList.add('hidden');
+            document.getElementById('counter-area').classList.remove('flex');
+            document.getElementById('error-banner').classList.add('hidden');
             document.getElementById('start-screen').classList.remove('hidden');
         }
 
-        function showFeedbackSymbol(symbol, colorStr) {
-            const fb = document.createElement('div');
-            fb.className = 'feedback-symbol';
-            fb.innerText = symbol;
-            fb.style.color = colorStr;
-            fb.style.textShadow = "0px 0px 25px rgba(255,255,255,0.9)";
-            document.getElementById('game-zone').appendChild(fb);
-            setTimeout(() => fb.remove(), 800);
+        function showPopEffect(text, colorStr) {
+            const pop = document.createElement('div');
+            pop.className = 'feedback-pop';
+            pop.innerText = text;
+            pop.style.color = colorStr;
+            pop.style.textShadow = "0px 0px 20px rgba(255,255,255,0.9)";
+            document.getElementById('game-zone').appendChild(pop);
+            setTimeout(() => pop.remove(), 800);
         }
 
-        // --- 刷新局數與盤面核心 ---
-        function refreshRound() {
-            const grid = document.getElementById('core-grid');
-            grid.innerHTML = '';
-
-            // 隨機抽選一個目標鼻音型態
-            currentTarget = targetTypes[Math.floor(Math.random() * targetTypes.length)];
-            document.getElementById('target-title').innerText = currentTarget.title;
-            document.getElementById('target-desc').innerText = `💡 任務指示：${currentTarget.desc}`;
-
-            let finalChoices = [];
-            // 分派正確答案與錯誤答案的比例
-            let correctPool = [...nasalDB[currentTarget.key]].sort(() => Math.random() - 0.5);
-            let targetCorrectCount = boardSize === 4 ? 2 : 2; // 每局固定發放 2 個正確答案
-            correctCountOnBoard = targetCorrectCount;
-
-            for (let i = 0; i < targetCorrectCount; i++) {
-                finalChoices.push({ ...correctPool[i], isTarget: true });
-            }
-
-            // 抽選其餘的錯誤答案
-            let wrongKeys = targetTypes.filter(t => t.key !== currentTarget.key).map(t => t.key);
-            let wrongPool = [];
-            wrongKeys.forEach(k => { wrongPool = wrongPool.concat(nasalDB[k]); });
-            wrongPool.sort(() => Math.random() - 0.5);
-
-            for (let i = 0; i < (boardSize - targetCorrectCount); i++) {
-                finalChoices.push({ ...wrongPool[i], isTarget: false });
-            }
-
-            // 徹底打亂六大核心順序
-            finalChoices.sort(() => Math.random() - 0.5);
-
-            // 渲染 DOM 方塊
-            finalChoices.forEach(item => {
-                const card = document.createElement('div');
-                // RWD 尺寸計算：在大螢幕與小螢幕下自適應高寬度
-                card.className = "energy-core w-full h-24 md:h-36 rounded-2xl flex flex-col justify-center items-center p-2 shadow-md";
-                
-                let html = `<div class="poj-text text-3xl md:text-4xl text-blue-800 font-black">${item.p}</div>`;
-                html += `<div class="text-gray-500 font-bold text-lg md:text-xl mt-1">${item.h}</div>`;
-                card.innerHTML = html;
-
-                const handlePress = (e) => {
-                    e.preventDefault();
-                    if (card.classList.contains('charged') || card.classList.contains('shake')) return;
-
-                    if (item.isTarget) {
-                        playCorrect();
-                        card.classList.add('charged');
-                        score += 50;
-                        document.getElementById('score').innerText = score;
-                        correctCountOnBoard--;
-                        showFeedbackSymbol('⚡', '#00E676');
-
-                        // 當這局的所有正確答案都被收集完畢，自動跳下一局
-                        if (correctCountOnBoard <= 0) {
-                            setTimeout(refreshRound, 400);
-                        }
-                    } else {
-                        playWrong();
-                        card.classList.add('shake');
-                        score = Math.max(0, score - 20);
-                        document.getElementById('score').innerText = score;
-                        showFeedbackSymbol('❌', '#FF1744');
-                        
-                        // 動態修改中央提示框，給予精確的發音結構肢體引導
-                        document.getElementById('target-desc').innerText = item.hint;
-                        
-                        setTimeout(() => card.classList.remove('shake'), 400);
-                    }
-                };
-
-                card.addEventListener('mousedown', handlePress);
-                card.addEventListener('touchstart', handlePress);
-
-                grid.appendChild(card);
+        // --- 食堂廚房出餐邏輯 (隨機出一盤菜) ---
+        function nextOrder() {
+            document.getElementById('error-banner').classList.add('hidden');
+            
+            // 恢復所有食客頭像為原始狀態，並移除動畫殘留
+            diners.forEach(d => {
+                const avatar = document.getElementById(`avatar-${d.key}`);
+                const seat = document.getElementById(`seat-${d.key}`);
+                avatar.innerText = d.avatar;
+                avatar.className = "text-4xl md:text-6xl mb-1 transition-transform";
+                seat.className = "customer-seat bg-slate-800 border-4 border-slate-600 hover:border-amber-400 p-3 rounded-2xl flex flex-col items-center text-center shadow-md relative";
             });
+
+            // 1. 隨機決定本局目標鼻音分類
+            const targetDiner = diners[Math.floor(Math.random() * diners.length)];
+            currentTargetKey = targetDiner.key;
+
+            // 2. 從該分類抽取一道食物單字
+            const wordPool = nasalDB[currentTargetKey];
+            currentDish = wordPool[Math.floor(Math.random() * wordPool.length)];
+
+            // 3. 隨機選一個食物 Emoji 給木盤裝飾
+            const foodEmojis = ['🍣', '🍜', '🍱', '🍡', '🥟', '🍘', '🍙', '🍛', '🍢'];
+            const randomFood = foodEmojis[Math.floor(Math.random() * foodEmojis.length)];
+
+            // 4. 更新廚房出餐盤內容
+            document.getElementById('dish-emoji').innerText = randomFood;
+            document.getElementById('word-poj').innerText = showPOJ ? currentDish.p : '';
+            document.getElementById('word-hanzi').innerText = showHanzi ? currentDish.h : '';
+            
+            // 移除出餐盤的飛行和抖動
+            const dishPlate = document.getElementById('dish-plate');
+            dishPlate.className = "plate-bounce bg-amber-50 border-4 border-amber-800 shadow-[0_15px_30px_rgba(0,0,0,0.5)] rounded-[2.5rem] p-4 md:p-6 flex flex-col items-center justify-center min-w-[200px] md:min-w-[260px] text-center border-b-[10px]";
+        }
+
+        // --- 點擊食客卡片進行送餐判定 ---
+        function serveFood(clickedKey) {
+            if (document.getElementById('ui-layer').classList.contains('hidden') || lives <= 0) return;
+
+            const dishPlate = document.getElementById('dish-plate');
+            const targetAvatar = document.getElementById(`avatar-${clickedKey}`);
+            const targetSeat = document.getElementById(`seat-${clickedKey}`);
+
+            if (clickedKey === currentTargetKey) {
+                // A. 送餐成功！
+                playEat();
+                playCorrect();
+                
+                // 動態飛入食客嘴巴動畫
+                dishPlate.className = "serve-animation bg-amber-50 border-4 border-amber-800 shadow-[0_15px_30px_rgba(0,0,0,0.5)] rounded-[2.5rem] p-4 md:p-6 flex flex-col items-center justify-center min-w-[200px] md:min-w-[260px] text-center border-b-[10px]";
+                
+                targetAvatar.innerText = '😋'; // 吃飽開心的表情
+                targetAvatar.className = "text-4xl md:text-6xl mb-1 bounce-avatar";
+                targetSeat.className = "customer-seat bg-green-950 border-4 border-green-400 p-3 rounded-2xl flex flex-col items-center text-center shadow-lg scale-105 relative";
+
+                showPopEffect('Hó-chia̍h! 💖', '#4CAF50');
+                score += 100;
+                document.getElementById('score').innerText = score;
+
+                // 停留一秒給吃飽反饋，再出下一道菜
+                setTimeout(nextOrder, 1000);
+            } else {
+                // B. 送錯餐點了！
+                playWrong();
+                targetAvatar.innerText = '🤢'; // 噎到不舒服的表情
+                targetSeat.classList.add('wrong-shake');
+
+                showPopEffect('❌ 哼！', '#FF1744');
+                lives--;
+                updateLivesUI();
+
+                // 顯示出餐口木盤裝載單字的專屬嘴型教育回饋提示
+                document.getElementById('error-desc').innerText = currentDish.hint;
+                document.getElementById('error-banner').classList.remove('hidden');
+
+                if (lives <= 0) {
+                    setTimeout(() => endGame(true), 1200);
+                } else {
+                    // 答錯保留在原地，可以讓玩家重新選擇正確的人送餐，直到成功才跳下一題！
+                    setTimeout(() => {
+                        targetAvatar.innerText = diners.find(d => d.key === clickedKey).avatar;
+                        targetSeat.classList.remove('wrong-shake');
+                    }, 1200);
+                }
+            }
         }
     </script>
 </body>
