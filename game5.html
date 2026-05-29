@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Game 5：急煞車大對決</title>
+    <!-- 引入 Tailwind CSS 快速排版 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Noto Sans 確保中文字與白話字顯示乾淨現代 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0; padding: 0; overflow: hidden;
+            font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0F172A; /* 深邃夜星空 */
+            user-select: none; -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        /* 完美防護白話字體設定 */
+        .poj-text { 
+            font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            letter-spacing: 0 !important;
+            padding-right: 0.15em;
+            display: inline-block;
+        }
+
+        /* 蒸汽粒子噴發效果 */
+        .steam-particle {
+            position: absolute; pointer-events: none;
+            animation: steamRise 0.8s ease-out forwards;
+            font-size: 1.5rem; z-index: 40;
+        }
+        @keyframes steamRise {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
+            100% { transform: translate(-30px, -60px) scale(1.5); opacity: 0; }
+        }
+
+        /* 撞車劇烈抖動動畫 */
+        .crash-shake {
+            animation: crashShakeAnim 0.5s ease-in-out;
+        }
+        @keyframes crashShakeAnim {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            10%, 50%, 90% { transform: translateX(-10px) translateY(-5px); }
+            30%, 70% { transform: translateX(10px) translateY(5px); }
+        }
+
+        /* 軌道警告線條（紅白斑馬線流動） */
+        .warning-track {
+            background: repeating-linear-gradient(
+                -45deg,
+                rgba(239, 68, 68, 0.2),
+                rgba(239, 68, 68, 0.2) 10px,
+                rgba(255, 255, 255, 0.1) 10px,
+                rgba(255, 255, 255, 0.1) 20px
+            );
+        }
+
+        /* 槓桿閘門旋轉與定位 */
+        #gate-bar {
+            transform-origin: bottom left;
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="flex flex-col h-screen justify-between">
+
+    <!-- 頂部 HUD 面板 (標題完美置中 RWD 設計) -->
+    <div id="ui-layer" class="hidden shrink-0 bg-slate-800/95 border-b-2 border-slate-700 px-4 py-2.5 md:py-3 flex flex-wrap md:flex-nowrap justify-between items-center gap-2 z-50 shadow-lg">
+        <!-- 左側：生命/得分狀態 -->
+        <div class="flex items-center gap-3 md:gap-6 order-1">
+            <div class="text-sm md:text-xl font-black text-white whitespace-nowrap">⏱️ <span id="timer" class="text-yellow-400">60</span></div>
+            <div class="text-sm md:text-xl font-black text-white whitespace-nowrap">🏆 <span id="score" class="text-green-400">0</span></div>
+            <div class="text-sm md:text-xl font-black text-white whitespace-nowrap">❤️ <span id="lives" class="text-red-400">❤️❤️❤️</span></div>
+        </div>
+
+        <!-- 中間：常駐遊戲大標題 (在手機版自動換行，電腦版置中) -->
+        <div class="text-lg md:text-2xl font-black text-yellow-300 tracking-wider order-3 md:order-2 w-full md:w-auto text-center py-1 md:py-0 border-t border-slate-700 md:border-none">
+            🚂 急煞車大對決
+        </div>
+
+        <!-- 右側：控制按鈕 -->
+        <div class="flex gap-1.5 md:gap-2 order-2 md:order-3">
+            <button onclick="exitGame()" class="bg-red-500 hover:bg-red-600 text-white px-2.5 py-1 rounded-xl font-bold text-xs md:text-sm transition-all active:scale-95 shadow">❌ 跳出</button>
+            <button id="btn-sound" onclick="toggleSound()" class="bg-teal-500 hover:bg-teal-600 text-white px-2.5 py-1 rounded-xl font-bold text-xs md:text-sm transition-all active:scale-95 shadow">🔊 音效</button>
+        </div>
+    </div>
+
+    <!-- 主要遊戲畫面 -->
+    <div id="game-zone" class="flex-1 relative w-full overflow-hidden flex flex-col justify-between p-4 max-w-5xl mx-auto">
+        
+        <!-- 當前煞車屬性引導面板 -->
+        <div id="hint-banner" class="hidden shrink-0 bg-slate-800/80 border-2 border-slate-600 rounded-2xl p-2.5 text-center text-xs md:text-lg text-slate-300 mx-auto w-full max-w-xl z-20">
+            💡 指示：碰到 <span class="text-red-400 font-bold">急煞入聲 (-p, -t, -k)</span> 關閉閘門；碰到 <span class="text-green-400 font-bold">鼻音 (-m, -n, -ng)</span> 直接放行！
+        </div>
+
+        <!-- 鐵路運行軌道區 -->
+        <div class="relative w-full h-40 md:h-64 bg-slate-950/40 rounded-3xl border border-slate-800 flex items-center shadow-inner my-auto">
+            <!-- 枕木鐵軌背景 -->
+            <div class="absolute left-0 right-0 h-4 bg-slate-700 flex justify-between px-2 overflow-hidden pointer-events-none">
+                <!-- 鋪滿小枕木 -->
+                <div class="w-full flex justify-between opacity-30">
+                    <div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div>
+                </div>
+            </div>
+
+            <!-- 紅白色煞車警戒流動區域 (18% - 33%) -->
+            <div class="absolute left-[18%] w-[15%] h-full warning-track border-x-2 border-dashed border-red-500/50 flex flex-col justify-between items-center py-2 pointer-events-none">
+                <span class="text-[9px] md:text-xs font-black text-red-400 bg-slate-900/80 px-1.5 py-0.5 rounded">🛑 煞車警戒線 🛑</span>
+                <span class="text-[9px] md:text-xs font-black text-red-400 bg-slate-900/80 px-1.5 py-0.5 rounded">🛑 煞車警戒線 🛑</span>
+            </div>
+
+            <!-- 發音阻擋閘門 (固定在 15%) -->
+            <div id="gate-bar" class="absolute left-[15%] bottom-[45%] w-3 h-24 md:h-28 bg-amber-500 border-2 border-amber-600 rounded-full z-30 shadow-lg -rotate-90 flex justify-center items-center">
+                <div class="w-1.5 h-16 md:h-20 bg-white/40 rounded-full"></div>
+            </div>
+            <!-- 閘門基座 -->
+            <div class="absolute left-[14%] bottom-[40%] w-6 h-8 bg-slate-700 rounded-t border border-slate-600 z-30"></div>
+
+            <!-- 火車本體 -->
+            <div id="train-sprite" class="absolute bottom-[38%] left-[100%] transform -translate-x-1/2 flex items-center z-10 transition-shadow">
+                <!-- 蒸汽車頭 -->
+                <div class="text-3xl md:text-5xl scale-x-[-1] mr-[-5px] drop-shadow-md">🚂</div>
+                <!-- 載字車廂 -->
+                <div id="train-cargo" class="bg-amber-500 border-2 border-amber-600 px-3 py-1 md:px-5 md:py-3 rounded-xl shadow-lg flex flex-col items-center justify-center min-w-[65px] md:min-w-[100px] border-b-4 border-amber-700">
+                    <div id="word-poj" class="poj-text text-lg md:text-3xl text-slate-900 font-black leading-none">am</div>
+                    <div id="word-hanzi" class="text-[10px] md:text-sm font-black text-slate-800 mt-1">暗</div>
+                </div>
+                <!-- 車輪 -->
+                <div class="absolute bottom-[-8px] left-[15%] w-4 h-4 bg-slate-800 rounded-full border border-slate-500"></div>
+                <div class="absolute bottom-[-8px] left-[45%] w-4 h-4 bg-slate-800 rounded-full border border-slate-500"></div>
+                <div class="absolute bottom-[-8px] left-[75%] w-4 h-4 bg-slate-800 rounded-full border border-slate-500"></div>
+            </div>
+        </div>
+
+        <!-- 錯誤反饋/嘴型引導大橫幅 -->
+        <div id="feedback-banner" class="hidden shrink-0 bg-red-900/95 border-4 border-red-500 text-white rounded-2xl p-4 text-center max-w-xl w-full mx-auto shadow-2xl z-50 zoom-in animate-pulse">
+            <div class="text-lg md:text-2xl font-black mb-1 flex items-center justify-center gap-2">⚠️ <span id="feedback-title">煞車錯誤！</span></div>
+            <p id="feedback-desc" class="text-xs md:text-base text-red-200 font-bold"></p>
+        </div>
+
+        <!-- 底部大大的拉桿急煞按鈕 -->
+        <div class="shrink-0 flex flex-col items-center gap-2 mb-2 md:mb-4 z-40">
+            <button id="btn-brake" onclick="pressBrake()" class="bg-gradient-to-b from-red-500 to-red-700 active:from-red-600 active:to-red-800 text-white px-8 md:px-16 py-4 md:py-6 rounded-[2rem] font-black text-xl md:text-4xl shadow-[0_8px_0_#991B1B,0_12px_15px_rgba(0,0,0,0.4)] hover:shadow-[0_6px_0_#991B1B,0_10px_12px_rgba(0,0,0,0.4)] hover:translate-y-0.5 active:translate-y-2 active:shadow-[0_2px_0_#991B1B] transition-all border-4 border-white flex items-center gap-2">
+                🛑 急煞車 / 關閘門
+            </button>
+            <span class="text-[10px] md:text-sm text-slate-400 font-bold">當遇到短促的【入聲字】在警戒區內時，快速點擊上方大紅拉桿！</span>
+        </div>
+
+    </div>
+
+    <!-- 開始選單 -->
+    <div id="start-screen" class="absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center z-[100] p-4 overflow-y-auto">
+        <div class="bg-white/10 p-6 md:p-10 rounded-3xl backdrop-blur-md max-w-4xl w-full border border-white/10 shadow-2xl flex flex-col items-center my-auto">
+            <h1 class="text-4xl md:text-6xl text-yellow-300 font-black mb-3 text-center drop-shadow-lg">🚂 急煞車大對決 (L5)</h1>
+            <p class="text-gray-300 text-base md:text-2xl mb-8 text-center font-bold">
+                這是一輛開往急煞站的台語列車！<br>遇到可以拉長的 <span class="text-green-400">鼻音字</span> 請放行；遇到必須短促憋氣的 <span class="text-red-400">入聲字</span> 請立刻關閉閘門！
+            </p>
+            
+            <div class="w-full bg-white/20 p-4 md:p-6 rounded-2xl mb-6">
+                <div class="text-xl md:text-2xl text-white font-bold mb-4 border-b border-white/30 pb-2">👁️ 顯示模式 (至少選一)</div>
+                <div class="flex flex-wrap justify-center gap-4 md:gap-6 mb-6">
+                    <label class="flex items-center gap-3 cursor-pointer bg-blue-900/50 hover:bg-blue-800/80 p-3 md:p-4 rounded-xl transition">
+                        <input type="checkbox" id="opt-poj" checked class="w-6 h-6 md:w-8 md:h-8 accent-blue-500">
+                        <span class="text-white text-lg md:text-2xl font-bold">白話字</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer bg-green-900/50 hover:bg-green-800/80 p-3 md:p-4 rounded-xl transition">
+                        <input type="checkbox" id="opt-hanzi" checked class="w-6 h-6 md:w-8 md:h-8 accent-green-500">
+                        <span class="text-white text-lg md:text-2xl font-bold">漢字</span>
+                    </label>
+                </div>
+
+                <div class="text-xl md:text-2xl text-white font-bold mb-4 border-b border-white/30 pb-2">🎯 訓練嘴型關卡 (至少選一)</div>
+                <div class="flex flex-wrap justify-center gap-4 md:gap-6">
+                    <label class="flex items-center gap-2 cursor-pointer bg-purple-900/50 hover:bg-purple-800/80 p-3 md:p-4 rounded-xl transition">
+                        <input type="checkbox" id="opt-mp" checked class="w-6 h-6 md:w-8 md:h-8 accent-purple-500">
+                        <span class="text-white text-lg md:text-2xl font-bold">雙唇組 (-m vs -p)</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-purple-900/50 hover:bg-purple-800/80 p-3 md:p-4 rounded-xl transition">
+                        <input type="checkbox" id="opt-nt" checked class="w-6 h-6 md:w-8 md:h-8 accent-purple-500">
+                        <span class="text-white text-lg md:text-2xl font-bold">舌尖組 (-n vs -t)</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-purple-900/50 hover:bg-purple-800/80 p-3 md:p-4 rounded-xl transition">
+                        <input type="checkbox" id="opt-ngk" checked class="w-6 h-6 md:w-8 md:h-8 accent-purple-500">
+                        <span class="text-white text-lg md:text-2xl font-bold">喉音組 (-ng vs -k)</span>
+                    </label>
+                </div>
+                <div id="error-msg" class="text-red-300 font-bold text-lg md:text-xl text-center mt-3 h-6"></div>
+            </div>
+
+            <div class="flex items-center gap-4 bg-white/20 p-3 md:p-4 rounded-full mb-8">
+                <span class="text-white text-lg md:text-2xl font-bold ml-2">⏳ 挑戰時間：</span>
+                <input type="number" id="game-duration" value="60" min="10" max="600" class="w-20 md:w-24 text-center text-xl md:text-2xl font-black rounded-lg p-1 bg-white text-slate-900 border-none outline-none">
+                <span class="text-white text-lg md:text-2xl font-bold mr-2">秒</span>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-4 w-full">
+                <button onclick="checkAndStart(0.25)" class="flex-1 min-w-[140px] bg-green-500 hover:bg-green-600 text-white text-xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#2E7D32] hover:translate-y-1 hover:shadow-[0_2px_0_#2E7D32] transition-all">慢速火車<br><span class="text-sm md:text-lg opacity-80">(新手練習)</span></button>
+                <button onclick="checkAndStart(0.4)" class="flex-1 min-w-[140px] bg-orange-500 hover:bg-orange-600 text-white text-xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#E65100] hover:translate-y-1 hover:shadow-[0_2px_0_#E65100] transition-all">普通車速<br><span class="text-sm md:text-lg opacity-80">(標準考驗)</span></button>
+                <button onclick="checkAndStart(0.6)" class="flex-1 min-w-[140px] bg-red-500 hover:bg-red-600 text-white text-xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#C62828] hover:translate-y-1 hover:shadow-[0_2px_0_#C62828] transition-all">高鐵極速<br><span class="text-sm md:text-lg opacity-80">(高手挑戰)</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 結束畫面 -->
+    <div id="end-screen" class="hidden absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center z-[100] p-4 text-center">
+        <h1 id="end-title" class="text-6xl md:text-8xl text-yellow-400 font-black mb-4 drop-shadow-[0_0_20px_rgba(250,204,21,0.6)]">結算成果</h1>
+        <p class="text-white text-xl md:text-3xl mb-10">成功攔截/放行！本次發言攔阻總分：<strong id="final-score" class="text-5xl md:text-7xl text-green-400 mx-2">0</strong> 分</p>
+        <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white text-3xl font-black px-12 py-4 rounded-full shadow-[0_6px_0_#1565C0] hover:translate-y-1 hover:shadow-[0_2px_0_#1565C0] transition-all">再挑戰一次</button>
+    </div>
+
+    <script>
+        // --- 完美的「同嘴型」字體對照題庫 (24對 / 48字) ---
+        const wordPool = {
+            m_p: [
+                { p: 'am', h: '暗', type: 'nasal', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'ap', h: '盒(a̍p)', type: 'stop', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'lim', h: '飲/喝', type: 'nasal', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'lip', h: '凹/入', type: 'stop', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'lâm', h: '南', type: 'nasal', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'lap', h: '凹(la̍p)', type: 'stop', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'kam', h: '甘', type: 'nasal', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'kap', h: '與/和', type: 'stop', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'sim', h: '心', type: 'nasal', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'sip', h: '濕', type: 'stop', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'tām', h: '淡', type: 'nasal', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'tap', h: '答', type: 'stop', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'kham', h: '蓋', type: 'nasal', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'khap', h: '磕/蓋', type: 'stop', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'liām', h: '念', type: 'nasal', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' },
+                { p: 'liap', h: '粒', type: 'stop', category: 'p', hint: '-p 結尾：雙唇要閉緊！(像盒子 ap 一樣煞車)' }
+            ],
+            n_t: [
+                { p: 'an', h: '安', type: 'nasal', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'at', h: '遏', type: 'stop', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'in', h: '因', type: 'nasal', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'it', h: '一', type: 'stop', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'un', h: '恩', type: 'nasal', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'ut', h: '熨', type: 'stop', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'liân', h: '連', type: 'nasal', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'lia̍t', h: '列', type: 'stop', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'oan', h: '冤', type: 'nasal', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'oa̍t', h: '越', type: 'stop', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'pan', h: '班', type: 'nasal', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'pat', h: '八', type: 'stop', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'sin', h: '新', type: 'nasal', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'sit', h: '失', type: 'stop', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'ban', h: '慢', type: 'nasal', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' },
+                { p: 'bat', h: '識/會', type: 'stop', category: 't', hint: '-t 結尾：舌尖頂上顎！(像一 it 一樣煞車)' }
+            ],
+            ng_k: [
+                { p: 'âng', h: '紅', type: 'nasal', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
+                { p: 'ak', h: '沃', type: 'stop', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
+                { p: 'ông', h: '王', type: 'nasal', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
+                { p: 'ok', h: '惡', type: 'stop', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
+                { p: 'eng', h: '英', type: 'nasal', category: 'k', hint: '-k 結尾/像竹 tek 一樣煞車)' },
+                { p: 'ek', h: '億', type: 'stop', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
+                { p: 'khang', h: '空/洞', type: 'nasal', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
+                { p: 'khak', h: '殼', type: 'stop', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
+                { p: 'lang', h: '隔開', type: 'nasal', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
+                { p: 'lak', h: '掉落', type: 'stop', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
+                { p: 'kóng', h: '講', type: 'nasal', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
+                { p: 'kok', h: '國', type: 'stop', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
+                { p: 'teng', h: '燈', type: 'nasal', category: 'k', hint: '-k 結尾/像竹 tek 一樣煞車)' },
+                { p: 'tek', h: '竹', type: 'stop', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
+                { p: 'kiông', h: '強', type: 'nasal', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
+                { p: 'kio̍k', h: '局', type: 'stop', category: 'k', hint: '-k 結尾/像竹 tek 一樣煞車)' }
+            ]
+        };
+
+        // 遊戲流程控制變數
+        let score = 0;
+        let lives = 3;
+        let trainSpeed = 0.4; // 火車速度 (由難度控制：0.25慢 / 0.4普 / 0.6快)
+        let activePool = [];
+        let currentTrainWord = null;
+        let trainPosition = 100; // 火車 X 座標百分比 (從 100% 往左行駛到 -20%)
+        
+        let showPOJ = true;
+        let showHanzi = true;
+
+        let animationFrameId = null;
+        let trainInterval = null;
+        let activeBrake = false; // 是否在本次火車過程中按過煞車
+        let roundProcessed = false; // 本回合是否完成結算
+
+        // 警戒煞車區範圍 (18% 至 33%)
+        const minBrakeZone = 18;
+        const maxBrakeZone = 33;
+        const gatePosition = 15; // 閘門固定在 15%
+
+        const trainSprite = document.getElementById('train-sprite');
+        const feedbackBanner = document.getElementById('feedback-banner');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackDesc = document.getElementById('feedback-desc');
+        const gateBar = document.getElementById('gate-bar');
+
+        // --- 音效引擎 (Web Audio API) ---
+        let audioCtx = null;
+        let soundEnabled = true;
+        let bgmInterval = null;
+        const bgmMelody = [130.81, 146.83, 164.81, 146.83]; // 低沉沉穩的火車行進節奏
+        let bgmStep = 0;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('btn-sound').innerText = soundEnabled ? "🔊 音效開" : "🔇 音效關";
+            document.getElementById('btn-sound').className = soundEnabled 
+                ? "bg-teal-500 hover:bg-teal-600 text-white px-3 py-1.5 rounded-xl font-bold text-xs md:text-sm transition-transform active:scale-95"
+                : "bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 rounded-xl font-bold text-xs md:text-sm transition-transform active:scale-95";
+            
+            if (!soundEnabled && bgmInterval) {
+                clearInterval(bgmInterval); bgmInterval = null;
+            } else if (soundEnabled && !bgmInterval && !document.getElementById('ui-layer').classList.contains('hidden')) {
+                bgmInterval = setInterval(playBGMNote, 350);
+            }
+        }
+
+        function playBGMNote() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(bgmMelody[bgmStep], audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.04, audioCtx.currentTime); 
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            bgmStep = (bgmStep + 1) % bgmMelody.length;
+        }
+
+        function playBrakeSqueal() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1500, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function playSlamSound() {
+            if (!soundEnabled || !audioCtx) return;
+            // 金屬關閉重音
+            const osc1 = audioCtx.createOscillator(); const osc2 = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc1.type = 'sawtooth'; osc1.frequency.setValueAtTime(100, audioCtx.currentTime);
+            osc2.type = 'triangle'; osc2.frequency.setValueAtTime(60, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+            osc1.connect(gain); osc2.connect(gain); gain.connect(audioCtx.destination);
+            osc1.start(); osc2.start();
+            osc1.stop(audioCtx.currentTime + 0.4); osc2.stop(audioCtx.currentTime + 0.4);
+        }
+
+        function playCorrect() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function playCrash() {
+            if (!soundEnabled || !audioCtx) return;
+            const bufferSize = audioCtx.sampleRate * 0.5;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            
+            const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+            const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(400, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.5);
+            
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            
+            noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+            noise.start(); noise.stop(audioCtx.currentTime + 0.5);
+        }
+
+        // --- 核心遊戲流程 ---
+        function checkAndStart(speed) {
+            trainSpeed = speed;
+            showPOJ = document.getElementById('opt-poj').checked;
+            showHanzi = document.getElementById('opt-hanzi').checked;
+
+            const isMP = document.getElementById('opt-mp').checked;
+            const isNT = document.getElementById('opt-nt').checked;
+            const isNGK = document.getElementById('opt-ngk').checked;
+
+            activePool = [];
+            if (isMP) activePool = activePool.concat(wordPool.m_p);
+            if (isNT) activePool = activePool.concat(wordPool.n_t);
+            if (isNGK) activePool = activePool.concat(wordPool.ng_k);
+
+            if (!showPOJ && !showHanzi) {
+                document.getElementById('error-msg').innerText = "⚠️ 請至少勾選一種顯示模式！";
+                return;
+            }
+            if (activePool.length === 0) {
+                document.getElementById('error-msg').innerText = "⚠️ 請至少勾選一種訓練嘴型關卡！";
+                return;
+            }
+            document.getElementById('error-msg').innerText = "";
+
+            initAudio();
+            startGame();
+        }
+
+        function updateLivesUI() {
+            let heartStr = '';
+            for(let i=0; i<3; i++) {
+                heartStr += (i < lives) ? '❤️' : '🖤';
+            }
+            document.getElementById('lives').innerText = heartStr;
+        }
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('ui-layer').classList.remove('hidden');
+            document.getElementById('ui-layer').classList.add('flex');
+            document.getElementById('hint-banner').classList.remove('hidden');
+            
+            score = 0; lives = 3;
+            document.getElementById('score').innerText = score;
+            updateLivesUI();
+
+            let customDuration = parseInt(document.getElementById('game-duration').value);
+            if (isNaN(customDuration) || customDuration < 10) customDuration = 60;
+            timeLeft = customDuration;
+            document.getElementById('timer').innerText = timeLeft;
+
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft;
+                if (timeLeft <= 0) endGame(false);
+            }, 1000);
+
+            if (soundEnabled && !bgmInterval) {
+                bgmInterval = setInterval(playBGMNote, 350);
+            }
+
+            spawnTrain();
+        }
+
+        function endGame(isDead) {
+            clearInterval(gameInterval);
+            cancelAnimationFrame(animationFrameId);
+            if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
+            
+            document.getElementById('ui-layer').classList.add('hidden');
+            document.getElementById('ui-layer').classList.remove('flex');
+            document.getElementById('hint-banner').classList.add('hidden');
+            feedbackBanner.classList.add('hidden');
+            
+            document.getElementById('end-screen').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+
+            const endTitle = document.getElementById('end-title');
+            if (isDead) {
+                endTitle.innerText = "💀 列車出軌！";
+                endTitle.style.color = "#EF4444";
+            } else {
+                endTitle.innerText = "⏳ 挑戰時間到！";
+                endTitle.style.color = "#FBBF24";
+            }
+        }
+
+        function exitGame() {
+            clearInterval(gameInterval);
+            cancelAnimationFrame(animationFrameId);
+            if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
+            
+            document.getElementById('ui-layer').classList.add('hidden');
+            document.getElementById('ui-layer').classList.remove('flex');
+            document.getElementById('hint-banner').classList.add('hidden');
+            feedbackBanner.classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+
+        // --- 生成下一輛火車 ---
+        function spawnTrain() {
+            roundProcessed = false;
+            activeBrake = false;
+            trainPosition = 100;
+
+            // 分流題庫，依比例抽選：65% 出現入聲字，35% 出現鼻音字
+            const stopPool = activePool.filter(w => w.type === 'stop');
+            const nasalPool = activePool.filter(w => w.type === 'nasal');
+
+            if (Math.random() < 0.65 && stopPool.length > 0) {
+                currentTrainWord = stopPool[Math.floor(Math.random() * stopPool.length)];
+            } else if (nasalPool.length > 0) {
+                currentTrainWord = nasalPool[Math.floor(Math.random() * nasalPool.length)];
+            } else {
+                currentTrainWord = activePool[Math.floor(Math.random() * activePool.length)];
+            }
+            
+            // 更新火車 UI
+            document.getElementById('word-poj').innerText = showPOJ ? currentTrainWord.p : '';
+            document.getElementById('word-hanzi').innerText = showHanzi ? currentTrainWord.h : '';
+            trainSprite.classList.remove('crash-shake');
+
+            // 確保閘門是開啟狀態 (旋轉 -90 度)
+            gateBar.style.transform = 'rotate(-90deg)';
+            
+            // 隱藏上一局的錯誤提示
+            feedbackBanner.classList.add('hidden');
+
+            moveTrain();
+        }
+
+        // --- 蒸汽噴出視覺粒子效果 ---
+        function spawnSteam() {
+            const container = document.getElementById('game-zone');
+            const rect = trainSprite.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            
+            // 計算車頭煙囪大約位置
+            const x = rect.left - containerRect.left + 15;
+            const y = rect.top - containerRect.top + 20;
+
+            for(let i=0; i<3; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'steam-particle';
+                    particle.innerText = '💨';
+                    particle.style.left = `${x}px`;
+                    particle.style.top = `${y}px`;
+                    container.appendChild(particle);
+                    setTimeout(() => particle.remove(), 800);
+                }, i * 150);
+            }
+        }
+
+        // --- 物理運動引擎 (Train Motion Loop) ---
+        function moveTrain() {
+            if (roundProcessed || document.getElementById('ui-layer').classList.contains('hidden')) return;
+
+            trainPosition -= trainSpeed;
+            trainSprite.style.left = `${trainPosition}%`;
+
+            // A. 防守方失誤判定：錯過了急煞時間 (火車已經開過了閘門 15%)
+            if (trainPosition <= gatePosition) {
+                roundProcessed = true;
+                if (currentTrainWord.type === 'stop') {
+                    // 入聲字竟然沒煞車 ➔ 撞車扣血！
+                    triggerWrongPenalty(currentTrainWord.hint);
+                } else {
+                    // 鼻音字本來就該放行 ➔ 完美安全過關！
+                    playCorrect();
+                    score += 50;
+                    document.getElementById('score').innerText = score;
+                    
+                    // 火車開到最左邊淡出後更新
+                    setTimeout(spawnTrain, 400);
+                }
+                return;
+            }
+
+            animationFrameId = requestAnimationFrame(moveTrain);
+        }
+
+        // --- 錯誤懲罰與嘴型教育引導 ---
+        function triggerWrongPenalty(hintText) {
+            playCrash();
+            lives--;
+            updateLivesUI();
+            
+            trainSprite.classList.add('crash-shake');
+            
+            // 顯示即時教學回饋
+            feedbackTitle.innerText = "🛑 碰撞警報！發音未閉鎖";
+            feedbackDesc.innerText = hintText;
+            feedbackBanner.classList.remove('hidden');
+
+            if (lives <= 0) {
+                setTimeout(() => endGame(true), 1200);
+            } else {
+                setTimeout(spawnTrain, 2000); // 留2秒給學生看嘴型提示
+            }
+        }
+
+        // --- 急煞拉桿觸控按鈕觸發 ---
+        function pressBrake() {
+            initAudio();
+            if (roundProcessed || activeBrake || document.getElementById('ui-layer').classList.contains('hidden')) return;
+
+            activeBrake = true;
+            cancelAnimationFrame(animationFrameId);
+
+            // 關閉閘門動畫 (旋轉至 0度)
+            gateBar.style.transform = 'rotate(0deg)';
+            playSlamSound();
+
+            // 判斷火車此時的 X 座標是否在 18% ~ 33% 的警戒區內
+            if (trainPosition >= minBrakeZone && trainPosition <= maxBrakeZone) {
+                // 1. 煞車時機正確！
+                if (currentTrainWord.type === 'stop') {
+                    // 這確實是入聲字 ➔ 完美拦截，答對！
+                    roundProcessed = true;
+                    playBrakeSqueal();
+                    playCorrect();
+                    spawnSteam(); // 噴出急煞蒸汽
+                    
+                    score += 100;
+                    document.getElementById('score').innerText = score;
+
+                    setTimeout(() => {
+                        // 緩慢開起閘門，火車開走
+                        gateBar.style.transform = 'rotate(-90deg)';
+                        spawnTrain();
+                    }, 1000);
+                } else {
+                    // 點錯了：這是流暢的鼻音 ➔ 閘門關閉撞毀鼻音列車！
+                    roundProcessed = true;
+                    triggerWrongPenalty("這是不用急煞的鼻音，聲音要流暢拉長放行喔！");
+                }
+            } else {
+                // 2. 煞車時機不對 (太早或太遲)
+                roundProcessed = true;
+                if (trainPosition > maxBrakeZone) {
+                    triggerWrongPenalty("太早煞車了！火車還沒開進煞車警戒區喔！");
+                } else {
+                    triggerWrongPenalty("太晚煞車了！已經來不及擋下火車了！");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
