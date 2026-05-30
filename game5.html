@@ -68,39 +68,39 @@
 </head>
 <body class="flex flex-col h-screen justify-between">
 
-    <!-- 頂部 HUD 面板 (標題完美置中 RWD 設計) -->
-    <div id="ui-layer" class="hidden shrink-0 bg-slate-800/95 border-b-2 border-slate-700 px-4 py-2.5 md:py-3 flex flex-wrap md:flex-nowrap justify-between items-center gap-2 z-50 shadow-lg">
+    <!-- 頂部 HUD 面板 (微調高度與間距) -->
+    <div id="ui-layer" class="hidden shrink-0 bg-slate-800/95 border-b-2 border-slate-700 px-3 py-2 md:py-2.5 flex flex-wrap md:flex-nowrap justify-between items-center gap-2 z-50 shadow-lg">
         <!-- 左側：生命/得分狀態 -->
         <div class="flex items-center gap-3 md:gap-6 order-1">
-            <div class="text-sm md:text-xl font-black text-white whitespace-nowrap">⏱️ <span id="timer" class="text-yellow-400">60</span></div>
-            <div class="text-sm md:text-xl font-black text-white whitespace-nowrap">🏆 <span id="score" class="text-green-400">0</span></div>
-            <div class="text-sm md:text-xl font-black text-white whitespace-nowrap">❤️ <span id="lives" class="text-red-400">❤️❤️❤️</span></div>
+            <div class="text-xs md:text-lg font-black text-white whitespace-nowrap">⏱️ <span id="timer" class="text-yellow-400">60</span></div>
+            <div class="text-xs md:text-lg font-black text-white whitespace-nowrap">🏆 <span id="score" class="text-green-400">0</span></div>
+            <div class="text-xs md:text-lg font-black text-white whitespace-nowrap">❤️ <span id="lives" class="text-red-400">❤️❤️❤️</span></div>
         </div>
 
-        <!-- 中間：常駐遊戲大標題 (在手機版自動換行，電腦版置中) -->
-        <div class="text-lg md:text-2xl font-black text-yellow-300 tracking-wider order-3 md:order-2 w-full md:w-auto text-center py-1 md:py-0 border-t border-slate-700 md:border-none">
+        <!-- 中間：常駐遊戲大標題 (縮小字級與內距) -->
+        <div class="text-sm md:text-xl font-black text-yellow-300 tracking-wider order-3 md:order-2 w-full md:w-auto text-center py-0.5 md:py-0 border-t border-slate-700 md:border-none">
             🚂 急煞車大對決
         </div>
 
         <!-- 右側：控制按鈕 -->
-        <div class="flex gap-1.5 md:gap-2 order-2 md:order-3">
-            <button onclick="exitGame()" class="bg-red-500 hover:bg-red-600 text-white px-2.5 py-1 rounded-xl font-bold text-xs md:text-sm transition-all active:scale-95 shadow">❌ 跳出</button>
-            <button id="btn-sound" onclick="toggleSound()" class="bg-teal-500 hover:bg-teal-600 text-white px-2.5 py-1 rounded-xl font-bold text-xs md:text-sm transition-all active:scale-95 shadow">🔊 音效</button>
+        <div class="flex gap-1.5 order-2 md:order-3">
+            <button onclick="exitGame()" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-xl font-bold text-[10px] md:text-xs transition-all active:scale-95 shadow">❌ 跳出</button>
+            <button id="btn-sound" onclick="toggleSound()" class="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 rounded-xl font-bold text-[10px] md:text-xs transition-all active:scale-95 shadow">🔊 音效</button>
         </div>
     </div>
 
     <!-- 主要遊戲畫面 -->
-    <div id="game-zone" class="flex-1 relative w-full overflow-hidden flex flex-col justify-between p-4 max-w-5xl mx-auto">
+    <div id="game-zone" class="flex-1 relative w-full overflow-hidden flex flex-col justify-between p-2 md:p-4 max-w-5xl mx-auto">
         
-        <!-- 當前煞車屬性引導面板 -->
-        <div id="hint-banner" class="hidden shrink-0 bg-slate-800/80 border-2 border-slate-600 rounded-2xl p-2.5 text-center text-xs md:text-lg text-slate-300 mx-auto w-full max-w-xl z-20">
+        <!-- 當前煞車屬性引導面板 (縮減高度) -->
+        <div id="hint-banner" class="hidden shrink-0 bg-slate-800/80 border-2 border-slate-600 rounded-2xl p-2 text-center text-xs md:text-base text-slate-300 mx-auto w-full max-w-xl z-20">
             💡 指示：碰到 <span class="text-red-400 font-bold">急煞入聲 (-p, -t, -k)</span> 關閉閘門；碰到 <span class="text-green-400 font-bold">鼻音 (-m, -n, -ng)</span> 直接放行！
         </div>
 
-        <!-- 鐵路運行軌道區 -->
-        <div class="relative w-full h-40 md:h-64 bg-slate-950/40 rounded-3xl border border-slate-800 flex items-center shadow-inner my-auto">
+        <!-- 鐵路運行軌道區 (微調高度為 h-32 md:h-48，防止垂直溢出) -->
+        <div class="relative w-full h-32 md:h-48 bg-slate-950/40 rounded-3xl border border-slate-800 flex items-center shadow-inner my-1">
             <!-- 枕木鐵軌背景 -->
-            <div class="absolute left-0 right-0 h-4 bg-slate-700 flex justify-between px-2 overflow-hidden pointer-events-none">
+            <div class="absolute left-0 right-0 h-3 bg-slate-700 flex justify-between px-2 overflow-hidden pointer-events-none">
                 <!-- 鋪滿小枕木 -->
                 <div class="w-full flex justify-between opacity-30">
                     <div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div><div class="w-1.5 h-full bg-slate-900"></div>
@@ -108,46 +108,46 @@
             </div>
 
             <!-- 紅白色煞車警戒流動區域 (18% - 33%) -->
-            <div class="absolute left-[18%] w-[15%] h-full warning-track border-x-2 border-dashed border-red-500/50 flex flex-col justify-between items-center py-2 pointer-events-none">
-                <span class="text-[9px] md:text-xs font-black text-red-400 bg-slate-900/80 px-1.5 py-0.5 rounded">🛑 煞車警戒線 🛑</span>
-                <span class="text-[9px] md:text-xs font-black text-red-400 bg-slate-900/80 px-1.5 py-0.5 rounded">🛑 煞車警戒線 🛑</span>
+            <div class="absolute left-[18%] w-[15%] h-full warning-track border-x-2 border-dashed border-red-500/50 flex flex-col justify-between items-center py-1 pointer-events-none">
+                <span class="text-[8px] md:text-xs font-black text-red-400 bg-slate-900/80 px-1.5 py-0.5 rounded">🛑 煞車區 🛑</span>
+                <span class="text-[8px] md:text-xs font-black text-red-400 bg-slate-900/80 px-1.5 py-0.5 rounded">🛑 煞車區 🛑</span>
             </div>
 
-            <!-- 發音阻擋閘門 (固定在 15%) -->
-            <div id="gate-bar" class="absolute left-[15%] bottom-[45%] w-3 h-24 md:h-28 bg-amber-500 border-2 border-amber-600 rounded-full z-30 shadow-lg -rotate-90 flex justify-center items-center">
-                <div class="w-1.5 h-16 md:h-20 bg-white/40 rounded-full"></div>
+            <!-- 發音阻擋閘門 -->
+            <div id="gate-bar" class="absolute left-[15%] bottom-[45%] w-2.5 h-16 md:h-24 bg-amber-500 border-2 border-amber-600 rounded-full z-30 shadow-lg -rotate-90 flex justify-center items-center">
+                <div class="w-1 h-10 md:h-16 bg-white/40 rounded-full"></div>
             </div>
             <!-- 閘門基座 -->
-            <div class="absolute left-[14%] bottom-[40%] w-6 h-8 bg-slate-700 rounded-t border border-slate-600 z-30"></div>
+            <div class="absolute left-[14%] bottom-[40%] w-5 h-6 bg-slate-700 rounded-t border border-slate-600 z-30"></div>
 
-            <!-- 火車本體 -->
+            <!-- 火車本體 (微調尺寸以適應低高度螢幕) -->
             <div id="train-sprite" class="absolute bottom-[38%] left-[100%] transform -translate-x-1/2 flex items-center z-10 transition-shadow">
                 <!-- 蒸汽車頭 -->
-                <div class="text-3xl md:text-5xl scale-x-[-1] mr-[-5px] drop-shadow-md">🚂</div>
+                <div class="text-2xl md:text-4xl scale-x-[-1] mr-[-4px] drop-shadow-md">🚂</div>
                 <!-- 載字車廂 -->
-                <div id="train-cargo" class="bg-amber-500 border-2 border-amber-600 px-3 py-1 md:px-5 md:py-3 rounded-xl shadow-lg flex flex-col items-center justify-center min-w-[65px] md:min-w-[100px] border-b-4 border-amber-700">
-                    <div id="word-poj" class="poj-text text-lg md:text-3xl text-slate-900 font-black leading-none">am</div>
-                    <div id="word-hanzi" class="text-[10px] md:text-sm font-black text-slate-800 mt-1">暗</div>
+                <div id="train-cargo" class="bg-amber-500 border-2 border-amber-600 px-2 py-0.5 md:px-4 md:py-2 rounded-xl shadow-lg flex flex-col items-center justify-center min-w-[55px] md:min-w-[90px] border-b-4 border-amber-700">
+                    <div id="word-poj" class="poj-text text-sm md:text-2xl text-slate-900 font-black leading-none">am</div>
+                    <div id="word-hanzi" class="text-[9px] md:text-xs font-black text-slate-800 mt-0.5">暗</div>
                 </div>
                 <!-- 車輪 -->
-                <div class="absolute bottom-[-8px] left-[15%] w-4 h-4 bg-slate-800 rounded-full border border-slate-500"></div>
-                <div class="absolute bottom-[-8px] left-[45%] w-4 h-4 bg-slate-800 rounded-full border border-slate-500"></div>
-                <div class="absolute bottom-[-8px] left-[75%] w-4 h-4 bg-slate-800 rounded-full border border-slate-500"></div>
+                <div class="absolute bottom-[-6px] left-[15%] w-3 h-3 bg-slate-800 rounded-full border border-slate-500"></div>
+                <div class="absolute bottom-[-6px] left-[45%] w-3 h-3 bg-slate-800 rounded-full border border-slate-500"></div>
+                <div class="absolute bottom-[-6px] left-[75%] w-3 h-3 bg-slate-800 rounded-full border border-slate-500"></div>
             </div>
         </div>
 
-        <!-- 錯誤反饋/嘴型引導大橫幅 -->
-        <div id="feedback-banner" class="hidden shrink-0 bg-red-900/95 border-4 border-red-500 text-white rounded-2xl p-4 text-center max-w-xl w-full mx-auto shadow-2xl z-50 zoom-in animate-pulse">
-            <div class="text-lg md:text-2xl font-black mb-1 flex items-center justify-center gap-2">⚠️ <span id="feedback-title">煞車錯誤！</span></div>
-            <p id="feedback-desc" class="text-xs md:text-base text-red-200 font-bold"></p>
+        <!-- 錯誤提示大看板 (✨修改重點：改為絕對定位，直接浮動在軌道正上方，完全不破壞底層垂直排版！) -->
+        <div id="feedback-banner" class="hidden absolute top-12 left-1/2 transform -translate-x-1/2 bg-red-950/95 border-2 border-red-500 text-white rounded-2xl p-3 text-center max-w-md w-11/12 shadow-2xl z-50 zoom-in animate-pulse">
+            <div class="text-xs md:text-sm font-black text-red-300 mb-0.5 flex items-center justify-center gap-2">⚠️ <span id="feedback-title">煞車錯誤！</span></div>
+            <p id="feedback-desc" class="text-[10px] md:text-xs text-gray-200 font-bold leading-relaxed"></p>
         </div>
 
-        <!-- 底部大大的拉桿急煞按鈕 -->
-        <div class="shrink-0 flex flex-col items-center gap-2 mb-2 md:mb-4 z-40">
-            <button id="btn-brake" onclick="pressBrake()" class="bg-gradient-to-b from-red-500 to-red-700 active:from-red-600 active:to-red-800 text-white px-8 md:px-16 py-4 md:py-6 rounded-[2rem] font-black text-xl md:text-4xl shadow-[0_8px_0_#991B1B,0_12px_15px_rgba(0,0,0,0.4)] hover:shadow-[0_6px_0_#991B1B,0_10px_12px_rgba(0,0,0,0.4)] hover:translate-y-0.5 active:translate-y-2 active:shadow-[0_2px_0_#991B1B] transition-all border-4 border-white flex items-center gap-2">
+        <!-- 底部大大的拉桿急煞按鈕 (縮減高度與內距) -->
+        <div class="shrink-0 flex flex-col items-center gap-1.5 mb-1 z-40">
+            <button id="btn-brake" onclick="pressBrake()" class="bg-gradient-to-b from-red-500 to-red-700 active:from-red-600 active:to-red-800 text-white px-8 md:px-12 py-3 md:py-4.5 rounded-[1.5rem] md:rounded-[2rem] font-black text-lg md:text-2xl shadow-[0_5px_0_#991B1B,0_8px_10px_rgba(0,0,0,0.4)] hover:shadow-[0_4px_0_#991B1B,0_6px_8px_rgba(0,0,0,0.4)] hover:translate-y-0.5 active:translate-y-1.5 active:shadow-[0_1px_0_#991B1B] transition-all border-2 border-white flex items-center gap-2">
                 🛑 急煞車 / 關閘門
             </button>
-            <span class="text-[10px] md:text-sm text-slate-400 font-bold">當遇到短促的【入聲字】在警戒區內時，快速點擊上方大紅拉桿！</span>
+            <span class="text-[9px] md:text-xs text-slate-400 font-bold">當遇到短促的【入聲字】在警戒區內時，快速點擊上方大紅拉桿！</span>
         </div>
 
     </div>
@@ -156,60 +156,60 @@
     <div id="start-screen" class="absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center z-[100] p-4 overflow-y-auto">
         <div class="bg-white/10 p-6 md:p-10 rounded-3xl backdrop-blur-md max-w-4xl w-full border border-white/10 shadow-2xl flex flex-col items-center my-auto">
             <h1 class="text-4xl md:text-6xl text-yellow-300 font-black mb-3 text-center drop-shadow-lg">🚂 急煞車大對決 (L5)</h1>
-            <p class="text-gray-300 text-base md:text-2xl mb-8 text-center font-bold">
+            <p class="text-gray-300 text-sm md:text-xl mb-6 text-center font-bold">
                 這是一輛開往急煞站的台語列車！<br>遇到可以拉長的 <span class="text-green-400">鼻音字</span> 請放行；遇到必須短促憋氣的 <span class="text-red-400">入聲字</span> 請立刻關閉閘門！
             </p>
             
             <div class="w-full bg-white/20 p-4 md:p-6 rounded-2xl mb-6">
-                <div class="text-xl md:text-2xl text-white font-bold mb-4 border-b border-white/30 pb-2">👁️ 顯示模式 (至少選一)</div>
-                <div class="flex flex-wrap justify-center gap-4 md:gap-6 mb-6">
-                    <label class="flex items-center gap-3 cursor-pointer bg-blue-900/50 hover:bg-blue-800/80 p-3 md:p-4 rounded-xl transition">
-                        <input type="checkbox" id="opt-poj" checked class="w-6 h-6 md:w-8 md:h-8 accent-blue-500">
-                        <span class="text-white text-lg md:text-2xl font-bold">白話字</span>
+                <div class="text-base md:text-xl text-white font-bold mb-3 border-b border-white/30 pb-2">👁️ 顯示模式 (至少選一)</div>
+                <div class="flex flex-wrap justify-center gap-3 md:gap-6 mb-4">
+                    <label class="flex items-center gap-2 cursor-pointer bg-blue-900/50 hover:bg-blue-800/80 p-2.5 md:p-4 rounded-xl transition">
+                        <input type="checkbox" id="opt-poj" checked class="w-5 h-5 md:w-7 md:h-7 accent-blue-500">
+                        <span class="text-white text-sm md:text-xl font-bold">白話字</span>
                     </label>
-                    <label class="flex items-center gap-3 cursor-pointer bg-green-900/50 hover:bg-green-800/80 p-3 md:p-4 rounded-xl transition">
-                        <input type="checkbox" id="opt-hanzi" checked class="w-6 h-6 md:w-8 md:h-8 accent-green-500">
-                        <span class="text-white text-lg md:text-2xl font-bold">漢字</span>
+                    <label class="flex items-center gap-2 cursor-pointer bg-green-900/50 hover:bg-green-800/80 p-2.5 md:p-4 rounded-xl transition">
+                        <input type="checkbox" id="opt-hanzi" checked class="w-5 h-5 md:w-7 md:h-7 accent-green-500">
+                        <span class="text-white text-sm md:text-xl font-bold">漢字</span>
                     </label>
                 </div>
 
-                <div class="text-xl md:text-2xl text-white font-bold mb-4 border-b border-white/30 pb-2">🎯 訓練嘴型關卡 (至少選一)</div>
-                <div class="flex flex-wrap justify-center gap-4 md:gap-6">
-                    <label class="flex items-center gap-2 cursor-pointer bg-purple-900/50 hover:bg-purple-800/80 p-3 md:p-4 rounded-xl transition">
-                        <input type="checkbox" id="opt-mp" checked class="w-6 h-6 md:w-8 md:h-8 accent-purple-500">
-                        <span class="text-white text-lg md:text-2xl font-bold">雙唇組 (-m vs -p)</span>
+                <div class="text-base md:text-xl text-white font-bold mb-3 border-b border-white/30 pb-2">🎯 訓練嘴型關卡 (至少選一)</div>
+                <div class="flex flex-wrap justify-center gap-3 md:gap-6">
+                    <label class="flex items-center gap-2 cursor-pointer bg-purple-900/50 hover:bg-purple-800/80 p-2.5 md:p-4 rounded-xl transition">
+                        <input type="checkbox" id="opt-mp" checked class="w-5 h-5 md:w-7 md:h-7 accent-purple-500">
+                        <span class="text-white text-sm md:text-xl font-bold">雙唇組 (-m vs -p)</span>
                     </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-purple-900/50 hover:bg-purple-800/80 p-3 md:p-4 rounded-xl transition">
-                        <input type="checkbox" id="opt-nt" checked class="w-6 h-6 md:w-8 md:h-8 accent-purple-500">
-                        <span class="text-white text-lg md:text-2xl font-bold">舌尖組 (-n vs -t)</span>
+                    <label class="flex items-center gap-2 cursor-pointer bg-purple-900/50 hover:bg-purple-800/80 p-2.5 md:p-4 rounded-xl transition">
+                        <input type="checkbox" id="opt-nt" checked class="w-5 h-5 md:w-7 md:h-7 accent-purple-500">
+                        <span class="text-white text-sm md:text-xl font-bold">舌尖組 (-n vs -t)</span>
                     </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-purple-900/50 hover:bg-purple-800/80 p-3 md:p-4 rounded-xl transition">
-                        <input type="checkbox" id="opt-ngk" checked class="w-6 h-6 md:w-8 md:h-8 accent-purple-500">
-                        <span class="text-white text-lg md:text-2xl font-bold">喉音組 (-ng vs -k)</span>
+                    <label class="flex items-center gap-2 cursor-pointer bg-purple-900/50 hover:bg-purple-800/80 p-2.5 md:p-4 rounded-xl transition">
+                        <input type="checkbox" id="opt-ngk" checked class="w-5 h-5 md:w-7 md:h-7 accent-purple-500">
+                        <span class="text-white text-sm md:text-xl font-bold">喉音組 (-ng vs -k)</span>
                     </label>
                 </div>
-                <div id="error-msg" class="text-red-300 font-bold text-lg md:text-xl text-center mt-3 h-6"></div>
+                <div id="error-msg" class="text-red-300 font-bold text-sm md:text-lg text-center mt-2 h-5"></div>
             </div>
 
-            <div class="flex items-center gap-4 bg-white/20 p-3 md:p-4 rounded-full mb-8">
-                <span class="text-white text-lg md:text-2xl font-bold ml-2">⏳ 挑戰時間：</span>
-                <input type="number" id="game-duration" value="60" min="10" max="600" class="w-20 md:w-24 text-center text-xl md:text-2xl font-black rounded-lg p-1 bg-white text-slate-900 border-none outline-none">
-                <span class="text-white text-lg md:text-2xl font-bold mr-2">秒</span>
+            <div class="flex items-center gap-3 bg-white/20 p-2.5 md:p-4 rounded-full mb-6">
+                <span class="text-white text-sm md:text-lg font-bold ml-2">⏳ 挑戰時間：</span>
+                <input type="number" id="game-duration" value="60" min="10" max="600" class="w-16 md:w-24 text-center text-sm md:text-xl font-black rounded-lg p-1 bg-white text-slate-900 border-none outline-none">
+                <span class="text-white text-sm md:text-lg font-bold mr-2">秒</span>
             </div>
             
-            <div class="flex flex-wrap justify-center gap-4 w-full">
-                <button onclick="checkAndStart(0.25)" class="flex-1 min-w-[140px] bg-green-500 hover:bg-green-600 text-white text-xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#2E7D32] hover:translate-y-1 hover:shadow-[0_2px_0_#2E7D32] transition-all">慢速火車<br><span class="text-sm md:text-lg opacity-80">(新手練習)</span></button>
-                <button onclick="checkAndStart(0.4)" class="flex-1 min-w-[140px] bg-orange-500 hover:bg-orange-600 text-white text-xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#E65100] hover:translate-y-1 hover:shadow-[0_2px_0_#E65100] transition-all">普通車速<br><span class="text-sm md:text-lg opacity-80">(標準考驗)</span></button>
-                <button onclick="checkAndStart(0.6)" class="flex-1 min-w-[140px] bg-red-500 hover:bg-red-600 text-white text-xl md:text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_#C62828] hover:translate-y-1 hover:shadow-[0_2px_0_#C62828] transition-all">高鐵極速<br><span class="text-sm md:text-lg opacity-80">(高手挑戰)</span></button>
+            <div class="flex flex-wrap justify-center gap-3 w-full">
+                <button onclick="checkAndStart(0.25)" class="flex-1 min-w-[120px] bg-green-500 hover:bg-green-600 text-white text-base md:text-xl font-black py-3 rounded-xl shadow-[0_5px_0_#2E7D32] hover:translate-y-0.5 hover:shadow-[0_2px_0_#2E7D32] transition-all">慢速火車<br><span class="text-[10px] md:text-sm opacity-80">(新手練習)</span></button>
+                <button onclick="checkAndStart(0.4)" class="flex-1 min-w-[120px] bg-orange-500 hover:bg-orange-600 text-white text-base md:text-xl font-black py-3 rounded-xl shadow-[0_5px_0_#E65100] hover:translate-y-0.5 hover:shadow-[0_2px_0_#E65100] transition-all">普通車速<br><span class="text-[10px] md:text-sm opacity-80">(標準考驗)</span></button>
+                <button onclick="checkAndStart(0.6)" class="flex-1 min-w-[120px] bg-red-500 hover:bg-red-600 text-white text-base md:text-xl font-black py-3 rounded-xl shadow-[0_5px_0_#C62828] hover:translate-y-0.5 hover:shadow-[0_2px_0_#C62828] transition-all">高鐵極速<br><span class="text-[10px] md:text-sm opacity-80">(高手挑戰)</span></button>
             </div>
         </div>
     </div>
 
     <!-- 結束畫面 -->
     <div id="end-screen" class="hidden absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center z-[100] p-4 text-center">
-        <h1 id="end-title" class="text-6xl md:text-8xl text-yellow-400 font-black mb-4 drop-shadow-[0_0_20px_rgba(250,204,21,0.6)]">結算成果</h1>
-        <p class="text-white text-xl md:text-3xl mb-10">成功攔截/放行！本次發言攔阻總分：<strong id="final-score" class="text-5xl md:text-7xl text-green-400 mx-2">0</strong> 分</p>
-        <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white text-3xl font-black px-12 py-4 rounded-full shadow-[0_6px_0_#1565C0] hover:translate-y-1 hover:shadow-[0_2px_0_#1565C0] transition-all">再挑戰一次</button>
+        <h1 id="end-title" class="text-5xl md:text-7xl text-yellow-400 font-black mb-4 drop-shadow-[0_0_20px_rgba(250,204,21,0.6)]">結算成果</h1>
+        <p class="text-white text-lg md:text-2xl mb-8">成功攔截/放行！本次發言攔阻總分：<strong id="final-score" class="text-4xl md:text-6xl text-green-400 mx-2">0</strong> 分</p>
+        <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white text-2xl font-black px-10 py-3 rounded-full shadow-[0_5px_0_#1565C0] hover:translate-y-0.5 hover:shadow-[0_2px_0_#1565C0] transition-all">再挑戰一次</button>
     </div>
 
     <script>
@@ -257,7 +257,7 @@
                 { p: 'ông', h: '王', type: 'nasal', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
                 { p: 'ok', h: '惡', type: 'stop', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
                 { p: 'eng', h: '英', type: 'nasal', category: 'k', hint: '-k 結尾/像竹 tek 一樣煞車)' },
-                { p: 'ek', h: '億', type: 'stop', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
+                { p: 'ek', h: '益', type: 'stop', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
                 { p: 'khang', h: '空/洞', type: 'nasal', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
                 { p: 'khak', h: '殼', type: 'stop', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
                 { p: 'lang', h: '隔開', type: 'nasal', category: 'k', hint: '-k 結尾：喉嚨卡住！(像竹 tek 一樣煞車)' },
@@ -274,7 +274,7 @@
         // 遊戲流程控制變數
         let score = 0;
         let lives = 3;
-        let trainSpeed = 0.4; // 火車速度 (由難度控制：0.25慢 / 0.4普 / 0.6快)
+        let trainSpeed = 0.4; // 火車速度
         let activePool = [];
         let currentTrainWord = null;
         let trainPosition = 100; // 火車 X 座標百分比 (從 100% 往左行駛到 -20%)
@@ -314,8 +314,8 @@
             soundEnabled = !soundEnabled;
             document.getElementById('btn-sound').innerText = soundEnabled ? "🔊 音效開" : "🔇 音效關";
             document.getElementById('btn-sound').className = soundEnabled 
-                ? "bg-teal-500 hover:bg-teal-600 text-white px-3 py-1.5 rounded-xl font-bold text-xs md:text-sm transition-transform active:scale-95"
-                : "bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 rounded-xl font-bold text-xs md:text-sm transition-transform active:scale-95";
+                ? "bg-teal-500 hover:bg-teal-600 text-white px-2.5 py-1 rounded-xl font-bold text-xs md:text-sm transition-transform active:scale-95 shadow"
+                : "bg-gray-500 hover:bg-gray-600 text-white px-2.5 py-1 rounded-xl font-bold text-xs md:text-sm transition-transform active:scale-95 shadow";
             
             if (!soundEnabled && bgmInterval) {
                 clearInterval(bgmInterval); bgmInterval = null;
@@ -560,7 +560,7 @@
             if (trainPosition <= gatePosition) {
                 roundProcessed = true;
                 if (currentTrainWord.type === 'stop') {
-                    // 入聲字竟然沒煞車 ➔ 撞車扣血！
+                    // 入聲字長音沒煞車 ➔ 撞車扣血！
                     triggerWrongPenalty(currentTrainWord.hint);
                 } else {
                     // 鼻音字本來就該放行 ➔ 完美安全過關！
@@ -613,7 +613,7 @@
             if (trainPosition >= minBrakeZone && trainPosition <= maxBrakeZone) {
                 // 1. 煞車時機正確！
                 if (currentTrainWord.type === 'stop') {
-                    // 這確實是入聲字 ➔ 完美拦截，答對！
+                    // 這確實是入聲字 ➔ 完美攔截，答對！
                     roundProcessed = true;
                     playBrakeSqueal();
                     playCorrect();
@@ -623,7 +623,7 @@
                     document.getElementById('score').innerText = score;
 
                     setTimeout(() => {
-                        // 緩慢開起閘門，火車開走
+                        // 緩慢開啟閘門，火車開走
                         gateBar.style.transform = 'rotate(-90deg)';
                         spawnTrain();
                     }, 1000);
