@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Game 6：連續變調城堡攻防戰 (雙人對決版)</title>
+    <!-- 引入 Tailwind CSS 快速排版 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Noto Sans 確保中文字與白話字顯示乾淨現代 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0; padding: 0; overflow: hidden;
+            font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1C1917; /* 石磚暗灰色 */
+            user-select: none; -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        /* POJ 白話字字型安全保護罩 */
+        .poj-text {
+            font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            letter-spacing: 0 !important;
+            padding-right: 0.15em;
+            display: inline-block;
+        }
+
+        #game-container { display: flex; width: 100vw; height: 100vh; position: relative; }
+        
+        .play-zone { 
+            flex: 1; position: relative; height: 100%; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: all 0.5s ease;
+        }
+
+        /* 城堡防禦值 (HP) UI 設定 */
+        .hp-container { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .hp-bar-bg {
+            width: 110px; height: 16px; background: #292524; border-radius: 10px; overflow: hidden; border: 2px solid #78350F;
+        }
+        @media (min-width: 768px) {
+            .hp-bar-bg { width: 180px; height: 20px; border: 3px solid #78350F; }
+        }
+        .hp-bar-fill { height: 100%; transition: width 0.3s ease-out; }
+        #hp-bar-1 { background: #10B981; width: 100%; } 
+        #hp-bar-2 { background: #10B981; width: 100%; } 
+
+        /* 守城巨盾樣式 (古典木質鐵邊盾牌感) */
+        .talisman-card {
+            cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: #44403C; border: 3px solid #78716C;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3), inset 0 0 15px rgba(0, 0, 0, 0.4);
+        }
+        .can-defend .talisman-card:hover {
+            transform: scale(1.05); border-color: #D97706;
+            box-shadow: 0 0 20px rgba(217, 119, 6, 0.5), inset 0 0 15px rgba(217, 119, 6, 0.2);
+        }
+        .can-defend .talisman-card:active { transform: scale(0.95); }
+
+        /* 攻城號令羊皮紙樣式 */
+        .secret-mirror {
+            background: radial-gradient(circle, #FEF3C7 0%, #F59E0B 100%);
+            border: 4px solid #78350F;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 0 30px rgba(120, 53, 15, 0.3);
+        }
+
+        /* 答錯或城堡受擊時的劇烈抖動 */
+        .hurt-shake {
+            animation: hurtShakeAnim 0.5s ease-in-out;
+        }
+        @keyframes hurtShakeAnim {
+            0%, 100% { transform: scale(1); }
+            20%, 60% { transform: scale(1.03) rotate(-2deg); filter: brightness(1.2) sepia(0.5) hue-rotate(-30deg); }
+            40%, 80% { transform: scale(0.97) rotate(2deg); filter: brightness(1.2) sepia(0.5) hue-rotate(-30deg); }
+        }
+
+        /* 盾牌格擋金光罩效果 */
+        .shield-flash {
+            animation: shieldFlashAnim 0.6s ease-out forwards;
+        }
+        @keyframes shieldFlashAnim {
+            0% { box-shadow: 0 0 0px #10B981; border-color: #10B981; }
+            50% { box-shadow: 0 0 40px #10B981, inset 0 0 30px #10B981; border-color: #34D399; }
+            100% { box-shadow: 0 0 0px #78716C; border-color: #78716C; }
+        }
+
+        .feedback-symbol {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 5rem; z-index: 100; pointer-events: none;
+            animation: popFeedback 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popFeedback {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+        }
+
+        /* 護城河水流背景 */
+        .river-pattern {
+            background-color: #2563EB;
+            background-image: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.1) 75%, transparent 75%, transparent);
+            background-size: 40px 40px;
+            animation: riverFlow 3s linear infinite;
+        }
+        @keyframes riverFlow {
+            100% { background-position: 40px 0; }
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="flex flex-col h-screen justify-between text-white">
+
+    <!-- 頂部 HUD 面板 (彼得與保羅雙堡血欄) -->
+    <div id="ui-layer" class="hidden shrink-0 bg-stone-900 border-b-4 border-amber-800 px-4 py-2.5 md:py-3 flex justify-between items-center z-50 shadow-md">
+        <!-- P1 彼得堡防禦值 -->
+        <div class="hp-container">
+            <span class="text-xs md:text-sm font-black text-amber-200">🏰 彼得堡防禦值 (P1)</span>
+            <div class="hp-bar-bg"><div id="hp-bar-1" class="hp-bar-fill"></div></div>
+        </div>
+
+        <!-- 倒數與跳出 -->
+        <div class="flex flex-col items-center mx-2">
+            <!-- 預設倒數設定為 120 秒 -->
+            <div class="text-lg md:text-2xl font-black text-white flex items-center">⏱️ <span id="timer" class="text-yellow-400 ml-1">120</span></div>
+            <div class="flex gap-1.5 mt-0.5">
+                <button onclick="exitGame()" class="bg-red-700 hover:bg-red-800 text-white px-2.5 py-0.5 rounded-lg font-bold text-xs transition-transform active:scale-95 shadow">跳出</button>
+                <button id="btn-sound" onclick="toggleSound()" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-0.5 rounded-lg font-bold text-xs transition-transform active:scale-95 shadow">音效</button>
+            </div>
+        </div>
+
+        <!-- P2 保羅堡防禦值 -->
+        <div class="hp-container">
+            <span class="text-xs md:text-sm font-black text-amber-200">⛪ 保羅堡防禦值 (P2)</span>
+            <div class="hp-bar-bg"><div id="hp-bar-2" class="hp-bar-fill"></div></div>
+        </div>
+    </div>
+
+    <!-- 頂部指引橫幅 -->
+    <div id="hint-banner" class="hidden shrink-0 bg-stone-800 border-b-2 border-stone-700 p-2 text-center text-xs md:text-base text-amber-100 z-50 font-bold">
+        <span id="hint-text">正在整頓兩軍城堡防線...</span>
+    </div>
+
+    <!-- 主要遊戲對抗區域 (左右對稱分工版面) -->
+    <div id="game-container" class="flex-1 flex flex-col md:flex-row relative overflow-hidden">
+        
+        <!-- 左/上方：P1 彼得堡陣營 -->
+        <div id="p1-zone" class="play-zone transition-all duration-300 border-b-4 md:border-b-0 md:border-r-4 border-stone-800 pt-16 md:pt-0">
+            <!-- 攻城號令羊皮紙 (P1 出題) -->
+            <div id="mirror-1" class="secret-mirror rounded-3xl p-4 md:p-6 text-center max-w-sm w-11/12 shadow-2xl relative mb-4">
+                <div class="text-xs md:text-sm font-bold text-amber-900 mb-1">📜 彼得堡 (P1) 攻城令</div>
+                <div id="mirror-word-1" class="text-3xl md:text-5xl font-black text-red-950 mb-1">貢丸</div>
+                <div class="text-sm md:text-lg text-amber-950 font-bold" id="mirror-pronounce-1">
+                    <!-- 只顯示變音後讀音，防範對手作弊偷看原本書寫字 -->
+                </div>
+                <div class="text-[10px] md:text-xs text-amber-800 mt-2 font-bold">🗣️ 唸給對手聽！對方聽音並進行防守！</div>
+            </div>
+
+            <!-- 守城巨盾盤 -->
+            <div class="max-w-sm w-11/12 mt-2">
+                <div id="sigil-grid-1" class="grid grid-cols-2 gap-3 w-full">
+                    <!-- 盾牌卡牌 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 中間護城河 -->
+        <div id="river-divider" class="shrink-0 w-full h-2 md:w-3 md:h-full river-pattern relative z-40 shadow-[0_0_10px_rgba(0,0,0,0.5)]"></div>
+
+        <!-- 右/下方：P2 保羅堡陣營 -->
+        <div id="p2-zone" class="play-zone transition-all duration-300 pb-4 md:pb-0">
+            <!-- 攻城號令羊皮紙 (P2 出題) -->
+            <div id="mirror-2" class="secret-mirror rounded-3xl p-4 md:p-6 text-center max-w-sm w-11/12 shadow-2xl relative mb-4">
+                <div class="text-xs md:text-sm font-bold text-amber-900 mb-1">📜 保羅堡 (P2) 攻城令</div>
+                <div id="mirror-word-2" class="text-3xl md:text-5xl font-black text-red-950 mb-1">貢丸</div>
+                <div class="text-sm md:text-lg text-amber-950 font-bold" id="mirror-pronounce-2">
+                    <!-- 只顯示變音後讀音，防範對手作弊偷看原本書寫字 -->
+                </div>
+                <div class="text-[10px] md:text-xs text-amber-800 mt-2 font-bold">🗣️ 唸給對手聽！對方聽音並進行防守！</div>
+            </div>
+
+            <!-- 守城巨盾盤 -->
+            <div class="max-w-sm w-11/12 mt-2">
+                <div id="sigil-grid-2" class="grid grid-cols-2 gap-3 w-full">
+                    <!-- 盾牌卡牌 -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 錯誤回饋/連續變調教學大看板 (暫停時間 + 我已學會確認按鈕) -->
+    <div id="error-banner" class="hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-stone-900 border-4 border-amber-700 text-white rounded-2xl p-4 text-center max-w-lg w-11/12 shadow-2xl z-[200] flex flex-col items-center">
+        <div class="text-base md:text-xl font-black mb-1 flex items-center justify-center gap-2 text-red-400">💥 城牆遭受石彈擊中！</div>
+        <p id="error-desc" class="text-xs md:text-sm text-amber-100 font-bold leading-relaxed mb-3"></p>
+        
+        <!-- 我已學會確認按鈕 -->
+        <button id="confirm-error-btn" onclick="confirmErrorAndContinue()" class="mt-2 bg-gradient-to-b from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white font-bold py-2 px-6 rounded-xl text-sm transition-all active:scale-95 shadow-[0_4px_0_#78350F] border border-amber-400">
+            我已學會，繼續對決！ 🛡️
+        </button>
+    </div>
+
+    <!-- 開始選單 (預設倒數設為 120 秒) -->
+    <div id="start-screen" class="absolute inset-0 bg-stone-950/95 flex flex-col items-center justify-center z-[100] p-4 overflow-y-auto">
+        <div class="bg-white/10 p-6 md:p-10 rounded-3xl backdrop-blur-md max-w-4xl w-full border border-stone-800 shadow-2xl flex flex-col items-center my-auto">
+            <h1 class="text-4xl md:text-6xl text-yellow-500 font-black mb-3 text-center drop-shadow-lg">🏰 變調城堡大對決</h1>
+            <p class="text-gray-300 text-lg md:text-2xl mb-8 text-center font-bold leading-relaxed">
+                彼得堡 與 保羅堡 的白話字攻防戰開打囉！<br>
+                1. 攻城方：秘密看著「攻城號令」，大聲唸出漢字與變音！<br>
+                2. 守城方：聽對方的聲音，在防禦巨盾中，點選「原本(變調前)」的白話字來完成防禦！
+            </p>
+
+            <div class="flex items-center gap-4 bg-white/20 p-3 md:p-4 rounded-full mb-8">
+                <span class="text-white text-lg md:text-2xl font-bold ml-2">⏳ 攻城戰時間：</span>
+                <input type="number" id="game-duration" value="120" min="10" max="600" class="w-20 md:w-24 text-center text-xl md:text-2xl font-black rounded-lg p-1 bg-white text-stone-900 border-none outline-none">
+                <span class="text-white text-lg md:text-2xl font-bold mr-2">秒</span>
+            </div>
+            
+            <button onclick="checkAndStart()" class="w-full max-w-md bg-amber-600 hover:bg-amber-700 text-white text-2xl md:text-4xl font-black py-5 rounded-2xl shadow-[0_6px_0_#78350F] hover:translate-y-1 hover:shadow-[0_2px_0_#78350F] transition-all border-2 border-amber-400">🪄 吹響戰號，開戰！</button>
+        </div>
+    </div>
+
+    <!-- 結束結算畫面 -->
+    <div id="end-screen" class="hidden absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center z-[100] p-4 text-center">
+        <h1 id="end-title" class="text-5xl md:text-7xl text-yellow-500 font-black mb-4 drop-shadow-[0_0_20px_rgba(250,204,21,0.6)]">城堡戰終止</h1>
+        <p id="end-winner" class="text-white text-xl md:text-3xl mb-10 font-bold"></p>
+        <button onclick="location.reload()" class="bg-blue-600 hover:bg-blue-700 text-white text-3xl font-black px-12 py-4 rounded-full shadow-[0_6px_0_#1E40AF] hover:translate-y-1 hover:shadow-[0_2px_0_#1E40AF] transition-all border-4 border-white">重啟城堡對抗</button>
+    </div>
+
+    <script>
+        // --- 全小寫標準化題庫 與 同音聲調掛音變體 ---
+        const level2DB = [
+            // 一般聲調
+            { word: '臺灣', p1: 'tâi', p2: '-oân', from: 'tâi-oân', to: 'tāi-oân', clue: '臺灣 tâi-oân ➡️ 5調變7調 (讀如 tāi-oân)', p1Variants: ['tai', 'tái', 'tài', 'tâi', 'tāi', 'ta̍i'] },
+            { word: '韓國', p1: 'hân', p2: '-kok', from: 'hân-kok', to: 'hān-kok', clue: '韓國 hân-kok ➡️ 5調變7調 (讀如 hān-kok)', p1Variants: ['han', 'hán', 'hàn', 'hân', 'hān', 'ha̍n'] },
+            { word: '麵線', p1: 'mī', p2: '-sòaⁿ', from: 'mī-sòaⁿ', to: 'mì-sòaⁿ', clue: '麵線 mī-sòaⁿ ➡️ 7調變3調 (讀如 mì-sòaⁿ)', p1Variants: ['mi', 'mí', 'mì', 'mî', 'mī', 'mi̍'] },
+            { word: '事情', p1: 'tāi', p2: '-chì', from: 'tāi-chì', to: 'tài-chì', clue: '事情 tāi-chì ➡️ 7調變3調 (讀如 tài-chì)', p1Variants: ['tai', 'tái', 'tài', 'tâi', 'tāi', 'ta̍i'] },
+            { word: '貢丸', p1: 'kòng', p2: '-oân', from: 'kòng-oân', to: 'kóng-oân', clue: '貢丸 kòng-oân ➡️ 3調變2調 (讀如 kóng-oân)', p1Variants: ['kong', 'kóng', 'kòng', 'kông', 'kōng', 'ko̍ng'] },
+            { word: '習慣', p1: 'koàn', p2: '-sì', from: 'koàn-sì', to: 'koán-sì', clue: '習慣 koàn-sì ➡️ 3調變2調 (讀如 koán-sì)', p1Variants: ['koan', 'koán', 'koàn', 'koân', 'koān', 'koa̍n'] },
+            { word: '總統', p1: 'chóng', p2: '-thóng', from: 'chóng-thóng', to: 'chong-thóng', clue: '總統 chóng-thóng ➡️ 2調變1調 (讀如 chong-thóng)', p1Variants: ['chong', 'chóng', 'chòng', 'chông', 'chōng', 'cho̍ng'] },
+            { word: '好人', p1: 'hó', p2: '-lâng', from: 'hó-lâng', to: 'ho-lâng', clue: '好人 hó-lâng ➡️ 2調變1調 (讀如 ho-lâng)', p1Variants: ['ho', 'hó', 'hò', 'hô', 'hō', 'ho̍'] },
+            { word: '飛機', p1: 'poe', p2: '-ki', from: 'poe-ki', to: 'pōe-ki', clue: '飛機 poe-ki ➡️ 1調變7調 (讀如 pōe-ki)', p1Variants: ['poe', 'póe', 'pòe', 'pôe', 'pōe', 'po̍e'] },
+            { word: '三件衣', p1: 'saⁿ', p2: '-niá', from: 'saⁿ-niá', to: 'sāⁿ-niá', clue: '三件衣 saⁿ-niá ➡️ 1調變7調 (讀如 sāⁿ-niá)', p1Variants: ['saⁿ', 'sáⁿ', 'sàⁿ', 'sâⁿ', 'sāⁿ', 'sa̍ⁿ'] },
+            // 實體入聲字
+            { word: '竹筒', p1: 'tek', p2: '-tâng', from: 'tek-tâng', to: 'te̍k-tâng', clue: '竹筒 tek-tâng ➡️ 4調變8調 (讀如 te̍k-tâng/短高音)', p1Variants: ['tek', 'ték', 'tèk', 'têk', 'tēk', 'te̍k'] },
+            { word: '一直', p1: 'it', p2: '-ti̍t', from: 'it-ti̍t', to: 'i̍t-ti̍t', clue: '一直 it-ti̍t ➡️ 4調變8調 (讀如 i̍t-ti̍t/短高音)', p1Variants: ['it', 'ít', 'ìt', 'ît', 'īt', 'i̍t'] },
+            { word: '學生', p1: 'ha̍k', p2: '-seng', from: 'ha̍k-seng', to: 'hak-seng', clue: '學生 ha̍k-seng ➡️ 8調變4調 (讀如 hak-seng/短低音)', p1Variants: ['hak', 'hák', 'hàk', 'hâk', 'hāk', 'ha̍k'] },
+            { word: '熱天', p1: 'joa̍h', p2: '-thiⁿ', from: 'joa̍h-thiⁿ', to: 'joah-thiⁿ', clue: '熱天 joa̍h-thiⁿ ➡️ 8調變4調 (讀如 joah-thiⁿ/短低音)', p1Variants: ['joah', 'jóah', 'jòah', 'jôah', 'jōah', 'joa̍h'] },
+            // 入聲h脫落 (💡教育部標準：「拿」為陽入聲 the̍h ，8調變3調，h脫落長音唸作 thè-chîⁿ)
+            { word: '桌布', p1: 'toh', p2: '-pò͘', from: 'toh-pò͘', to: 'tó-pò͘', clue: '桌布 toh-pò͘ ➡️ 4調變2調 (h脫落拉長讀如 tó-pò͘)', p1Variants: ['toh', 'tóh', 'tòh', 'tôh', 'tōh', 'to̍h'] },
+            { word: '拿錢', p1: 'the̍h', p2: '-chîⁿ', from: 'the̍h-chîⁿ', to: 'thè-chîⁿ', clue: '拿錢 the̍h-chîⁿ ➡️ 8調變3調 (h脫落拉長讀如 thè-chîⁿ)', p1Variants: ['theh', 'théh', 'thèh', 'thêh', 'thēh', 'the̍h'] },
+            { word: '吃飯', p1: 'chia̍h', p2: '-pn̄g', from: 'chia̍h-pn̄g', to: 'chià-pn̄g', clue: '吃飯 chia̍h-pn̄g ➡️ 8調變3調 (h脫落拉長讀如 chià-pn̄g)', p1Variants: ['chiah', 'chíah', 'chìah', 'chîah', 'chīah', 'chia̍h'] },
+            { word: '學說話', p1: 'o̍h', p2: '-ōe', from: 'o̍h-ōe', to: 'ò-ōe', clue: '學說話 o̍h-ōe ➡️ 8調變3調 (h脫落拉長讀如 ò-ōe)', p1Variants: ['oh', 'óh', 'òh', 'ôh', 'ōh', 'o̍h'] }
+        ];
+
+        // 遊戲流程變數
+        let score = 0;
+        let p1Hp = 100;
+        let p2Hp = 100;
+        let timeLeft = 120; // 預設時間為 120
+        let gameInterval = null;
+        let isTimerPaused = false; // 控制倒數時間是否暫停
+        let currentTurn = 1; // 1 = P1出題(攻城), P2防守; 2 = P2出題, P1防守
+        let currentQuestion = null;
+
+        // --- 物理擬真中世紀音效 (Web Audio API) ---
+        let audioCtx = null;
+        let soundEnabled = true;
+        let bgmInterval = null;
+        const bgmMelody = [146.83, 164.81, 196.00, 164.81]; // 穩健的中世紀行軍戰鼓低音
+        let bgmStep = 0;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('btn-sound').innerText = soundEnabled ? "🔊" : "🔇";
+            document.getElementById('btn-sound').className = soundEnabled 
+                ? "bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-0.5 rounded-lg font-bold text-xs transition-transform active:scale-95 shadow"
+                : "bg-stone-500 hover:bg-stone-600 text-white px-2.5 py-0.5 rounded-lg font-bold text-xs transition-transform active:scale-95 shadow";
+            
+            if (!soundEnabled && bgmInterval) {
+                clearInterval(bgmInterval); bgmInterval = null;
+            } else if (soundEnabled && !bgmInterval && !document.getElementById('ui-layer').classList.contains('hidden')) {
+                bgmInterval = setInterval(playBGMNote, 400);
+            }
+        }
+
+        function playBGMNote() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(bgmMelody[bgmStep], audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.02, audioCtx.currentTime); 
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.35);
+            bgmStep = (bgmStep + 1) % bgmMelody.length;
+        }
+
+        // 石彈擊中城堡爆炸重低音
+        function playCastleHurt() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc1 = audioCtx.createOscillator(); const osc2 = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc1.type = 'sawtooth'; osc1.frequency.setValueAtTime(90, audioCtx.currentTime);
+            osc2.type = 'triangle'; osc2.frequency.setValueAtTime(50, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
+            osc1.connect(gain); osc2.connect(gain); gain.connect(audioCtx.destination);
+            osc1.start(); osc2.start();
+            osc1.stop(audioCtx.currentTime + 0.45); osc2.stop(audioCtx.currentTime + 0.45);
+        }
+
+        // 巨盾成功格擋的清脆金屬聲
+        function playShieldClash() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc1 = audioCtx.createOscillator(); const osc2 = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc1.type = 'sine'; osc1.frequency.setValueAtTime(900, audioCtx.currentTime);
+            osc2.type = 'sine'; osc2.frequency.setValueAtTime(1400, audioCtx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            osc1.connect(gain); osc2.connect(gain); gain.connect(audioCtx.destination);
+            osc1.start(); osc2.start();
+            osc1.stop(audioCtx.currentTime + 0.3); osc2.stop(audioCtx.currentTime + 0.3);
+        }
+
+        // --- 核心城堡大作戰流程 ---
+        function checkAndStart() {
+            let customDuration = parseInt(document.getElementById('game-duration').value);
+            if (isNaN(customDuration) || customDuration < 10) customDuration = 120; // 預設 120 秒
+            timeLeft = customDuration;
+
+            initAudio();
+            startGame();
+        }
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('ui-layer').classList.remove('hidden');
+            document.getElementById('ui-layer').classList.add('flex');
+            document.getElementById('hint-banner').classList.remove('hidden');
+
+            p1Hp = 100; p2Hp = 100; currentTurn = 1; isTimerPaused = false;
+            updateHP();
+            document.getElementById('timer').innerText = timeLeft;
+
+            gameInterval = setInterval(() => {
+                if (isTimerPaused) return; // 如果暫停狀態，跳過本次時間倒數
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft;
+                if (timeLeft <= 0) endGame(false);
+            }, 1000);
+
+            if (soundEnabled && !bgmInterval) {
+                bgmInterval = setInterval(playBGMNote, 400);
+            }
+
+            nextRound();
+        }
+
+        function updateHP() {
+            const hpBar1 = document.getElementById('hp-bar-1');
+            const hpBar2 = document.getElementById('hp-bar-2');
+
+            hpBar1.style.width = Math.max(0, p1Hp) + '%';
+            if (p1Hp > 50) hpBar1.style.backgroundColor = '#10B981';
+            else if (p1Hp > 20) hpBar1.style.backgroundColor = '#D97706';
+            else hpBar1.style.backgroundColor = '#DC2626';
+
+            hpBar2.style.width = Math.max(0, p2Hp) + '%';
+            if (p2Hp > 50) hpBar2.style.backgroundColor = '#10B981';
+            else if (p2Hp > 20) hpBar2.style.backgroundColor = '#D97706';
+            else hpBar2.style.backgroundColor = '#DC2626';
+        }
+
+        function exitGame() {
+            clearInterval(gameInterval);
+            if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
+
+            document.getElementById('ui-layer').classList.add('hidden');
+            document.getElementById('ui-layer').classList.remove('flex');
+            document.getElementById('hint-banner').classList.add('hidden');
+            document.getElementById('error-banner').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+
+        function endGame(isDeath) {
+            clearInterval(gameInterval);
+            if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
+
+            document.getElementById('ui-layer').classList.add('hidden');
+            document.getElementById('ui-layer').classList.remove('flex');
+            document.getElementById('hint-banner').classList.add('hidden');
+            document.getElementById('error-banner').classList.add('hidden');
+            
+            document.getElementById('end-screen').classList.remove('hidden');
+            const endWinner = document.getElementById('end-winner');
+            
+            if (p1Hp > p2Hp) {
+                endWinner.innerHTML = "🏰 戰役結束！【彼得堡 (P1)】以堅不可摧的變調防禦贏得了勝利！";
+            } else if (p2Hp > p1Hp) {
+                endWinner.innerHTML = "🏰 戰役結束！【保羅堡 (P2)】以堅不可摧的變調防禦贏得了勝利！";
+            } else {
+                endWinner.innerHTML = "🤝 兩座城堡都完美防守，平分秋色！";
+            }
+        }
+
+        function showFeedbackSymbol(symbol, colorStr) {
+            const fb = document.createElement('div');
+            fb.className = 'feedback-symbol';
+            fb.innerText = symbol;
+            fb.style.color = colorStr;
+            fb.style.textShadow = "0px 0px 25px rgba(255,255,255,0.9)";
+            document.getElementById('game-container').appendChild(fb);
+            setTimeout(() => fb.remove(), 800);
+        }
+
+        // --- 核心：攻守回合開始與控制 (完全移除遮罩並採左右完美對稱分工，出題防偷看) ---
+        function nextRound() {
+            document.getElementById('error-banner').classList.add('hidden');
+
+            // 1. 抽取題目
+            currentQuestion = level2DB[Math.floor(Math.random() * level2DB.length)];
+
+            // 2. 控制左右兩邊陣營的顯示：
+            // 出題方僅顯示秘密攻城羊皮紙，防守方僅顯示守城六大巨盾
+            const mirror1 = document.getElementById('mirror-1');
+            const mirror2 = document.getElementById('mirror-2');
+            const sigilGrid1 = document.getElementById('sigil-grid-1');
+            const sigilGrid2 = document.getElementById('sigil-grid-2');
+
+            if (currentTurn === 1) {
+                // P1 攻擊（出題），P2 防守（解題）
+                mirror1.classList.remove('hidden');
+                sigilGrid1.classList.add('hidden'); // 隱藏 P1 盾牌，防範誤觸與排版錯位
+                
+                mirror2.classList.add('hidden'); // 隱藏 P2 羊皮紙攻城令
+                sigilGrid2.classList.remove('hidden'); // 開放 P2 盾牌防禦
+
+                document.getElementById('p2-zone').classList.add('can-defend');
+                document.getElementById('p1-zone').classList.remove('can-defend');
+
+                // 填入 P1 羊皮紙攻城令 (💡 僅顯示漢字與變音後的讀音，字首轉小寫，防止偷看)
+                document.getElementById('mirror-word-1').innerText = currentQuestion.word;
+                document.getElementById('mirror-pronounce-1').innerHTML = `請唸：<span class="poj-text font-black text-red-600 text-lg md:text-2xl mt-1">${currentQuestion.to.toLowerCase()}</span>`;
+
+                // 渲染 P2 城堡畫面的 6 面同音掛調防禦盾牌
+                renderDefendGrid('sigil-grid-2');
+
+                document.getElementById('hint-text').innerHTML = "📢 <span class='text-yellow-400 font-black'>彼得堡(P1)</span> 請大聲唸出漢字與變音！👉 <span class='text-green-400 font-black'>保羅堡(P2)</span> 請選出原本(變調前)的書寫字防禦！";
+            } else {
+                // P2 攻擊（出題），P1 防守（解題）
+                mirror1.classList.add('hidden');
+                sigilGrid1.classList.remove('hidden'); // 開放 P1 盾牌防禦
+                
+                mirror2.classList.remove('hidden');
+                sigilGrid2.classList.add('hidden'); // 隱藏 P2 盾牌，防範誤觸與排版錯位
+
+                document.getElementById('p1-zone').classList.add('can-defend');
+                document.getElementById('p2-zone').classList.remove('can-defend');
+
+                // 填入 P2 羊皮紙攻城令 (💡 僅顯示漢字與變音後的讀音，字首轉小寫，防止偷看)
+                document.getElementById('mirror-word-2').innerText = currentQuestion.word;
+                document.getElementById('mirror-pronounce-2').innerHTML = `請唸：<span class="poj-text font-black text-red-600 text-lg md:text-2xl mt-1">${currentQuestion.to.toLowerCase()}</span>`;
+
+                // 渲染 P1 城堡畫面的 6 面同音掛調防禦盾牌
+                renderDefendGrid('sigil-grid-1');
+
+                document.getElementById('hint-text').innerHTML = "📢 <span class='text-yellow-400 font-black'>保羅堡(P2)</span> 請大聲唸出漢字與變音！👉 <span class='text-green-400 font-black'>彼得堡(P1)</span> 請選出原本(變調前)的書寫字防禦！";
+            }
+        }
+
+        // --- 渲染防禦方城堡的 6 面巨型盾牌 (100% 同音聲調掛音變體，全小寫比較) ---
+        function renderDefendGrid(gridId) {
+            const grid = document.getElementById(gridId);
+            grid.innerHTML = '';
+
+            // 正確答案：原始正確白話字 (變音前) - 強制小寫
+            let correctOption = `${currentQuestion.p1}${currentQuestion.p2}`.toLowerCase();
+            
+            // 目前正確的前綴讀音 (例如 tâi)
+            let p1Correct = currentQuestion.p1.toLowerCase();
+
+            // 獲取前綴讀音去重 (確保都是小寫)
+            let uniqueVariants = [...new Set(currentQuestion.p1Variants.map(v => v.toLowerCase()))];
+
+            // 利用同詞聲調掛音池，生成 6 面同音掛調防禦盾牌選項 (全部轉小寫)
+            let optionsList = uniqueVariants.map(v => `${v}${currentQuestion.p2.toLowerCase()}`);
+
+            // 防呆：確保正確書寫選項必定被塞進選項陣列
+            if (!optionsList.includes(correctOption)) {
+                optionsList[0] = correctOption;
+            }
+
+            // 建立最終的 6 選項結構
+            let finalChoices = optionsList.map(text => {
+                return {
+                    text: text,
+                    isCorrect: (text === correctOption)
+                };
+            });
+
+            // 隨機洗牌
+            finalChoices.sort(() => Math.random() - 0.5);
+
+            finalChoices.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "talisman-card p-3 rounded-2xl flex flex-col justify-center items-center text-center shadow-lg border-2 border-stone-600 select-none";
+                
+                card.innerHTML = `
+                    <span class="text-xs text-amber-500 font-bold mb-1">🛡️ 守城巨盾</span>
+                    <span class="word-poj poj-text text-yellow-100 font-black text-sm md:text-xl">${item.text}</span>
+                `;
+
+                const handlePress = (e) => {
+                    e.preventDefault();
+                    if (card.classList.contains('wrong-shake')) return;
+
+                    if (item.isCorrect) {
+                        // 1. 防禦成功！
+                        playShieldClash();
+                        card.classList.add('shield-flash');
+                        showFeedbackSymbol('🛡️ 成功格擋！', '#10B981');
+
+                        // 攻守交替
+                        currentTurn = currentTurn === 1 ? 2 : 1;
+                        setTimeout(nextRound, 1000);
+                    } else {
+                        // 2. 防禦失敗，遭受投石車重擊城牆！
+                        playCastleHurt();
+                        card.classList.add('wrong-shake');
+                        showFeedbackSymbol('💥 城牆破損！', '#DC2626');
+
+                        // 計算扣血
+                        if (currentTurn === 1) {
+                            p2Hp -= 20;
+                            document.getElementById('p2-zone').classList.add('hurt-shake');
+                            setTimeout(() => document.getElementById('p2-zone').classList.remove('hurt-shake'), 500);
+                        } else {
+                            p1Hp -= 20;
+                            document.getElementById('p1-zone').classList.add('hurt-shake');
+                            setTimeout(() => document.getElementById('p1-zone').classList.remove('hurt-shake'), 500);
+                        }
+                        updateHP();
+
+                        // 暫停時間：凍結時間倒數，讓學員有充分時間學習與檢討
+                        isTimerPaused = true;
+
+                        // 彈出連續變音教學提示 (也將白話字轉為全小寫，保持教學乾淨度)
+                        document.getElementById('error-desc').innerText = `【${currentQuestion.word}】的正確原始書寫白話字應為【${correctOption}】！\n連續變調機制解析：${currentQuestion.clue.toLowerCase()}。`;
+                        document.getElementById('error-banner').classList.remove('hidden');
+
+                        // 判斷遊戲是否結束
+                        if (p1Hp <= 0 || p2Hp <= 0) {
+                            document.getElementById('confirm-error-btn').classList.add('hidden'); // 結束時不顯示確認按鈕
+                            setTimeout(() => endGame(true), 2000);
+                        } else {
+                            document.getElementById('confirm-error-btn').classList.remove('hidden'); // 確保確認按鈕可見
+                        }
+                    }
+                };
+
+                card.addEventListener('mousedown', handlePress);
+                card.addEventListener('touchstart', handlePress);
+
+                grid.appendChild(card);
+            });
+        }
+
+        // --- 點選「我已學會」確認學習按鈕後重啟倒數並換下一題 ---
+        function confirmErrorAndContinue() {
+            // 隱藏大看板
+            document.getElementById('error-banner').classList.add('hidden');
+            
+            // 恢復計時器倒數
+            isTimerPaused = false;
+            
+            // 攻守輪替，並進入下一題
+            currentTurn = currentTurn === 1 ? 2 : 1;
+            nextRound();
+        }
+    </script>
+</body>
+</html>
