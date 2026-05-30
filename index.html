@@ -80,8 +80,11 @@
             <button onclick="showHour('hour5')" id="nav-hour5" class="w-full text-left px-6 py-3 hover:bg-blue-800 focus:outline-none transition-colors border-l-4 border-transparent">🕒 第五小時：急煞入聲</button>
             <button onclick="showHour('hour6')" id="nav-hour6" class="w-full text-left px-6 py-3 hover:bg-blue-800 focus:outline-none transition-colors border-l-4 border-transparent">🕒 第六小時：聲調與閱讀</button>
         </nav>
-        <div class="p-4 text-center text-xs text-blue-400 bg-blue-950">
-            涵蓋實用教科書 第 1 ~ 21 課
+        
+        <!-- 側邊欄底部的開發者標記 -->
+        <div class="p-4 text-center text-xs text-blue-400 bg-blue-950 space-y-1.5 border-t border-blue-900/40">
+            <div>涵蓋實用教科書 第 1 ~ 21 課</div>
+            <div class="text-blue-300 font-bold tracking-wider text-[11px]">開發者：宋承祐牧師</div>
         </div>
     </aside>
 
@@ -309,7 +312,7 @@
                     <div class="bg-white rounded-xl shadow-md p-4 md:p-5">
                         <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 border-b pb-2">舌尖音：t vs. <span class="text-red-500">th</span></h3>
                         <div class="grid grid-cols-2 gap-2 md:gap-3 text-center font-bold bg-gray-100 p-2 md:p-3 rounded mb-3 text-lg md:text-xl">
-                            <div class="text-blue-800">無氣音 (t)</div><div class="text-red-600">有氣音 (th)</div>
+                            <div class="text-blue-800">無氣音 (t)</div><div class="text-red-600">氣音 (th)</div>
                         </div>
                         <div class="grid grid-cols-2 gap-2 md:gap-3 text-center">
                             <div class="py-2 md:py-3 hover:bg-gray-50 rounded clickable-word"><span class="poj-text">ti</span><br><span class="hanzi-text mt-1 inline-block">豬 ( ti )</span></div>
@@ -480,7 +483,7 @@
                             <div class="py-2 md:py-3 hover:bg-gray-50 rounded clickable-word"><span class="poj-text">giau</span><br><span class="hanzi-text mt-1 inline-block">撟 ( giàu )</span></div>
                             <div class="py-2 md:py-3 border-l-2 hover:bg-green-50 rounded clickable-word"><span class="poj-text text-green-700">ngiau</span><br><span class="hanzi-text mt-1 inline-block">蟯 ( ngiāu )</span></div>
 
-                            <div class="py-2 md:py-3 hover:bg-gray-50 rounded clickable-word"><span class="poj-text">geh</span><br><span class="hanzi-text mt-1 inline-block">狹 ( goe̍h )</span></div>
+                            <div class="py-2 md:py-3 hover:bg-gray-50 rounded clickable-word"><span class="poj-text">geh</span><br><span class="hanzi-text mt-1 inline-block">夾 ( goe̍h )</span></div>
                             <div class="py-2 md:py-3 border-l-2 hover:bg-green-50 rounded clickable-word"><span class="poj-text text-green-700">ngeh</span><br><span class="hanzi-text mt-1 inline-block">夾 ( ngeh )</span></div>
 
                             <div class="py-2 md:py-3 hover:bg-gray-50 rounded clickable-word"><span class="poj-text">gau</span><br><span class="hanzi-text mt-1 inline-block">賢 ( gâu )</span></div>
@@ -998,6 +1001,12 @@
                 </div>
 
             </section>
+
+            <!-- 全域頁尾開發者標記 -->
+            <footer class="mt-16 pb-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-500 max-w-5xl mx-auto space-y-1">
+                <p class="font-bold text-gray-600">⛪ 教會白話字速成班互動教材</p>
+                <p class="text-xs text-gray-400 font-semibold">開發者：宋承祐牧師</p>
+            </footer>
 
         </main>
     </div>
